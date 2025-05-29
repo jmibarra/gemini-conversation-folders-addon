@@ -126,22 +126,17 @@
     text-decoration: underline;
 }
 
+/* Los items de conversación dentro de la lista de carpetas */
 #gemini-organizer-sidebar .folders-list ul li .conversation-item {
     margin-top: 5px;
     padding-left: 10px;
     border-left: 2px solid #ccc;
     font-size: 0.9em;
     color: #5f6368;
-    cursor: pointer;
     word-break: break-word; /* Para evitar que el texto se salga */
 }
 
-#gemini-organizer-sidebar .folders-list ul li .conversation-item:hover {
-    text-decoration: underline;
-    color: #1a73e8;
-}
-
-/* Botón para cerrar la conversación abierta (este ya no se usa, pero lo dejo por si acaso) */
+/* Botón para cerrar la conversación abierta (este ya no se usa y se podría eliminar, pero no daña tenerlo) */
 #gemini-organizer-sidebar .close-conversation-btn {
     background-color: #dc3545; /* Rojo para cerrar */
     color: white;
@@ -160,8 +155,7 @@
     background-color: #c82333;
 }
 
-/* Estilos para ocultar/mostrar elementos */
-/* Añadimos 'opacity' y 'pointer-events' para una transición más suave de visibilidad */
+/* Estilos para ocultar/mostrar elementos (transiciones) */
 .hidden {
     opacity: 0 !important;
     pointer-events: none !important; /* Desactiva la interacción cuando está oculto */
@@ -175,7 +169,7 @@
     transform: translateY(0);
 }
 
-/* Estilos del botón de invocación (se mantienen) */
+/* Estilos del botón de invocación */
 #gemini-organizer-toggle-btn {
     background: none;
     border: none;
@@ -224,68 +218,7 @@
     box-sizing: border-box;
 }
 
-.hidden {
-    opacity: 0 !important;
-    pointer-events: none !important;
-    transform: translateY(20px);
-}
-
-#gemini-organizer-sidebar:not(.hidden) {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-}
-
-/* Estilos del botón de invocación (se mantienen) */
-#gemini-organizer-toggle-btn {
-    background: none;
-    border: none;
-    color: #202124;
-    width: 100%;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    text-align: left;
-    border-radius: 20px;
-    transition: background-color 0.2s ease;
-    font-family: 'Google Sans', sans-serif;
-    font-size: 0.9em;
-    font-weight: 500;
-}
-
-#gemini-organizer-toggle-btn:hover {
-    background-color: #e8f0fe;
-}
-
-#gemini-organizer-toggle-btn .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-}
-
-#gemini-organizer-toggle-btn .icon-container img {
-    display: block;
-}
-
-#gemini-organizer-toggle-btn .text-container {
-    flex-grow: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#gemini-organizer-list-item {
-    list-style: none;
-    margin-bottom: 8px;
-    padding: 0 8px;
-    box-sizing: border-box;
-}
-
-/* NUEVOS ESTILOS PARA EL BOTÓN DE ELIMINAR CONVERSACIÓN */
+/* Estilos para el botón de eliminar conversación */
 .delete-conversation-btn {
     background: none;
     border: none;
