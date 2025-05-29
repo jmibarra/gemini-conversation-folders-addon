@@ -1,0 +1,163 @@
+/* Contenedor principal del complemento */
+#gemini-organizer-sidebar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 280px;
+    background-color: #f0f4f9; /* Un color de fondo suave */
+    border: 1px solid #c9d2da;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10000; /* Asegura que esté por encima de otros elementos */
+    font-family: 'Google Sans', sans-serif; /* Intenta usar una fuente similar a Gemini */
+    color: #202124;
+    padding: 15px;
+    max-height: 90vh; /* Limita la altura para que no ocupe toda la pantalla */
+    overflow-y: auto; /* Permite desplazamiento si hay mucho contenido */
+}
+
+/* Encabezado */
+#gemini-organizer-sidebar h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #1a73e8; /* Azul característico de Google */
+    font-size: 1.2em;
+    border-bottom: 1px solid #e8eaed;
+    padding-bottom: 10px;
+}
+
+/* Controles de la carpeta */
+#gemini-organizer-sidebar .folder-controls {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+#gemini-organizer-sidebar .folder-controls input[type="text"] {
+    width: calc(100% - 70px); /* Ancho ajustado para dejar espacio al botón */
+    padding: 8px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    margin-right: 5px;
+    box-sizing: border-box; /* Incluye padding y borde en el ancho */
+}
+
+#gemini-organizer-sidebar .folder-controls button {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+#gemini-organizer-sidebar .folder-controls button:hover {
+    background-color: #1764cc;
+}
+
+/* Selector de carpeta y botón de guardar */
+#gemini-organizer-sidebar .save-controls {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+#gemini-organizer-sidebar .save-controls select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    background-color: white;
+    cursor: pointer;
+}
+
+#gemini-organizer-sidebar .save-controls button {
+    width: 100%;
+    background-color: #34a853; /* Verde para guardar */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+#gemini-organizer-sidebar .save-controls button:hover {
+    background-color: #2e8b46;
+}
+
+/* Lista de carpetas */
+#gemini-organizer-sidebar .folders-list h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #202124;
+    font-size: 1em;
+}
+
+#gemini-organizer-sidebar .folders-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#gemini-organizer-sidebar .folders-list ul li {
+    margin-bottom: 8px;
+    background-color: #e8f0fe; /* Fondo suave para los elementos de la lista */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #d2e3fc;
+}
+
+#gemini-organizer-sidebar .folders-list ul li strong {
+    color: #1a73e8;
+    cursor: pointer;
+    display: block; /* Para que el nombre de la carpeta ocupe su propia línea */
+}
+
+#gemini-organizer-sidebar .folders-list ul li strong:hover {
+    text-decoration: underline;
+}
+
+#gemini-organizer-sidebar .folders-list ul li .conversation-item {
+    margin-top: 5px;
+    padding-left: 10px;
+    border-left: 2px solid #ccc;
+    font-size: 0.9em;
+    color: #5f6368;
+    cursor: pointer;
+    word-break: break-word; /* Para evitar que el texto se salga */
+}
+
+#gemini-organizer-sidebar .folders-list ul li .conversation-item:hover {
+    text-decoration: underline;
+    color: #1a73e8;
+}
+
+/* Botón para cerrar la conversación abierta */
+#gemini-organizer-sidebar .close-conversation-btn {
+    background-color: #dc3545; /* Rojo para cerrar */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-top: 10px;
+    display: block;
+    width: fit-content;
+    transition: background-color 0.2s ease;
+}
+
+#gemini-organizer-sidebar .close-conversation-btn:hover {
+    background-color: #c82333;
+}
+
+/* Estilos para ocultar/mostrar elementos */
+.hidden {
+    display: none !important;
+}

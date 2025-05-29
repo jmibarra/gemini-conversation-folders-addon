@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Organizador de Conversaciones de Gemini",
+  "version": "1.0",
+  "description": "Permite guardar y organizar tus conversaciones de Gemini en carpetas.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://gemini.google.com/*"
+  ]
+}
