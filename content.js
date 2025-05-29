@@ -62,45 +62,61 @@ function addToggleButton() {
         return;
     }
 
-    // El selector que encontré inspeccionando la interfaz de Gemini para el área de navegación.
-    // Esto podría cambiar si Google actualiza la UI de Gemini.
-    // Busca un elemento que sea el padre de "Descubrir Gems" o "Reciente".
-    const navigationList = document.querySelector('div.left-sidebar nav ul'); 
-    // Un selector más específico podría ser:
-    // const navigationList = document.querySelector('div[data-navigation-item-id="recent"]')?.parentElement;
-    // O busca un <ul> o <div> que contenga los elementos de navegación "Nueva conversación", "Descubrir Gems", "Reciente", etc.
+    // Identificar el elemento de referencia: "Descubrir Gems"
+    // Es un side-nav-action-button con data-test-id="manage-instructions-control"
+    const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
-    if (navigationList) {
-        const listItem = document.createElement('li');
-        listItem.id = 'gemini-organizer-list-item'; // Un ID para el elemento de lista
-        listItem.className = 'navigation-item'; // Para que se vea similar a los otros elementos de la lista
+    // El contenedor principal para las acciones del top, donde queremos insertar nuestro botón
+    // Es el mat-action-list que contiene "Descubrir Gems"
+    const topActionList = discoverGemsButtonWrapper?.closest('mat-action-list');
+
+
+    if (discoverGemsButtonWrapper && topActionList) {
+        // Creamos un nuevo elemento side-nav-action-button para nuestro botón
+        // Esto ayudará a que se integre visualmente con los demás
+        const ourButtonWrapper = document.createElement('side-nav-action-button');
+        ourButtonWrapper.id = 'gemini-organizer-wrapper'; // Un ID para nuestro wrapper
+        ourButtonWrapper.setAttribute('icon', 'folder_open'); // Puedes elegir un ícono de Google Symbols aquí
+        ourButtonWrapper.setAttribute('arialabel', 'Organizador de Conversaciones');
+        ourButtonWrapper.setAttribute('data-test-id', 'gemini-organizer-button');
+        ourButtonWrapper.classList.add('mat-mdc-tooltip-trigger', 'ia-redesign', 'ng-star-inserted'); // Copiamos clases relevantes
 
         const button = document.createElement('button');
         button.id = TOGGLE_BUTTON_ID;
-        button.className = 'navigation-button'; // Posible clase para los botones de navegación de Gemini
-        button.innerHTML = `
-            <span class="icon-container">
-                <img src="${chrome.runtime.getURL('icons/icon16.png')}" alt="Organizador" width="16" height="16">
-            </span>
-            <span class="text-container">Organizador</span>
-        `;
-        // Ajusta el texto del botón si quieres algo diferente
+        // Copiamos las clases que hacen que los botones de navegación se vean bien
+        button.classList.add(
+            'mat-mdc-list-item', 'mdc-list-item', 'side-nav-action-button', 
+            'explicit-gmat-override', 'mat-mdc-list-item-interactive', 
+            'mdc-list-item--with-leading-icon', 'mat-mdc-list-item-single-line', 
+            'mdc-list-item--with-one-line', 'ng-star-inserted'
+        );
+        button.type = 'button';
+        button.setAttribute('aria-label', 'Organizador de Conversaciones');
+        button.setAttribute('aria-disabled', 'false');
 
-        listItem.appendChild(button);
-        // Insertar el botón después de "Descubrir Gems" o justo antes de "Reciente"
-        // Buscamos el elemento "Descubrir Gems" para insertar después de él.
-        const discoverGemsItem = navigationList.querySelector('li[data-navigation-item-id="discover-gems"]');
+        button.innerHTML = `
+            <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start">
+                <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open" fonticon="folder_open"></mat-icon>
+            </div>
+            <span class="mdc-list-item__content">
+                <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
+                    <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador</span>
+                </span>
+            </span>
+            <div class="mat-focus-indicator"></div>
+        `;
+        // Nota: la ruta del ícono en mat-icon se basa en la fuente de Google Symbols,
+        // no en tu archivo de ícono local. Usaremos "folder_open" como ejemplo.
+        // Si quieres usar tu propio PNG, tendrías que cambiar la estructura del <img>.
+
+        ourButtonWrapper.appendChild(button);
         
-        if (discoverGemsItem) {
-            discoverGemsItem.after(listItem); // Insertar después de "Descubrir Gems"
-        } else {
-            // Si no encontramos "Descubrir Gems", lo añadimos al final de la lista.
-            navigationList.appendChild(listItem);
-        }
+        // Insertar nuestro wrapper justo después del wrapper de "Descubrir Gems"
+        discoverGemsButtonWrapper.after(ourButtonWrapper);
 
         button.addEventListener('click', toggleSidebarVisibility);
     } else {
-        console.warn('No se encontró el lugar para insertar el botón del organizador en la barra lateral de Gemini.');
+        console.warn('No se pudo encontrar el lugar para insertar el botón "Organizador" en la barra lateral de Gemini.');
     }
 }
 

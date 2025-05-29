@@ -161,3 +161,54 @@
 .hidden {
     display: none !important;
 }
+
+/* NUEVOS ESTILOS PARA EL BOTÓN DE INVOCACIÓN */
+#gemini-organizer-toggle-btn {
+    /* Estilos para que se parezca a un botón de navegación de Gemini */
+    background: none;
+    border: none;
+    color: #202124; /* Color de texto similar */
+    width: 100%;
+    padding: 12px 16px; /* Similar al padding de otros elementos de navegación */
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio entre icono y texto */
+    cursor: pointer;
+    text-align: left;
+    border-radius: 20px; /* Bordes redondeados */
+    transition: background-color 0.2s ease;
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.9em;
+    font-weight: 500; /* Un poco más de peso para el texto */
+}
+
+#gemini-organizer-toggle-btn:hover {
+    background-color: #e8f0fe; /* Fondo azul claro al pasar el ratón */
+}
+
+#gemini-organizer-toggle-btn .icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; /* O el tamaño del ícono */
+    height: 24px;
+}
+
+#gemini-organizer-toggle-btn .icon-container img {
+    display: block; /* Eliminar espacio extra debajo de la imagen */
+}
+
+#gemini-organizer-toggle-btn .text-container {
+    flex-grow: 1; /* Permite que el texto ocupe el espacio restante */
+    white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Añade puntos suspensivos si el texto es muy largo */
+}
+
+/* Estilo para el elemento li que contiene nuestro botón en la barra de navegación */
+#gemini-organizer-list-item {
+    list-style: none; /* Asegura que no tenga viñetas */
+    margin-bottom: 8px; /* Espacio entre elementos de la lista */
+    padding: 0 8px; /* Padding para alinear con otros elementos de navegación */
+    box-sizing: border-box; /* Incluir padding en el ancho */
+}
