@@ -12,7 +12,6 @@ function initializeSidebar() {
 
     const sidebar = document.createElement('div');
     sidebar.id = SIDEBAR_ID;
-    // La barra lateral estará oculta por defecto al iniciar
     sidebar.classList.add('hidden'); 
     sidebar.innerHTML = `
         <h3>Organizador de Conversaciones</h3>
@@ -36,22 +35,19 @@ function initializeSidebar() {
             <ul id="folders-list-ul">
                 </ul>
         </div>
-        
-        `;
+    `;
 
     document.body.appendChild(sidebar);
 
     // Adjuntar eventos a los botones y campos
     document.getElementById('create-folder-btn').addEventListener('click', createFolder);
     document.getElementById('save-conversation-btn').addEventListener('click', saveCurrentConversation);
-    // document.querySelector(`#${SIDEBAR_ID} .close-conversation-btn`).addEventListener('click', closeDisplayedConversation); 
-    // ^^^ Esta línea ya no es necesaria si eliminamos la visualización interna
 
     // Cargar y mostrar las carpetas al iniciar (aunque la sidebar esté oculta)
     loadAndDisplayFolders();
 }
 
-// Función para agregar el botón de invocación (sin cambios, asumiendo que la última corrección funcionó)
+// Función para agregar el botón de invocación (sin cambios)
 function addToggleButton() {
     if (document.getElementById(TOGGLE_BUTTON_ID)) {
         return;
@@ -85,16 +81,14 @@ function addToggleButton() {
             </div>
             <span class="mdc-list-item__content">
                 <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
-                    <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador de conversaciones</span>
+                    <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador</span>
                 </span>
             </span>
             <div class="mat-focus-indicator"></div>
         `;
         
         ourButtonWrapper.appendChild(button);
-        
         discoverGemsButtonWrapper.after(ourButtonWrapper);
-
         button.addEventListener('click', toggleSidebarVisibility);
     } else {
         console.warn('No se pudo encontrar el lugar para insertar el botón "Organizador" en la barra lateral de Gemini. Selector usado: side-nav-action-button[data-test-id="manage-instructions-control"]');
@@ -109,7 +103,7 @@ function toggleSidebarVisibility() {
     }
 }
 
-// Función para cargar y mostrar las carpetas y conversaciones
+// Función para cargar y mostrar las carpetas y conversaciones (MODIFICADA)
 async function loadAndDisplayFolders() {
     const foldersListUl = document.getElementById('folders-list-ul');
     const folderSelector = document.getElementById('folder-selector');
@@ -119,42 +113,63 @@ async function loadAndDisplayFolders() {
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
 
-    // Iterar sobre las carpetas y mostrarlas
     for (const folderName in storedFolders) {
-        // Añadir al selector de carpetas
         const option = document.createElement('option');
         option.value = folderName;
         option.textContent = folderName;
         folderSelector.appendChild(option);
 
-        // Añadir a la lista de carpetas
         const folderLi = document.createElement('li');
         const folderTitle = document.createElement('strong');
         folderTitle.textContent = folderName;
-        folderTitle.dataset.folderName = folderName; // Para identificar la carpeta al hacer clic
+        folderTitle.dataset.folderName = folderName; 
         folderLi.appendChild(folderTitle);
 
-        // Mostrar las conversaciones dentro de la carpeta (inicialmente ocultas)
         const conversationsUl = document.createElement('ul');
-        conversationsUl.classList.add('hidden'); // Ocultar por defecto
+        conversationsUl.classList.add('hidden'); 
         
         storedFolders[folderName].forEach((conv, index) => {
             const convLi = document.createElement('li');
             convLi.classList.add('conversation-item');
-            // Ahora mostramos el título guardado
-            convLi.textContent = conv.title; 
-            convLi.dataset.folderName = folderName;
-            convLi.dataset.convIndex = index; // Para saber qué conversación abrir
-            // Guardamos la URL en un data attribute para fácil acceso
-            convLi.dataset.conversationUrl = conv.url; 
+            
+            // Contenedor para el título y el botón de eliminar
+            const convContentWrapper = document.createElement('div');
+            convContentWrapper.style.display = 'flex';
+            convContentWrapper.style.justifyContent = 'space-between';
+            convContentWrapper.style.alignItems = 'center';
+            convContentWrapper.style.width = '100%';
+
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = conv.title; 
+            titleSpan.dataset.folderName = folderName;
+            titleSpan.dataset.convId = conv.id; // Usar el ID único de la conversación
+            titleSpan.dataset.conversationUrl = conv.url; 
+            titleSpan.classList.add('conversation-title-text'); // Nueva clase para el texto del título
+            titleSpan.style.flexGrow = '1'; // Permite que el título ocupe el espacio
+            titleSpan.style.cursor = 'pointer'; // Para indicar que se puede hacer clic
+
+            // Botón de eliminar
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-conversation-btn'); // Clase para estilos
+            deleteButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon>`;
+            deleteButton.title = `Eliminar conversación: "${conv.title}"`; // Tooltip
+            deleteButton.dataset.folderName = folderName;
+            deleteButton.dataset.convId = conv.id; // Usar el ID único para identificarla
+
+            convContentWrapper.appendChild(titleSpan);
+            convContentWrapper.appendChild(deleteButton);
+            convLi.appendChild(convContentWrapper);
+
+            // Evento para abrir el chat original al hacer clic en el título
+            titleSpan.addEventListener('click', openGeminiChat);
+            // Evento para eliminar la conversación al hacer clic en el botón
+            deleteButton.addEventListener('click', deleteConversation);
+
             conversationsUl.appendChild(convLi);
-            // El evento ahora llama a openGeminiChat
-            convLi.addEventListener('click', openGeminiChat); 
         });
         folderLi.appendChild(conversationsUl);
         foldersListUl.appendChild(folderLi);
 
-        // Evento para expandir/colapsar la carpeta
         folderTitle.addEventListener('click', (event) => {
             conversationsUl.classList.toggle('hidden');
         });
@@ -171,10 +186,10 @@ async function createFolder() {
         const storedFolders = data[STORAGE_KEY] || {};
 
         if (!storedFolders[folderName]) {
-            storedFolders[folderName] = []; // Inicializar la carpeta como un array vacío
+            storedFolders[folderName] = [];
             await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-            newFolderNameInput.value = ''; // Limpiar el input
-            loadAndDisplayFolders(); // Recargar la lista para mostrar la nueva carpeta
+            newFolderNameInput.value = '';
+            loadAndDisplayFolders();
             alert(`Carpeta "${folderName}" creada exitosamente.`);
         } else {
             alert(`La carpeta "${folderName}" ya existe.`);
@@ -184,7 +199,7 @@ async function createFolder() {
     }
 }
 
-// Función para guardar la conversación actual (MODIFICADA)
+// Función para guardar la conversación actual (sin cambios)
 async function saveCurrentConversation() {
     const folderSelector = document.getElementById('folder-selector');
     const selectedFolderName = folderSelector.value;
@@ -194,89 +209,116 @@ async function saveCurrentConversation() {
         return;
     }
 
-    const conversationTitle = extractConversationTitle(); // Nueva función para extraer el título
-    const conversationUrl = window.location.href; // Obtener la URL actual de la página
+    const conversationTitle = extractConversationTitle();
+    const conversationUrl = window.location.href;
 
-    if (!conversationTitle) {
-        alert("No se pudo extraer el título de la conversación. Asegúrate de que haya una conversación activa con un título.");
+    if (!conversationTitle || conversationTitle === "Conversación sin título") {
+        alert("No se pudo extraer el título de la conversación o no hay una conversación activa. Por favor, asegúrate de que estás en un chat con un título para guardar.");
         return;
     }
+    
+    // Generar un ID único para la conversación
+    // Usamos timestamp + un número aleatorio para mayor unicidad
+    const conversationId = Date.now().toString() + Math.random().toString(36).substring(2, 9); 
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
 
     if (storedFolders[selectedFolderName]) {
-        // Generar un ID único para la conversación
-        const conversationId = Date.now().toString(); // Timestamp como ID simple
         storedFolders[selectedFolderName].push({
-            id: conversationId,
+            id: conversationId, // Guardar el ID único
             timestamp: new Date().toLocaleString(),
-            title: conversationTitle, // Guardar el título
-            url: conversationUrl // Guardar la URL
+            title: conversationTitle,
+            url: conversationUrl
         });
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
         alert("Conversación guardada exitosamente en la carpeta: " + selectedFolderName);
-        loadAndDisplayFolders(); // Recargar la lista para mostrar la conversación guardada
+        loadAndDisplayFolders();
     } else {
         alert("La carpeta seleccionada no existe. Por favor, recarga el complemento.");
     }
 }
 
-// NUEVA FUNCIÓN: Para extraer el título de la conversación actual
+// Función para extraer el título de la conversación actual (sin cambios)
 function extractConversationTitle() {
-    // Buscamos el elemento que contiene el título de la conversación en la barra lateral izquierda
-    // Basado en el HTML que me diste, el título de la conversación seleccionada está en:
-    // <div _ngcontent-ng-c976314112="" class="conversation-title ng-tns-c976314112-48 gds-label-l">
-    // O si es un Gem, podría ser en <span _ngcontent-ng-c963043495="" class="bot-name gds-body-m">Asistente de programación</span>
-    
-    // Primero, intenta obtener el título de una conversación del historial
     const selectedConversationTitleElement = document.querySelector('.conversation.selected .conversation-title');
     if (selectedConversationTitleElement) {
         return selectedConversationTitleElement.textContent.trim();
     }
 
-    // Si no es una conversación del historial, podría ser un "Gem"
     const currentGemTitleElement = document.querySelector('.bot-item.selected .bot-name');
     if (currentGemTitleElement) {
         return currentGemTitleElement.textContent.trim();
     }
 
-    // Como último recurso, si no hay un título específico, podrías intentar con el título de la página
-    // o un valor por defecto.
     const pageTitle = document.title;
     if (pageTitle && pageTitle.includes('Gemini')) {
         return pageTitle.replace('Gemini - ', '').trim();
     }
     
-    return "Conversación sin título"; // Si no se encuentra ningún título
+    return "Conversación sin título";
 }
 
-
-// NUEVA FUNCIÓN: Para abrir la URL de la conversación guardada
+// Función para abrir la URL de la conversación guardada (sin cambios)
 function openGeminiChat(event) {
     const conversationUrl = event.target.dataset.conversationUrl;
     if (conversationUrl) {
-        // Abrir la URL en la misma pestaña
         window.location.href = conversationUrl;
-        // Ocultar la barra lateral si está visible
         document.getElementById(SIDEBAR_ID).classList.add('hidden');
     } else {
         alert("No se pudo encontrar la URL de esta conversación.");
     }
 }
 
-// Ya no es necesaria, ya que abrimos el chat original
-// function displayConversationContent() { ... } 
-// function closeDisplayedConversation() { ... }
+// NUEVA FUNCIÓN: Para borrar una conversación
+async function deleteConversation(event) {
+    // Usamos confirm para pedir confirmación al usuario
+    if (!confirm('¿Estás seguro de que quieres eliminar esta conversación de tu organizador? Esta acción no se puede deshacer.')) {
+        return; // Si el usuario cancela, no hacemos nada
+    }
+
+    const folderName = event.currentTarget.dataset.folderName;
+    const convId = event.currentTarget.dataset.convId; // Obtenemos el ID de la conversación
+
+    if (!folderName || !convId) {
+        console.error('Error: Faltan datos para eliminar la conversación (carpeta o ID).', { folderName, convId });
+        alert('Hubo un error al intentar eliminar la conversación. Por favor, inténtalo de nuevo.');
+        return;
+    }
+
+    const data = await chrome.storage.local.get(STORAGE_KEY);
+    const storedFolders = data[STORAGE_KEY] || {};
+
+    if (storedFolders[folderName]) {
+        // Filtramos el array de conversaciones para remover la que tenga el ID coincidente
+        const initialLength = storedFolders[folderName].length;
+        storedFolders[folderName] = storedFolders[folderName].filter(conv => conv.id !== convId);
+
+        // Si la carpeta queda vacía y ya no tiene sentido, podrías considerar eliminarla también.
+        // Por ahora, simplemente la dejamos como un array vacío.
+        
+        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+
+        if (storedFolders[folderName].length < initialLength) {
+            alert("Conversación eliminada exitosamente.");
+        } else {
+            alert("La conversación no se encontró en la carpeta.");
+        }
+        
+        loadAndDisplayFolders(); // Recargar la interfaz para mostrar los cambios
+    } else {
+        alert("La carpeta especificada no existe.");
+    }
+}
 
 
-// Ejecutar la inicialización cuando el DOM esté cargado (sin cambios)
+// Ejecutar la inicialización cuando el DOM esté cargado
 window.requestIdleCallback(() => {
     initializeSidebar();
     addToggleButton();
 });
 
-// Observar cambios en el DOM de Gemini (sin cambios)
+// Observar cambios en el DOM de Gemini
 const observer = new MutationObserver((mutationsList, observer) => {
     const sidebar = document.getElementById(SIDEBAR_ID);
     const toggleButton = document.getElementById(TOGGLE_BUTTON_ID);
