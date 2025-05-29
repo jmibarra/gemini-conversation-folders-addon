@@ -76,12 +76,15 @@ function addToggleButton() {
         button.setAttribute('aria-disabled', 'false');
 
         button.innerHTML = `
-            <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start">
+            <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start" style="
+                margin-left: 13px;
+                margin-right: 0px;
+            ">
                 <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open" fonticon="folder_open"></mat-icon>
             </div>
             <span class="mdc-list-item__content">
                 <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
-                    <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador</span>
+                    <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador de conversaciones</span>
                 </span>
             </span>
             <div class="mat-focus-indicator"></div>
