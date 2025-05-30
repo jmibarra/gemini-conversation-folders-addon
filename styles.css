@@ -1,30 +1,34 @@
 /* Contenedor principal del complemento */
 #gemini-organizer-sidebar {
-    /* CAMBIOS CRÍTICOS AQUÍ */
-    position: static; /* Volvemos a static para que esté en el flujo normal del documento */
-    width: 320px; 
-    max-width: 90vw; 
+    /* Posicionamiento y flujo */
+    position: static; /* En flujo normal, empuja el contenido */
+    width: 100%; /* Ocupa todo el ancho disponible del padre */
+    max-width: none; /* No limita el ancho por viewport, sino por el padre */
 
-    background-color: #f0f4f9;
-    border: 1px solid #c9d2da;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10000; /* Asegura que esté por encima de otros elementos (aunque ahora afecta el flujo) */
+    /* Colores y bordes para parecerse a Gemini */
+    background-color: transparent; /* Fondo transparente para mezclarse */
+    border: none; /* Eliminar bordes para un look más integrado */
+    border-radius: 0; /* Eliminar redondeado si no es necesario */
+    box-shadow: none; /* Eliminar sombra si no es necesario */
+    
     font-family: 'Google Sans', sans-serif;
     color: #202124;
-    padding: 15px;
-    max-height: 50vh; 
-    overflow-y: auto;
+    
+    /* Paddings y ocultamiento para el despliegue */
+    padding: 0; /* Controlaremos los paddings internos de los componentes */
+    padding-top: 0; 
+    padding-bottom: 0;
+    
+    max-height: none; /* Ya no gestionamos max-height aquí */
+    overflow-y: hidden; /* CLAVE: Ocultar el scroller interno. El scroller principal lo manejará. */
 
     /* Propiedades para la animación de despliegue */
     opacity: 0;
     transform: translateY(-10px); /* Oculto y un poco hacia arriba */
     visibility: hidden;
     height: 0; /* CLAVE: La altura inicial es 0 para que no ocupe espacio cuando está oculto */
-    padding-top: 0;
-    padding-bottom: 0;
-    border-width: 0; /* Ocultar bordes cuando está colapsado */
-    transition: all 0.3s ease-in-out; /* Transición para todas las propiedades */
+    border-width: 0; 
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, height 0.3s ease-out, padding 0.3s ease-out, border-width 0.3s ease-out;
 }
 
 /* Cuando NO está oculto, resetear los estilos de animación y mostrar */
@@ -33,25 +37,25 @@
     transform: translateY(0);
     visibility: visible;
     height: auto; /* CLAVE: Vuelve a auto para que ocupe su altura natural */
-    padding-top: 15px; /* Restaurar paddings */
-    padding-bottom: 15px;
-    border-width: 1px; /* Restaurar bordes */
-    /* pointer-events: auto; No necesario si está en el flujo normal */
+    /* Aquí podemos ajustar un padding-top si queremos un espacio del botón */
+    padding-top: 15px; /* Espacio desde el botón */
+    padding-bottom: 15px; /* Espacio al final del contenido del sidebar */
 }
 
-/* Encabezado (sin cambios) */
+/* Encabezado */
 #gemini-organizer-sidebar h3 {
     margin-top: 0;
+    margin-left: 16px; /* Alinear con el padding del botón principal */
     margin-bottom: 15px;
     color: #1a73e8;
-    font-size: 1.2em;
+    font-size: 1.1em; /* Ligeramente más pequeño para no destacar tanto */
     border-bottom: 1px solid #e8eaed;
     padding-bottom: 10px;
 }
 
-/* Controles de la carpeta (sin cambios) */
+/* Controles de la carpeta */
 #gemini-organizer-sidebar .folder-controls {
-    margin-bottom: 20px;
+    margin: 0 16px 20px 16px; /* Alinear padding */
     padding-bottom: 15px;
     border-bottom: 1px solid #e8eaed;
 }
@@ -63,6 +67,7 @@
     border-radius: 4px;
     margin-right: 5px;
     box-sizing: border-box;
+    background-color: white; /* Asegurar fondo blanco */
 }
 
 #gemini-organizer-sidebar .folder-controls button {
@@ -80,9 +85,9 @@
     background-color: #1764cc;
 }
 
-/* Selector de carpeta y botón de guardar (sin cambios) */
+/* Selector de carpeta y botón de guardar */
 #gemini-organizer-sidebar .save-controls {
-    margin-bottom: 20px;
+    margin: 0 16px 20px 16px; /* Alinear padding */
     padding-bottom: 15px;
     border-bottom: 1px solid #e8eaed;
 }
@@ -114,9 +119,10 @@
     background-color: #2e8b46;
 }
 
-/* Lista de carpetas (sin cambios) */
+/* Lista de carpetas */
 #gemini-organizer-sidebar .folders-list h4 {
     margin-top: 0;
+    margin-left: 16px; /* Alinear padding */
     margin-bottom: 10px;
     color: #202124;
     font-size: 1em;
@@ -124,7 +130,7 @@
 
 #gemini-organizer-sidebar .folders-list ul {
     list-style: none;
-    padding: 0;
+    padding: 0 16px; /* Alinear padding */
     margin: 0;
 }
 
@@ -146,7 +152,7 @@
     text-decoration: underline;
 }
 
-/* Los items de conversación dentro de la lista de carpetas (sin cambios) */
+/* Los items de conversación dentro de la lista de carpetas */
 #gemini-organizer-sidebar .folders-list ul li .conversation-item {
     margin-top: 5px;
     padding-left: 10px;
@@ -156,7 +162,7 @@
     word-break: break-word;
 }
 
-/* Botón para cerrar la conversación abierta (sin cambios, aunque no se usa) */
+/* Botón para cerrar la conversación abierta (este ya no se usa y se podría eliminar) */
 #gemini-organizer-sidebar .close-conversation-btn {
     background-color: #dc3545;
     color: white;
@@ -175,13 +181,13 @@
     background-color: #c82333;
 }
 
-/* Estilos del botón de invocación (sin cambios) */
+/* Estilos del botón de invocación */
 #gemini-organizer-toggle-btn {
     background: none;
     border: none;
     color: #202124;
     width: 100%;
-    padding: 12px 16px;
+    padding: 12px 16px; /* Padding interno del botón */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -217,24 +223,15 @@
     text-overflow: ellipsis;
 }
 
-/* IMPORTANTE: El contenedor del botón debe tener position: relative (sin cambios) */
-#gemini-organizer-list-item {
-    list-style: none;
-    margin-bottom: 8px;
-    padding: 0 8px;
+/* Contenedor del botón del organizador (el <side-nav-action-button>) */
+#gemini-organizer-wrapper {
+    list-style: none; /* Asegura que no tenga viñetas */
+    margin-bottom: 8px; /* Espacio entre elementos de la lista */
+    padding: 0 8px; /* Padding para alinear con otros elementos de navegación */
     box-sizing: border-box;
-    position: relative; /* ¡CLAVE! Permite que el sidebar se posicione absolutamente respecto a este LI */
+    position: static; /* Volvemos a static, ya que el sidebar es hijo directo */
+    /* Eliminar el margin-bottom dinámico de JS, se manejará con el flujo */
 }
-
-/* NUEVOS ESTILOS PARA EL CONTENEDOR DE NUESTRO BOTÓN CUANDO EL SIDEBAR ESTÁ ABIERTO */
-#gemini-organizer-wrapper.sidebar-visible {
-    /* Aquí podrías añadir un margin-bottom para empujar el contenido siguiente */
-    /* Tendremos que calcular la altura del sidebar dinámicamente si es variable,
-       o usar un valor fijo si el max-height es suficiente. */
-    /* Por ahora, usaremos JS para el margin-bottom dinámico. */
-    padding-bottom: 10px; /* Para dar un poco de espacio si no hay margen dinámico */
-}
-
 
 /* Estilos para el botón de eliminar conversación (sin cambios) */
 .delete-conversation-btn {

@@ -145,27 +145,12 @@ function toggleSidebarVisibility() {
         // Alternar la clase 'hidden' en el sidebar
         sidebar.classList.toggle('hidden');
 
-        // Determinar si el sidebar ahora está visible o no
-        const isSidebarVisible = !sidebar.classList.contains('hidden');
-
-        if (isSidebarVisible) {
-            // Si el sidebar se va a mostrar, esperamos un momento para que se renderice
-            // y luego calculamos su altura para empujar el contenido.
-            // Usamos requestAnimationFrame para asegurar que el DOM esté listo para la medida.
-            requestAnimationFrame(() => {
-                const sidebarHeight = sidebar.offsetHeight; // Obtener la altura real del sidebar
-                // Añadir el margen inferior al wrapper del botón para empujar el contenido
-                // Puedes ajustar el 20px extra para un espacio adicional
-                buttonWrapper.style.marginBottom = `${sidebarHeight + 20}px`; 
-                buttonWrapper.classList.add('sidebar-visible'); // Añadir clase para estilos CSS si es necesario
-            });
-        } else {
-            // Si el sidebar se va a ocultar, resetear el margen
-            buttonWrapper.style.marginBottom = ''; // Eliminar el margen extra
-            buttonWrapper.classList.remove('sidebar-visible');
-        }
+        // Ya no necesitamos ajustar el margin-bottom dinámicamente aquí.
+        // El CSS con height: 0 / height: auto y padding/border transitions se encarga.
+        // Las clases 'sidebar-visible' tampoco son necesarias en JS si no hay CSS que dependa de ellas.
     }
 }
+
 
 // Función para cargar y mostrar las carpetas y conversaciones (sin cambios)
 async function loadAndDisplayFolders() {
