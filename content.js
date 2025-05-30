@@ -2,103 +2,141 @@
 const SIDEBAR_ID = 'gemini-organizer-sidebar';
 const STORAGE_KEY = 'geminiConversations';
 const TOGGLE_BUTTON_ID = 'gemini-organizer-toggle-btn';
+const TOGGLE_BUTTON_WRAPPER_ID = 'gemini-organizer-wrapper'; // ID para el wrapper del botón
 
-// Función para inicializar la interfaz del complemento (sin cambios)
+// Función para inicializar la interfaz del complemento (solo crea/obtiene el DIV)
 function initializeSidebar() {
-    // Si la barra lateral ya existe, no la creamos de nuevo
-    if (document.getElementById(SIDEBAR_ID)) {
-        return;
+    let sidebar = document.getElementById(SIDEBAR_ID);
+    if (!sidebar) {
+        sidebar = document.createElement('div');
+        sidebar.id = SIDEBAR_ID;
+        // Solo añadimos la clase 'hidden' si la creamos nosotros.
+        // Si ya existe, su visibilidad será controlada por el CSS que ya aplicamos.
+        sidebar.classList.add('hidden'); 
+        sidebar.innerHTML = `
+            <h3>Organizador de Conversaciones</h3>
+
+            <div class="folder-controls">
+                <h4>Crear Nueva Carpeta</h4>
+                <input type="text" id="new-folder-name" placeholder="Nombre de la carpeta">
+                <button id="create-folder-btn">Crear</button>
+            </div>
+
+            <div class="save-controls">
+                <h4>Guardar Conversación Actual</h4>
+                <select id="folder-selector">
+                    <option value="">Selecciona una carpeta</option>
+                </select>
+                <button id="save-conversation-btn">Guardar Conversación</button>
+            </div>
+
+            <div class="folders-list">
+                <h4>Tus Carpetas</h4>
+                <ul id="folders-list-ul">
+                    </ul>
+            </div>
+        `;
     }
-
-    const sidebar = document.createElement('div');
-    sidebar.id = SIDEBAR_ID;
-    sidebar.classList.add('hidden'); 
-    sidebar.innerHTML = `
-        <h3>Organizador de Conversaciones</h3>
-
-        <div class="folder-controls">
-            <h4>Crear Nueva Carpeta</h4>
-            <input type="text" id="new-folder-name" placeholder="Nombre de la carpeta">
-            <button id="create-folder-btn">Crear</button>
-        </div>
-
-        <div class="save-controls">
-            <h4>Guardar Conversación Actual</h4>
-            <select id="folder-selector">
-                <option value="">Selecciona una carpeta</option>
-            </select>
-            <button id="save-conversation-btn">Guardar Conversación</button>
-        </div>
-
-        <div class="folders-list">
-            <h4>Tus Carpetas</h4>
-            <ul id="folders-list-ul">
-                </ul>
-        </div>
-    `;
-
-    document.body.appendChild(sidebar);
-
-    // Adjuntar eventos a los botones y campos
-    document.getElementById('create-folder-btn').addEventListener('click', createFolder);
-    document.getElementById('save-conversation-btn').addEventListener('click', saveCurrentConversation);
-
-    // Cargar y mostrar las carpetas al iniciar (aunque la sidebar esté oculta)
-    loadAndDisplayFolders();
+    return sidebar;
 }
 
-// Función para agregar el botón de invocación (sin cambios)
+// Función para agregar el botón de invocación y adjuntar/configurar el sidebar
 function addToggleButton() {
-    if (document.getElementById(TOGGLE_BUTTON_ID)) {
-        return;
-    }
-
     const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
     if (discoverGemsButtonWrapper) {
-        const ourButtonWrapper = document.createElement('side-nav-action-button');
-        ourButtonWrapper.id = 'gemini-organizer-wrapper';
-        ourButtonWrapper.setAttribute('icon', 'folder_open');
-        ourButtonWrapper.setAttribute('arialabel', 'Organizador de Conversaciones');
-        ourButtonWrapper.setAttribute('data-test-id', 'gemini-organizer-button');
-        ourButtonWrapper.classList.add('mat-mdc-tooltip-trigger', 'ia-redesign', 'ng-star-inserted');
+        let ourButtonWrapper = document.getElementById(TOGGLE_BUTTON_WRAPPER_ID);
+        let button = document.getElementById(TOGGLE_BUTTON_ID);
+        let sidebar = document.getElementById(SIDEBAR_ID);
 
-        const button = document.createElement('button');
-        button.id = TOGGLE_BUTTON_ID;
-        button.classList.add(
-            'mat-mdc-list-item', 'mdc-list-item', 'side-nav-action-button', 
-            'explicit-gmat-override', 'mat-mdc-list-item-interactive', 
-            'mdc-list-item--with-leading-icon', 'mat-mdc-list-item-single-line', 
-            'mdc-list-item--with-one-line', 'ng-star-inserted'
-        );
-        button.type = 'button';
-        button.setAttribute('aria-label', 'Organizador de Conversaciones');
-        button.setAttribute('aria-disabled', 'false');
+        // --- Lógica para el Wrapper del Botón (your side-nav-action-button) ---
+        if (!ourButtonWrapper) {
+            // Si el wrapper no existe, lo creamos y adjuntamos
+            ourButtonWrapper = document.createElement('side-nav-action-button');
+            ourButtonWrapper.id = TOGGLE_BUTTON_WRAPPER_ID;
+            ourButtonWrapper.setAttribute('icon', 'folder_open');
+            ourButtonWrapper.setAttribute('arialabel', 'Organizador de Conversaciones');
+            ourButtonWrapper.setAttribute('data-test-id', 'gemini-organizer-button');
+            // Añadir clases para que se parezca a los demás side-nav-action-button
+            ourButtonWrapper.classList.add('mat-mdc-tooltip-trigger', 'ia-redesign', 'ng-star-inserted');
 
-        button.innerHTML = `
-            <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start" style="
-                margin-left: 13px;
-                margin-right: 0px;
-            ">
-                <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open" fonticon="folder_open"></mat-icon>
-            </div>
-            <span class="mdc-list-item__content">
-                <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
-                    <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador de conversaciones</span>
+            // --- Lógica para el Botón Interno (button) ---
+            button = document.createElement('button');
+            button.id = TOGGLE_BUTTON_ID;
+            button.classList.add(
+                'mat-mdc-list-item', 'mdc-list-item', 'side-nav-action-button', 
+                'explicit-gmat-override', 'mat-mdc-list-item-interactive', 
+                'mdc-list-item--with-leading-icon', 'mat-mdc-list-item-single-line', 
+                'mdc-list-item--with-one-line', 'ng-star-inserted'
+            );
+            button.type = 'button';
+            button.setAttribute('aria-label', 'Organizador de Conversaciones');
+            button.setAttribute('aria-disabled', 'false');
+
+            button.innerHTML = `
+                <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start">
+                    <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open" fonticon="folder_open"></mat-icon>
+                </div>
+                <span class="mdc-list-item__content">
+                    <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
+                        <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador</span>
+                    </span>
                 </span>
-            </span>
-            <div class="mat-focus-indicator"></div>
-        `;
+                <div class="mat-focus-indicator"></div>
+            `;
+            
+            ourButtonWrapper.appendChild(button); // Adjuntar el botón al wrapper
+            discoverGemsButtonWrapper.after(ourButtonWrapper); // Adjuntar el wrapper al DOM
+        }
+
+        // --- Lógica para la Barra Lateral (sidebar) ---
+        if (!sidebar) {
+            // Si la barra lateral no existe, la creamos
+            sidebar = initializeSidebar(); 
+            ourButtonWrapper.appendChild(sidebar); // Y la adjuntamos al wrapper
+        } else if (!ourButtonWrapper.contains(sidebar)) {
+            // Si existe pero no es hijo de nuestro wrapper (ej. se movió), la re-adjuntamos
+            ourButtonWrapper.appendChild(sidebar);
+        }
+
+        // --- Adjuntar Event Listeners y Cargar Datos (Solo si no están ya adjuntos) ---
+        // Esto previene el error "Cannot read properties of null"
+        // y también el error de "listener duplicado" si el observer re-ejecuta esto.
+
+        // Adjuntar event listener al botón principal (si aún no tiene uno)
+        if (button && !button.hasAttribute('data-listener-attached')) {
+            button.addEventListener('click', toggleSidebarVisibility);
+            button.setAttribute('data-listener-attached', 'true'); // Marcar que el listener está adjunto
+        }
         
-        ourButtonWrapper.appendChild(button);
-        discoverGemsButtonWrapper.after(ourButtonWrapper);
-        button.addEventListener('click', toggleSidebarVisibility);
+        // Adjuntar event listeners a los botones internos del sidebar (solo si el sidebar está en el DOM)
+        if (sidebar && document.body.contains(sidebar)) { // Asegurarse de que el sidebar es parte del DOM
+            const createFolderBtn = document.getElementById('create-folder-btn');
+            const saveConversationBtn = document.getElementById('save-conversation-btn');
+
+            if (createFolderBtn && !createFolderBtn.hasAttribute('data-listener-attached')) {
+                createFolderBtn.addEventListener('click', createFolder);
+                createFolderBtn.setAttribute('data-listener-attached', 'true');
+            }
+            
+            if (saveConversationBtn && !saveConversationBtn.hasAttribute('data-listener-attached')) {
+                saveConversationBtn.addEventListener('click', saveCurrentConversation);
+                saveConversationBtn.setAttribute('data-listener-attached', 'true');
+            }
+            
+            // Cargar los datos solo una vez o cuando sea necesario
+            if (!sidebar.hasAttribute('data-loaded-once')) {
+                loadAndDisplayFolders();
+                sidebar.setAttribute('data-loaded-once', 'true');
+            }
+        }
+
     } else {
         console.warn('No se pudo encontrar el lugar para insertar el botón "Organizador" en la barra lateral de Gemini. Selector usado: side-nav-action-button[data-test-id="manage-instructions-control"]');
     }
 }
 
-// Función para alternar la visibilidad de la barra lateral (sin cambios)
+// Función para alternar la visibilidad de la barra lateral
 function toggleSidebarVisibility() {
     const sidebar = document.getElementById(SIDEBAR_ID);
     if (sidebar) {
@@ -106,7 +144,7 @@ function toggleSidebarVisibility() {
     }
 }
 
-// Función para cargar y mostrar las carpetas y conversaciones (MODIFICADA)
+// Función para cargar y mostrar las carpetas y conversaciones (sin cambios)
 async function loadAndDisplayFolders() {
     const foldersListUl = document.getElementById('folders-list-ul');
     const folderSelector = document.getElementById('folder-selector');
@@ -135,7 +173,6 @@ async function loadAndDisplayFolders() {
             const convLi = document.createElement('li');
             convLi.classList.add('conversation-item');
             
-            // Contenedor para el título y el botón de eliminar
             const convContentWrapper = document.createElement('div');
             convContentWrapper.style.display = 'flex';
             convContentWrapper.style.justifyContent = 'space-between';
@@ -145,27 +182,24 @@ async function loadAndDisplayFolders() {
             const titleSpan = document.createElement('span');
             titleSpan.textContent = conv.title; 
             titleSpan.dataset.folderName = folderName;
-            titleSpan.dataset.convId = conv.id; // Usar el ID único de la conversación
+            titleSpan.dataset.convId = conv.id; 
             titleSpan.dataset.conversationUrl = conv.url; 
-            titleSpan.classList.add('conversation-title-text'); // Nueva clase para el texto del título
-            titleSpan.style.flexGrow = '1'; // Permite que el título ocupe el espacio
-            titleSpan.style.cursor = 'pointer'; // Para indicar que se puede hacer clic
+            titleSpan.classList.add('conversation-title-text'); 
+            titleSpan.style.flexGrow = '1'; 
+            titleSpan.style.cursor = 'pointer'; 
 
-            // Botón de eliminar
             const deleteButton = document.createElement('button');
-            deleteButton.classList.add('delete-conversation-btn'); // Clase para estilos
+            deleteButton.classList.add('delete-conversation-btn'); 
             deleteButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon>`;
-            deleteButton.title = `Eliminar conversación: "${conv.title}"`; // Tooltip
+            deleteButton.title = `Eliminar conversación: "${conv.title}"`; 
             deleteButton.dataset.folderName = folderName;
-            deleteButton.dataset.convId = conv.id; // Usar el ID único para identificarla
+            deleteButton.dataset.convId = conv.id; 
 
             convContentWrapper.appendChild(titleSpan);
             convContentWrapper.appendChild(deleteButton);
             convLi.appendChild(convContentWrapper);
 
-            // Evento para abrir el chat original al hacer clic en el título
             titleSpan.addEventListener('click', openGeminiChat);
-            // Evento para eliminar la conversación al hacer clic en el botón
             deleteButton.addEventListener('click', deleteConversation);
 
             conversationsUl.appendChild(convLi);
@@ -220,8 +254,6 @@ async function saveCurrentConversation() {
         return;
     }
     
-    // Generar un ID único para la conversación
-    // Usamos timestamp + un número aleatorio para mayor unicidad
     const conversationId = Date.now().toString() + Math.random().toString(36).substring(2, 9); 
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
@@ -229,7 +261,7 @@ async function saveCurrentConversation() {
 
     if (storedFolders[selectedFolderName]) {
         storedFolders[selectedFolderName].push({
-            id: conversationId, // Guardar el ID único
+            id: conversationId, 
             timestamp: new Date().toLocaleString(),
             title: conversationTitle,
             url: conversationUrl
@@ -256,7 +288,10 @@ function extractConversationTitle() {
 
     const pageTitle = document.title;
     if (pageTitle && pageTitle.includes('Gemini')) {
-        return pageTitle.replace('Gemini - ', '').trim();
+        const cleanTitle = pageTitle.replace(/^(.*?) - Gemini.*$/, '$1').trim();
+        if (cleanTitle && cleanTitle !== "Gemini") { 
+            return cleanTitle;
+        }
     }
     
     return "Conversación sin título";
@@ -273,15 +308,14 @@ function openGeminiChat(event) {
     }
 }
 
-// NUEVA FUNCIÓN: Para borrar una conversación
+// Función para borrar una conversación (sin cambios)
 async function deleteConversation(event) {
-    // Usamos confirm para pedir confirmación al usuario
     if (!confirm('¿Estás seguro de que quieres eliminar esta conversación de tu organizador? Esta acción no se puede deshacer.')) {
-        return; // Si el usuario cancela, no hacemos nada
+        return;
     }
 
     const folderName = event.currentTarget.dataset.folderName;
-    const convId = event.currentTarget.dataset.convId; // Obtenemos el ID de la conversación
+    const convId = event.currentTarget.dataset.convId; 
 
     if (!folderName || !convId) {
         console.error('Error: Faltan datos para eliminar la conversación (carpeta o ID).', { folderName, convId });
@@ -290,15 +324,11 @@ async function deleteConversation(event) {
     }
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
-    const storedFolders = data[STORAGE_KEY] || {};
+    let storedFolders = data[STORAGE_KEY] || {}; 
 
     if (storedFolders[folderName]) {
-        // Filtramos el array de conversaciones para remover la que tenga el ID coincidente
         const initialLength = storedFolders[folderName].length;
         storedFolders[folderName] = storedFolders[folderName].filter(conv => conv.id !== convId);
-
-        // Si la carpeta queda vacía y ya no tiene sentido, podrías considerar eliminarla también.
-        // Por ahora, simplemente la dejamos como un array vacío.
         
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
 
@@ -308,7 +338,7 @@ async function deleteConversation(event) {
             alert("La conversación no se encontró en la carpeta.");
         }
         
-        loadAndDisplayFolders(); // Recargar la interfaz para mostrar los cambios
+        loadAndDisplayFolders();
     } else {
         alert("La carpeta especificada no existe.");
     }
@@ -317,20 +347,36 @@ async function deleteConversation(event) {
 
 // Ejecutar la inicialización cuando el DOM esté cargado
 window.requestIdleCallback(() => {
-    initializeSidebar();
     addToggleButton();
 });
 
-// Observar cambios en el DOM de Gemini
+// Observar cambios en el DOM de Gemini para asegurar que el botón y el sidebar persistan
 const observer = new MutationObserver((mutationsList, observer) => {
+    const toggleButtonWrapper = document.getElementById(TOGGLE_BUTTON_WRAPPER_ID);
     const sidebar = document.getElementById(SIDEBAR_ID);
-    const toggleButton = document.getElementById(TOGGLE_BUTTON_ID);
+    const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
-    if (!sidebar || !document.body.contains(sidebar)) {
-        initializeSidebar();
-    }
-    if (!toggleButton || !document.body.contains(toggleButton)) {
-        addToggleButton();
+    // Condición para reinicializar:
+    // 1. Si no se encuentra el wrapper de nuestro botón.
+    // 2. Si el wrapper del botón existe, pero no está en el DOM del body (fue removido).
+    // 3. Si el sidebar no existe.
+    // 4. Si el sidebar existe, pero no es hijo de nuestro wrapper (fue movido o desadjuntado).
+    // 5. Si el elemento de referencia (Descubrir Gems) no está en el DOM (toda la barra lateral se recargó).
+    if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper) ||
+        !sidebar || !toggleButtonWrapper.contains(sidebar) ||
+        !discoverGemsButtonWrapper || !document.body.contains(discoverGemsButtonWrapper)) {
+        
+        console.log('Detectado cambio en la estructura de la barra lateral de Gemini. Reinicializando el complemento.');
+        
+        // Limpiar elementos existentes para una reinicialización limpia, si están en el DOM.
+        if (toggleButtonWrapper && document.body.contains(toggleButtonWrapper)) {
+            toggleButtonWrapper.remove();
+        }
+        if (sidebar && document.body.contains(sidebar)) {
+            sidebar.remove(); 
+        }
+
+        addToggleButton(); // Intentar añadir de nuevo el botón y el sidebar
     }
 });
 
