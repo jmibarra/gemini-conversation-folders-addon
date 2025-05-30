@@ -1,10 +1,7 @@
 /* Contenedor principal del complemento */
 #gemini-organizer-sidebar {
     /* CAMBIOS CRÍTICOS AQUÍ */
-    position: absolute; /* Cambiamos de 'fixed' a 'absolute' */
-    top: calc(100% + 10px); /* 100% de la altura del elemento padre (el botón) + 10px de margen */
-    left: 0; /* Alinear a la izquierda con el elemento padre */
-    /* Ancho sigue siendo el mismo, pero podríamos ajustarlo si el diseño de Gemini lo requiere */
+    position: static; /* Volvemos a static para que esté en el flujo normal del documento */
     width: 320px; 
     max-width: 90vw; 
 
@@ -12,28 +9,34 @@
     border: 1px solid #c9d2da;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10000; /* Asegura que esté por encima de otros elementos */
+    z-index: 10000; /* Asegura que esté por encima de otros elementos (aunque ahora afecta el flujo) */
     font-family: 'Google Sans', sans-serif;
     color: #202124;
     padding: 15px;
     max-height: 50vh; 
     overflow-y: auto;
-    /* Añadimos transiciones para una aparición/desaparición suave */
-    transition: all 0.3s ease-in-out; 
 
-    /* Por defecto oculta y preparada para la animación de despliegue */
+    /* Propiedades para la animación de despliegue */
     opacity: 0;
-    pointer-events: none;
-    transform: translateY(-10px); /* Inicialmente un poco hacia arriba para la animación */
-    visibility: hidden; /* Aseguramos que no ocupe espacio cuando está oculto */
+    transform: translateY(-10px); /* Oculto y un poco hacia arriba */
+    visibility: hidden;
+    height: 0; /* CLAVE: La altura inicial es 0 para que no ocupe espacio cuando está oculto */
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0; /* Ocultar bordes cuando está colapsado */
+    transition: all 0.3s ease-in-out; /* Transición para todas las propiedades */
 }
 
-/* Cuando no está oculto, resetear los estilos de animación */
+/* Cuando NO está oculto, resetear los estilos de animación y mostrar */
 #gemini-organizer-sidebar:not(.hidden) {
     opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0); /* Vuelve a su posición original */
-    visibility: visible; /* Hace que ocupe espacio y sea visible */
+    transform: translateY(0);
+    visibility: visible;
+    height: auto; /* CLAVE: Vuelve a auto para que ocupe su altura natural */
+    padding-top: 15px; /* Restaurar paddings */
+    padding-bottom: 15px;
+    border-width: 1px; /* Restaurar bordes */
+    /* pointer-events: auto; No necesario si está en el flujo normal */
 }
 
 /* Encabezado (sin cambios) */
@@ -153,7 +156,7 @@
     word-break: break-word;
 }
 
-/* Botón para cerrar la conversación abierta (sin cambios) */
+/* Botón para cerrar la conversación abierta (sin cambios, aunque no se usa) */
 #gemini-organizer-sidebar .close-conversation-btn {
     background-color: #dc3545;
     color: white;
@@ -172,7 +175,7 @@
     background-color: #c82333;
 }
 
-/* Estilos del botón de invocación (sin cambios, solo una pequeña adición) */
+/* Estilos del botón de invocación (sin cambios) */
 #gemini-organizer-toggle-btn {
     background: none;
     border: none;
@@ -214,7 +217,7 @@
     text-overflow: ellipsis;
 }
 
-/* IMPORTANTE: El contenedor del botón debe tener position: relative */
+/* IMPORTANTE: El contenedor del botón debe tener position: relative (sin cambios) */
 #gemini-organizer-list-item {
     list-style: none;
     margin-bottom: 8px;
@@ -222,6 +225,16 @@
     box-sizing: border-box;
     position: relative; /* ¡CLAVE! Permite que el sidebar se posicione absolutamente respecto a este LI */
 }
+
+/* NUEVOS ESTILOS PARA EL CONTENEDOR DE NUESTRO BOTÓN CUANDO EL SIDEBAR ESTÁ ABIERTO */
+#gemini-organizer-wrapper.sidebar-visible {
+    /* Aquí podrías añadir un margin-bottom para empujar el contenido siguiente */
+    /* Tendremos que calcular la altura del sidebar dinámicamente si es variable,
+       o usar un valor fijo si el max-height es suficiente. */
+    /* Por ahora, usaremos JS para el margin-bottom dinámico. */
+    padding-bottom: 10px; /* Para dar un poco de espacio si no hay margen dinámico */
+}
+
 
 /* Estilos para el botón de eliminar conversación (sin cambios) */
 .delete-conversation-btn {
