@@ -18,6 +18,8 @@
 
 Este es un proyecto en desarrollo. Es posible que encuentres errores o que la funcionalidad no sea perfecta. ¡Tu feedback es muy valioso para mejorarlo!
 
+
+
 ---
 
 ## 🚀 **Cómo Instalar (Versión Beta - Modo Desarrollador):**
