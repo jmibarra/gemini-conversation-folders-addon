@@ -252,7 +252,7 @@ async function loadAndDisplayFolders() {
                 expandIcon.setAttribute('fonticon', 'expand_less'); 
                 expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
             }
-        });
+        }); 
     }
 }
 
