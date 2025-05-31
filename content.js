@@ -17,15 +17,6 @@ function initializeSidebar() {
                 <input type="text" id="new-folder-name" placeholder="Nombre de la carpeta">
                 <button id="create-folder-btn">Crear</button>
             </div>
-
-            <div class="save-controls">
-                <h4>Guardar Conversación Actual</h4>
-                <select id="folder-selector">
-                    <option value="">Selecciona una carpeta</option>
-                </select>
-                <button id="save-conversation-btn">Guardar Conversación</button>
-            </div>
-
             <div class="folders-list">
                 <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4> 
                 <ul id="folders-list-ul">
@@ -127,9 +118,8 @@ function toggleSidebarVisibility() {
 // Función para cargar y mostrar las carpetas y conversaciones (MODIFICADA: Agrega eventos de Drop)
 async function loadAndDisplayFolders() {
     const foldersListUl = document.getElementById('folders-list-ul');
-    const folderSelector = document.getElementById('folder-selector');
+    const folderSelector = document.getElementById('create-folder-btn');
     foldersListUl.innerHTML = '';
-    folderSelector.innerHTML = '<option value="">Selecciona una carpeta</option>';
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
@@ -140,7 +130,6 @@ async function loadAndDisplayFolders() {
         const option = document.createElement('option');
         option.value = folderName;
         option.textContent = folderName;
-        folderSelector.appendChild(option);
 
         const folderContainer = document.createElement('li');
         folderContainer.classList.add('gemini-folder-item'); 
