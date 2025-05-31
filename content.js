@@ -10,8 +10,6 @@ function initializeSidebar() {
     if (!sidebar) {
         sidebar = document.createElement('div');
         sidebar.id = SIDEBAR_ID;
-        // Solo añadimos la clase 'hidden' si la creamos nosotros.
-        // Si ya existe, su visibilidad será controlada por el CSS que ya aplicamos.
         sidebar.classList.add('hidden'); 
         sidebar.innerHTML = `
             <div class="folder-controls">
@@ -29,7 +27,7 @@ function initializeSidebar() {
             </div>
 
             <div class="folders-list">
-                <h4>Tus Carpetas</h4>
+                <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4> 
                 <ul id="folders-list-ul">
                     </ul>
             </div>
@@ -160,40 +158,65 @@ async function loadAndDisplayFolders() {
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
 
-    for (const folderName in storedFolders) {
+    const sortedFolderNames = Object.keys(storedFolders).sort();
+
+    for (const folderName of sortedFolderNames) {
         const option = document.createElement('option');
         option.value = folderName;
         option.textContent = folderName;
         folderSelector.appendChild(option);
 
-        const folderLi = document.createElement('li');
-        const folderTitle = document.createElement('strong');
+        // --- Nueva estructura para cada carpeta, imitando "Reciente" ---
+        const folderContainer = document.createElement('li'); // Ahora el contenedor es un LI
+        folderContainer.classList.add('gemini-folder-item'); 
+
+        // Título de la carpeta (similar a la sección "Reciente")
+        const folderHeader = document.createElement('div');
+        folderHeader.classList.add('title-container'); 
+        folderHeader.setAttribute('role', 'button');
+        folderHeader.setAttribute('tabindex', '0');
+
+        const folderTitle = document.createElement('span'); // Usamos SPAN para el título de la carpeta
+        folderTitle.classList.add('title', 'gds-label-l', 'gemini-folder-title');
         folderTitle.textContent = folderName;
         folderTitle.dataset.folderName = folderName; 
-        folderLi.appendChild(folderTitle);
-
-        const conversationsUl = document.createElement('ul');
-        conversationsUl.classList.add('hidden'); 
         
-        storedFolders[folderName].forEach((conv, index) => {
-            const convLi = document.createElement('li');
-            convLi.classList.add('conversation-item');
+        // Icono de expansión/colapso
+        const expandIcon = document.createElement('mat-icon');
+        expandIcon.classList.add('mat-icon', 'notranslate', 'gds-icon-l', 'google-symbols', 'mat-ligature-font', 'mat-icon-no-color', 'gemini-expand-icon');
+        expandIcon.setAttribute('role', 'img');
+        expandIcon.setAttribute('aria-hidden', 'true');
+        expandIcon.setAttribute('data-mat-icon-type', 'font');
+        expandIcon.setAttribute('data-mat-icon-name', 'expand_more'); 
+        expandIcon.setAttribute('fonticon', 'expand_more');
+
+        folderHeader.appendChild(folderTitle);
+        folderHeader.appendChild(expandIcon);
+        
+        // Contenedor de las conversaciones (la lista UL real)
+        const conversationsWrapper = document.createElement('div'); // Este div manejará la animación de colapso
+        conversationsWrapper.classList.add('conversations-list-wrapper', 'hidden'); 
+        
+        const conversationsUl = document.createElement('ul'); // La UL real para los items
+        conversationsUl.classList.add('conversation-items-container', 'side-nav-opened');
+
+
+        storedFolders[folderName].forEach((conv) => {
+            const convItem = document.createElement('li'); // Cada conversación es un LI dentro de la UL
+            convItem.classList.add('conversation-item-wrapper'); 
             
-            const convContentWrapper = document.createElement('div');
-            convContentWrapper.style.display = 'flex';
-            convContentWrapper.style.justifyContent = 'space-between';
-            convContentWrapper.style.alignItems = 'center';
-            convContentWrapper.style.width = '100%';
-
-            const titleSpan = document.createElement('span');
-            titleSpan.textContent = conv.title; 
-            titleSpan.dataset.folderName = folderName;
-            titleSpan.dataset.convId = conv.id; 
-            titleSpan.dataset.conversationUrl = conv.url; 
-            titleSpan.classList.add('conversation-title-text'); 
-            titleSpan.style.flexGrow = '1'; 
-            titleSpan.style.cursor = 'pointer'; 
-
+            const convContentFlex = document.createElement('div');
+            convContentFlex.classList.add('conversation-item-content'); 
+            
+            const convTitle = document.createElement('div'); // Un div para el texto del título
+            convTitle.classList.add('conversation-title', 'gds-body-m'); 
+            convTitle.textContent = conv.title;
+            convTitle.dataset.folderName = folderName;
+            convTitle.dataset.convId = conv.id;
+            convTitle.dataset.conversationUrl = conv.url;
+            convTitle.style.flexGrow = '1'; 
+            convTitle.style.cursor = 'pointer'; 
+            
             const deleteButton = document.createElement('button');
             deleteButton.classList.add('delete-conversation-btn'); 
             deleteButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon>`;
@@ -201,20 +224,34 @@ async function loadAndDisplayFolders() {
             deleteButton.dataset.folderName = folderName;
             deleteButton.dataset.convId = conv.id; 
 
-            convContentWrapper.appendChild(titleSpan);
-            convContentWrapper.appendChild(deleteButton);
-            convLi.appendChild(convContentWrapper);
-
-            titleSpan.addEventListener('click', openGeminiChat);
+            convContentFlex.appendChild(convTitle);
+            convContentFlex.appendChild(deleteButton);
+            
+            convItem.appendChild(convContentFlex); 
+            
+            convTitle.addEventListener('click', openGeminiChat);
             deleteButton.addEventListener('click', deleteConversation);
 
-            conversationsUl.appendChild(convLi);
+            conversationsUl.appendChild(convItem);
         });
-        folderLi.appendChild(conversationsUl);
-        foldersListUl.appendChild(folderLi);
 
-        folderTitle.addEventListener('click', (event) => {
-            conversationsUl.classList.toggle('hidden');
+        conversationsWrapper.appendChild(conversationsUl); // La UL va dentro del wrapper
+        
+        folderContainer.appendChild(folderHeader);
+        folderContainer.appendChild(conversationsWrapper);
+
+        foldersListUl.appendChild(folderContainer); // El LI va a la UL principal
+
+        // Evento para expandir/colapsar la carpeta
+        folderHeader.addEventListener('click', (event) => {
+            conversationsWrapper.classList.toggle('hidden');
+            if (conversationsWrapper.classList.contains('hidden')) {
+                expandIcon.setAttribute('fonticon', 'expand_more'); 
+                expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
+            } else {
+                expandIcon.setAttribute('fonticon', 'expand_less'); 
+                expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
+            }
         });
     }
 }

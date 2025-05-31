@@ -1,70 +1,55 @@
 /* Contenedor principal del complemento */
 #gemini-organizer-sidebar {
-    position: static; /* En flujo normal, empuja el contenido */
-    width: 100%; /* Ocupa todo el ancho disponible del padre */
-    max-width: none; /* No limita el ancho por viewport, sino por el padre */
+    position: static; 
+    width: 100%; 
+    max-width: none; 
 
-    /* Colores y bordes para parecerse a Gemini */
-    background-color: transparent; /* Fondo transparente para mezclarse */
-    border: none; /* Eliminar bordes para un look más integrado */
-    border-radius: 0; /* Eliminar redondeado si no es necesario */
-    box-shadow: none; /* Eliminar sombra si no es necesario */
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     
     font-family: 'Google Sans', sans-serif;
     color: #202124;
     
-    /* Paddings y ocultamiento para el despliegue */
     padding: 0; 
     padding-top: 0; 
     padding-bottom: 0;
     
     max-height: none; 
-    overflow-y: hidden; /* CLAVE: Ocultar el scroller interno. El scroller principal lo manejará. */
+    overflow-y: hidden; 
 
-    /* Propiedades para la animación de despliegue */
     opacity: 0;
-    transform: translateY(-10px); /* Oculto y un poco hacia arriba */
+    transform: translateY(-10px); 
     visibility: hidden;
-    height: 0; /* La altura inicial es 0 para que no ocupe espacio cuando está oculto */
+    height: 0; 
     transition: opacity 0.3s ease-out, transform 0.3s ease-out, height 0.3s ease-out, padding 0.3s ease-out;
 }
 
-/* Cuando NO está oculto, resetear los estilos de animación y mostrar */
 #gemini-organizer-sidebar:not(.hidden) {
     opacity: 1;
     transform: translateY(0);
     visibility: visible;
-    height: auto; /* Vuelve a auto para que ocupe su altura natural */
-    padding-top: 15px; /* Espacio desde el botón */
-    padding-bottom: 15px; /* Espacio al final del contenido del sidebar */
+    height: auto; 
+    padding-top: 15px;
+    padding-bottom: 15px; 
 }
 
-/* Encabezado */
+/* Ocultar el título principal del sidebar si se usaba antes (confirmado) */
 #gemini-organizer-sidebar h3 {
-    display: none; /* OCULTAR EL TÍTULO "Organizador de Conversaciones" */
-    /* Ya no es necesario si queremos una integración más fluida y sin el título grande */
-    /* Si decides mantenerlo, ajusta su padding-left a 16px para alinearlo */
-    /*
-    margin-top: 0;
-    margin-left: 16px; 
-    margin-bottom: 15px;
-    color: #1a73e8;
-    font-size: 1.1em;
-    border-bottom: 1px solid #e8eaed;
-    padding-bottom: 10px;
-    */
+    display: none;
 }
 
 /* Controles de la carpeta */
 #gemini-organizer-sidebar .folder-controls {
-    margin: 0 16px 20px 16px; /* Alinear padding */
+    margin: 0 16px 20px 16px; 
     padding-bottom: 15px;
     border-bottom: 1px solid #e8eaed;
 }
 
 #gemini-organizer-sidebar .folder-controls h4 {
-    font-size: 0.95em; /* Ligeramente más pequeño para el subtítulo */
-    color: #5f6368; /* Color de texto más tenue */
+    font-size: 0.95em;
+    color: #5f6368;
     margin-bottom: 10px;
 }
 
@@ -95,14 +80,14 @@
 
 /* Selector de carpeta y botón de guardar */
 #gemini-organizer-sidebar .save-controls {
-    margin: 0 16px 20px 16px; /* Alinear padding */
+    margin: 0 16px 20px 16px;
     padding-bottom: 15px;
     border-bottom: 1px solid #e8eaed;
 }
 
 #gemini-organizer-sidebar .save-controls h4 {
-    font-size: 0.95em; /* Ligeramente más pequeño para el subtítulo */
-    color: #5f6368; /* Color de texto más tenue */
+    font-size: 0.95em;
+    color: #5f6368;
     margin-bottom: 10px;
 }
 
@@ -133,75 +118,133 @@
     background-color: #2e8b46;
 }
 
-/* Lista de carpetas */
+/* --- ESTILOS MEJORADOS PARA LAS CARPETAS TIPO "RECIENTE" --- */
+
+/* Contenedor principal de la lista de carpetas */
 #gemini-organizer-sidebar .folders-list h4 {
     margin-top: 0;
     margin-left: 16px; /* Alinear padding */
     margin-bottom: 10px;
-    font-size: 0.95em; /* Ligeramente más pequeño para el subtítulo */
-    color: #5f6368; /* Color de texto más tenue */
+    font-size: 0.95em;
+    color: #5f6368;
 }
 
-#gemini-organizer-sidebar .folders-list ul {
-    list-style: none;
-    padding: 0 16px; /* Alinear padding */
+/* Lista UL principal de carpetas - ELIMINAR VIÑETAS */
+#gemini-organizer-sidebar #folders-list-ul {
+    list-style: none !important; /* Asegura que no haya viñetas */
+    padding: 0;
     margin: 0;
 }
 
-#gemini-organizer-sidebar .folders-list ul li {
-    margin-bottom: 8px;
-    background-color: #e8f0fe;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #d2e3fc;
+/* Contenedor de cada carpeta (gemini-folder-item - que ahora es un LI) */
+#gemini-organizer-sidebar .gemini-folder-item {
+    list-style: none !important; /* Para asegurar que este LI no tenga viñetas */
+    margin-bottom: 4px; /* Espacio entre carpetas */
+    padding: 0 8px; /* Padding para alinearse con los elementos del menú */
+    box-sizing: border-box;
 }
 
-#gemini-organizer-sidebar .folders-list ul li strong {
-    color: #1a73e8;
+/* Título de la carpeta (similar a "Reciente" o "Gems") */
+#gemini-organizer-sidebar .gemini-folder-item .title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 8px; /* Padding interno del botón del título de la carpeta */
+    border-radius: 20px; /* Bordes redondeados */
+    margin-bottom: 0px; /* No queremos margen aquí, el gap lo controla el LI padre */
     cursor: pointer;
-    display: block;
-}
-
-#gemini-organizer-sidebar .folders-list ul li strong:hover {
-    text-decoration: underline;
-}
-
-/* Los items de conversación dentro de la lista de carpetas */
-#gemini-organizer-sidebar .folders-list ul li .conversation-item {
-    margin-top: 5px;
-    padding-left: 10px;
-    border-left: 2px solid #ccc;
-    font-size: 0.9em;
-    color: #5f6368;
-    word-break: break-word;
-}
-
-/* Botón para cerrar la conversación abierta (no se usa, se puede eliminar si se desea) */
-#gemini-organizer-sidebar .close-conversation-btn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8em;
-    margin-top: 10px;
-    display: block;
-    width: fit-content;
     transition: background-color 0.2s ease;
 }
 
-#gemini-organizer-sidebar .close-conversation-btn:hover {
-    background-color: #c82333;
+#gemini-organizer-sidebar .gemini-folder-item .title-container:hover {
+    background-color: #e8f0fe; /* Fondo azul claro al pasar el ratón */
 }
 
-/* Estilos del botón de invocación */
+#gemini-organizer-sidebar .gemini-folder-item .title-container .title {
+    margin: 0; 
+    font-size: 0.9em; /* Más pequeño para los títulos de carpeta */
+    color: #202124;
+    font-weight: 500;
+    flex-grow: 1;
+    white-space: nowrap; /* Evitar salto de línea */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Puntos suspensivos si es largo */
+}
+
+#gemini-organizer-sidebar .gemini-folder-item .title-container .gemini-expand-icon {
+    font-size: 20px; 
+    width: 20px;
+    height: 20px;
+    color: #5f6368; /* Color de ícono estándar de Google */
+    transition: transform 0.3s ease; 
+}
+
+/* Rotar la flecha cuando la carpeta está expandida (no .hidden) */
+#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper:not(.hidden) + .title-container .gemini-expand-icon,
+#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper:not(.hidden) ~ .title-container .gemini-expand-icon { /* Usamos ~ por si el orden de los elementos varía */
+    transform: rotate(180deg);
+}
+
+/* Contenedor de las conversaciones (gemini-folder-container) */
+#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper {
+    padding: 0; /* Ya no hay padding aquí */
+    overflow: hidden; 
+    transition: height 0.3s ease-out, opacity 0.3s ease-out; 
+}
+
+#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper.hidden {
+    height: 0 !important; 
+    opacity: 0 !important; 
+}
+
+/* Lista UL interna de conversaciones - ELIMINAR VIÑETAS */
+#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper .conversation-items-container {
+    list-style: none !important; /* Asegura que no haya viñetas */
+    padding: 0;
+    margin: 0;
+}
+
+
+/* Wrapper de cada item de conversación individual (conversation-item-wrapper - que ahora es un LI) */
+#gemini-organizer-sidebar .conversation-item-wrapper {
+    list-style: none !important; /* Asegurar que este LI no tenga viñetas */
+    margin-bottom: 4px; /* Espacio entre conversaciones */
+    padding: 0; /* Padding se maneja en el div interno */
+}
+
+#gemini-organizer-sidebar .conversation-item-wrapper .conversation-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px; /* Padding similar a los elementos de chat reciente */
+    border-radius: 20px; /* Bordes redondeados */
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+#gemini-organizer-sidebar .conversation-item-wrapper .conversation-item-content:hover {
+    background-color: #e8f0fe;
+}
+
+/* Título de la conversación dentro del wrapper (conversation-title) */
+#gemini-organizer-sidebar .conversation-item-wrapper .conversation-title {
+    flex-grow: 1;
+    margin: 0; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.88em; 
+    color: #202124;
+}
+
+/* Estilos del botón de invocación (se mantienen) */
 #gemini-organizer-toggle-btn {
     background: none;
     border: none;
     color: #202124;
     width: 100%;
-    padding: 12px 16px; /* Padding interno del botón */
+    padding: 12px 16px; 
     display: flex;
     align-items: center;
     gap: 12px;
@@ -239,11 +282,11 @@
 
 /* Contenedor del botón del organizador (el <side-nav-action-button>) */
 #gemini-organizer-wrapper {
-    list-style: none; /* Asegura que no tenga viñetas */
-    margin-bottom: 8px; /* Espacio entre elementos de la lista */
-    padding: 0 8px; /* Padding para alinear con otros elementos de navegación */
+    list-style: none;
+    margin-bottom: 8px;
+    padding: 0 8px;
     box-sizing: border-box;
-    position: static; /* Volvemos a static, ya que el sidebar es hijo directo */
+    position: static; 
 }
 
 /* Estilos para el botón de eliminar conversación */
@@ -260,6 +303,7 @@
     transition: background-color 0.2s ease, color 0.2s ease;
     flex-shrink: 0;
     margin-left: 8px;
+    z-index: 1; 
 }
 
 .delete-conversation-btn:hover {
@@ -271,11 +315,7 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-}
-
-/* Ajustes para el texto del título dentro del item de conversación */
-.conversation-item .conversation-title-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: flex; /* Asegura que la mat-icon se centre bien */
+    align-items: center;
+    justify-content: center;
 }
