@@ -319,3 +319,21 @@
     align-items: center;
     justify-content: center;
 }
+
+.conversation.is-dragging {
+    opacity: 0.5; /* Hace que el elemento arrastrado sea semi-transparente */
+    border: 1px dashed #1a73e8; /* Borde punteado para indicar que se está arrastrando */
+    background-color: #f0f4f9; /* Cambiar fondo al arrastrar */
+}
+
+/* Carpeta al pasar el elemento arrastrado por encima */
+#gemini-organizer-sidebar .gemini-folder-item .title-container.drag-over {
+    background-color: #e8f0fe; /* Fondo azul claro */
+    border: 1px solid #1a73e8; /* Borde para indicar zona de drop */
+    box-shadow: 0 0 5px rgba(26, 115, 232, 0.5); /* Sombra sutil */
+}
+
+/* Cursor de arrastre (opcional, el browser lo maneja bien con dataTransfer.dropEffect) */
+body.dragging * {
+    cursor: grabbing !important;
+}

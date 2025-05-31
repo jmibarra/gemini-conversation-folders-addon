@@ -2,9 +2,9 @@
 const SIDEBAR_ID = 'gemini-organizer-sidebar';
 const STORAGE_KEY = 'geminiConversations';
 const TOGGLE_BUTTON_ID = 'gemini-organizer-toggle-btn';
-const TOGGLE_BUTTON_WRAPPER_ID = 'gemini-organizer-wrapper'; // ID para el wrapper del botón
+const TOGGLE_BUTTON_WRAPPER_ID = 'gemini-organizer-wrapper';
 
-// Función para inicializar la interfaz del complemento (solo crea/obtiene el DIV)
+// Función para inicializar la interfaz del complemento (sin cambios)
 function initializeSidebar() {
     let sidebar = document.getElementById(SIDEBAR_ID);
     if (!sidebar) {
@@ -36,7 +36,7 @@ function initializeSidebar() {
     return sidebar;
 }
 
-// Función para agregar el botón de invocación y adjuntar/configurar el sidebar
+// Función para agregar el botón de invocación y adjuntar/configurar el sidebar (sin cambios significativos)
 function addToggleButton() {
     const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
@@ -45,18 +45,14 @@ function addToggleButton() {
         let button = document.getElementById(TOGGLE_BUTTON_ID);
         let sidebar = document.getElementById(SIDEBAR_ID);
 
-        // --- Lógica para el Wrapper del Botón (your side-nav-action-button) ---
         if (!ourButtonWrapper) {
-            // Si el wrapper no existe, lo creamos y adjuntamos
             ourButtonWrapper = document.createElement('side-nav-action-button');
             ourButtonWrapper.id = TOGGLE_BUTTON_WRAPPER_ID;
             ourButtonWrapper.setAttribute('icon', 'folder_open');
             ourButtonWrapper.setAttribute('arialabel', 'Organizador de Conversaciones');
             ourButtonWrapper.setAttribute('data-test-id', 'gemini-organizer-button');
-            // Añadir clases para que se parezca a los demás side-nav-action-button
             ourButtonWrapper.classList.add('mat-mdc-tooltip-trigger', 'ia-redesign', 'ng-star-inserted');
 
-            // --- Lógica para el Botón Interno (button) ---
             button = document.createElement('button');
             button.id = TOGGLE_BUTTON_ID;
             button.classList.add(
@@ -81,32 +77,16 @@ function addToggleButton() {
                 <div class="mat-focus-indicator"></div>
             `;
             
-            ourButtonWrapper.appendChild(button); // Adjuntar el botón al wrapper
-            discoverGemsButtonWrapper.after(ourButtonWrapper); // Adjuntar el wrapper al DOM
+            ourButtonWrapper.appendChild(button);
+            discoverGemsButtonWrapper.after(ourButtonWrapper);
         }
 
-        // --- Lógica para la Barra Lateral (sidebar) ---
         if (!sidebar) {
-            // Si la barra lateral no existe, la creamos
             sidebar = initializeSidebar(); 
-            ourButtonWrapper.appendChild(sidebar); // Y la adjuntamos al wrapper
-        } else if (!ourButtonWrapper.contains(sidebar)) {
-            // Si existe pero no es hijo de nuestro wrapper (ej. se movió), la re-adjuntamos
-            ourButtonWrapper.appendChild(sidebar);
         }
+        if (sidebar && !ourButtonWrapper.contains(sidebar)) {
+            ourButtonWrapper.appendChild(sidebar); 
 
-        // --- Adjuntar Event Listeners y Cargar Datos (Solo si no están ya adjuntos) ---
-        // Esto previene el error "Cannot read properties of null"
-        // y también el error de "listener duplicado" si el observer re-ejecuta esto.
-
-        // Adjuntar event listener al botón principal (si aún no tiene uno)
-        if (button && !button.hasAttribute('data-listener-attached')) {
-            button.addEventListener('click', toggleSidebarVisibility);
-            button.setAttribute('data-listener-attached', 'true'); // Marcar que el listener está adjunto
-        }
-        
-        // Adjuntar event listeners a los botones internos del sidebar (solo si el sidebar está en el DOM)
-        if (sidebar && document.body.contains(sidebar)) { // Asegurarse de que el sidebar es parte del DOM
             const createFolderBtn = document.getElementById('create-folder-btn');
             const saveConversationBtn = document.getElementById('save-conversation-btn');
 
@@ -120,11 +100,15 @@ function addToggleButton() {
                 saveConversationBtn.setAttribute('data-listener-attached', 'true');
             }
             
-            // Cargar los datos solo una vez o cuando sea necesario
             if (!sidebar.hasAttribute('data-loaded-once')) {
                 loadAndDisplayFolders();
                 sidebar.setAttribute('data-loaded-once', 'true');
             }
+        }
+        // Asegurarse de que el listener del botón principal esté siempre adjunto
+        if (button && !button.hasAttribute('data-listener-attached')) { // Check again after sidebar logic
+             button.addEventListener('click', toggleSidebarVisibility);
+             button.setAttribute('data-listener-attached', 'true');
         }
 
     } else {
@@ -132,28 +116,20 @@ function addToggleButton() {
     }
 }
 
-// Función para alternar la visibilidad de la barra lateral
+// Función para alternar la visibilidad de la barra lateral (sin cambios)
 function toggleSidebarVisibility() {
     const sidebar = document.getElementById(SIDEBAR_ID);
-    const buttonWrapper = document.getElementById(TOGGLE_BUTTON_WRAPPER_ID);
-
-    if (sidebar && buttonWrapper) {
-        // Alternar la clase 'hidden' en el sidebar
+    if (sidebar) {
         sidebar.classList.toggle('hidden');
-
-        // Ya no necesitamos ajustar el margin-bottom dinámicamente aquí.
-        // El CSS con height: 0 / height: auto y padding/border transitions se encarga.
-        // Las clases 'sidebar-visible' tampoco son necesarias en JS si no hay CSS que dependa de ellas.
     }
 }
 
-
-// Función para cargar y mostrar las carpetas y conversaciones (sin cambios)
+// Función para cargar y mostrar las carpetas y conversaciones (MODIFICADA: Agrega eventos de Drop)
 async function loadAndDisplayFolders() {
     const foldersListUl = document.getElementById('folders-list-ul');
     const folderSelector = document.getElementById('folder-selector');
-    foldersListUl.innerHTML = ''; // Limpiar lista actual
-    folderSelector.innerHTML = '<option value="">Selecciona una carpeta</option>'; // Limpiar selector
+    foldersListUl.innerHTML = '';
+    folderSelector.innerHTML = '<option value="">Selecciona una carpeta</option>';
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
@@ -166,22 +142,25 @@ async function loadAndDisplayFolders() {
         option.textContent = folderName;
         folderSelector.appendChild(option);
 
-        // --- Nueva estructura para cada carpeta, imitando "Reciente" ---
-        const folderContainer = document.createElement('li'); // Ahora el contenedor es un LI
+        const folderContainer = document.createElement('li');
         folderContainer.classList.add('gemini-folder-item'); 
 
-        // Título de la carpeta (similar a la sección "Reciente")
         const folderHeader = document.createElement('div');
         folderHeader.classList.add('title-container'); 
         folderHeader.setAttribute('role', 'button');
         folderHeader.setAttribute('tabindex', '0');
+        
+        // Agregar eventos de drag and drop a la cabecera de la carpeta
+        folderHeader.addEventListener('dragover', handleDragOver);
+        folderHeader.addEventListener('dragleave', handleDragLeave);
+        folderHeader.addEventListener('drop', handleDrop);
+        folderHeader.dataset.folderName = folderName; // Para saber en qué carpeta se soltó
 
-        const folderTitle = document.createElement('span'); // Usamos SPAN para el título de la carpeta
+        const folderTitle = document.createElement('span');
         folderTitle.classList.add('title', 'gds-label-l', 'gemini-folder-title');
         folderTitle.textContent = folderName;
         folderTitle.dataset.folderName = folderName; 
         
-        // Icono de expansión/colapso
         const expandIcon = document.createElement('mat-icon');
         expandIcon.classList.add('mat-icon', 'notranslate', 'gds-icon-l', 'google-symbols', 'mat-ligature-font', 'mat-icon-no-color', 'gemini-expand-icon');
         expandIcon.setAttribute('role', 'img');
@@ -193,22 +172,21 @@ async function loadAndDisplayFolders() {
         folderHeader.appendChild(folderTitle);
         folderHeader.appendChild(expandIcon);
         
-        // Contenedor de las conversaciones (la lista UL real)
-        const conversationsWrapper = document.createElement('div'); // Este div manejará la animación de colapso
+        const conversationsWrapper = document.createElement('div');
         conversationsWrapper.classList.add('conversations-list-wrapper', 'hidden'); 
         
-        const conversationsUl = document.createElement('ul'); // La UL real para los items
+        const conversationsUl = document.createElement('ul');
         conversationsUl.classList.add('conversation-items-container', 'side-nav-opened');
 
 
         storedFolders[folderName].forEach((conv) => {
-            const convItem = document.createElement('li'); // Cada conversación es un LI dentro de la UL
+            const convItem = document.createElement('li');
             convItem.classList.add('conversation-item-wrapper'); 
             
             const convContentFlex = document.createElement('div');
             convContentFlex.classList.add('conversation-item-content'); 
             
-            const convTitle = document.createElement('div'); // Un div para el texto del título
+            const convTitle = document.createElement('div');
             convTitle.classList.add('conversation-title', 'gds-body-m'); 
             convTitle.textContent = conv.title;
             convTitle.dataset.folderName = folderName;
@@ -235,14 +213,13 @@ async function loadAndDisplayFolders() {
             conversationsUl.appendChild(convItem);
         });
 
-        conversationsWrapper.appendChild(conversationsUl); // La UL va dentro del wrapper
+        conversationsWrapper.appendChild(conversationsUl);
         
         folderContainer.appendChild(folderHeader);
         folderContainer.appendChild(conversationsWrapper);
 
-        foldersListUl.appendChild(folderContainer); // El LI va a la UL principal
+        foldersListUl.appendChild(folderContainer);
 
-        // Evento para expandir/colapsar la carpeta
         folderHeader.addEventListener('click', (event) => {
             conversationsWrapper.classList.toggle('hidden');
             if (conversationsWrapper.classList.contains('hidden')) {
@@ -252,7 +229,7 @@ async function loadAndDisplayFolders() {
                 expandIcon.setAttribute('fonticon', 'expand_less'); 
                 expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
             }
-        }); 
+        });
     }
 }
 
@@ -387,10 +364,164 @@ async function deleteConversation(event) {
     }
 }
 
+// --- NUEVAS FUNCIONES PARA DRAG AND DROP ---
+
+// 1. Manejador para el inicio del arrastre (dragstart)
+function handleDragStart(event) {
+    // Selector más preciso basado en tu HTML
+    const conversationElement = event.target.closest('.conversation[data-test-id="conversation"]'); 
+
+    if (conversationElement) {
+        const titleElement = conversationElement.querySelector('.conversation-title');
+        let convTitle = titleElement ? titleElement.textContent.trim() : 'Conversación sin título';
+        let convUrl = '';
+
+        // --- Lógica para extraer la URL de la conversación ---
+        // La URL de Gemini sigue un patrón como: https://gemini.google.com/gem/ID_CONVERSACION
+        // El ID de conversación puede estar en el jslog o en la URL cuando la conversación está activa.
+        
+        // Primero, intentar obtener el ID de conversación del jslog, si está presente y bien estructurado
+        const jslogAttribute = conversationElement.getAttribute('jslog');
+        if (jslogAttribute) {
+            const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]+,null,null,null,null,null,null,\["([^"]+)"/);
+            if (match && match[1]) {
+                const conversationId = match[1];
+                convUrl = `https://gemini.google.com/gem/${conversationId}`;
+            }
+        }
+
+        // Si la URL no se pudo extraer del jslog, y la conversación actual ES la arrastrada,
+        // usar la URL de la ventana.
+        // Esto cubre el caso de la conversación "selected".
+        if (!convUrl && conversationElement.classList.contains('selected')) {
+             convUrl = window.location.href.split('?')[0]; // Tomar solo la URL base, sin parámetros UTM
+             // Asegurarse de que la URL contenga '/gem/'
+             if (!convUrl.includes('/gem/')) {
+                 // Si no es una URL de chat específica, entonces no podemos arrastrarla como tal.
+                 // Podrías poner una URL por defecto o abortar el drag.
+                 console.warn("No se pudo obtener una URL de chat específica para la conversación arrastrada.");
+                 // Puedes hacer event.preventDefault() aquí para cancelar el drag si no hay URL.
+                 // event.preventDefault(); 
+                 // return;
+             }
+        }
+        
+        // Si aún no tenemos una URL, o si es una URL genérica de Gemini (ej. https://gemini.google.com/),
+        // podríamos simplemente usar la URL de la página actual como último recurso, o dar un error.
+        if (!convUrl || convUrl === 'https://gemini.google.com/') {
+            convUrl = window.location.href.split('?')[0]; // Considerar la URL actual si no se pudo extraer una específica
+        }
+
+        const conversationData = JSON.stringify({
+            title: convTitle,
+            url: convUrl
+        });
+
+        event.dataTransfer.setData('application/json', conversationData);
+        event.dataTransfer.effectAllowed = 'move';
+
+        conversationElement.classList.add('is-dragging');
+    }
+}
+
+// 2. Manejador para el elemento que recibe el arrastre (dragover)
+function handleDragOver(event) {
+    event.preventDefault(); // Esto es CRUCIAL para permitir el drop
+    event.dataTransfer.dropEffect = 'move'; // Cambiar el cursor a "mover"
+
+    // Feedback visual a la carpeta al pasar el ratón por encima
+    if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
+        event.currentTarget.classList.add('drag-over');
+    }
+}
+
+// 3. Manejador cuando el arrastre sale del elemento (dragleave)
+function handleDragLeave(event) {
+    if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
+        event.currentTarget.classList.remove('drag-over');
+    }
+}
+
+// 4. Manejador para el soltado (drop)
+async function handleDrop(event) {
+    event.preventDefault(); // CRUCIAL
+    
+    // Remover feedback visual
+    if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
+        event.currentTarget.classList.remove('drag-over');
+    }
+
+    const droppedData = event.dataTransfer.getData('application/json');
+    if (!droppedData) {
+        alert('No se pudo recuperar la información de la conversación arrastrada.');
+        return;
+    }
+
+    const conversation = JSON.parse(droppedData);
+    const folderName = event.currentTarget.dataset.folderName; // La carpeta donde se soltó
+
+    if (!folderName) {
+        alert('No se pudo identificar la carpeta de destino.');
+        return;
+    }
+
+    if (!conversation.title || !conversation.url) {
+        alert('La información de la conversación arrastrada está incompleta.');
+        return;
+    }
+
+    // Lógica para guardar la conversación en la carpeta
+    const data = await chrome.storage.local.get(STORAGE_KEY);
+    let storedFolders = data[STORAGE_KEY] || {};
+
+    if (storedFolders[folderName]) {
+        // Verificar si la conversación ya existe en la carpeta (opcional, para evitar duplicados)
+        const exists = storedFolders[folderName].some(conv => conv.url === conversation.url);
+        if (exists) {
+            alert(`La conversación "${conversation.title}" ya está en la carpeta "${folderName}".`);
+            return;
+        }
+
+        const newConvId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        storedFolders[folderName].push({
+            id: newConvId,
+            timestamp: new Date().toLocaleString(),
+            title: conversation.title,
+            url: conversation.url
+        });
+
+        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+        alert(`Conversación "${conversation.title}" guardada en "${folderName}" exitosamente.`);
+        loadAndDisplayFolders(); // Actualizar la lista de carpetas
+    } else {
+        alert("La carpeta de destino no existe.");
+    }
+}
+
+
+// --- NUEVA LÓGICA DE OBSERVACIÓN Y EVENTOS PARA CONVERSACIONES "RECIENTES" ---
+function setupDraggableConversations() {
+    // Selector para las conversaciones en la sección "Recientes"
+    // .conversation[data-test-id="conversation"] es el selector más robusto de tu HTML
+    const recentConversations = document.querySelectorAll('.chat-history-list .conversation[data-test-id="conversation"]');
+
+    recentConversations.forEach(convElement => {
+        if (!convElement.hasAttribute('data-draggable-setup')) { // Usar un atributo para marcar que ya se configuró
+            convElement.setAttribute('draggable', 'true');
+            convElement.addEventListener('dragstart', handleDragStart);
+            convElement.addEventListener('dragend', (event) => {
+                event.target.classList.remove('is-dragging');
+            });
+            convElement.setAttribute('data-draggable-setup', 'true'); // Marcar como configurado
+        }
+    });
+}
+
 
 // Ejecutar la inicialización cuando el DOM esté cargado
 window.requestIdleCallback(() => {
     addToggleButton();
+    setupDraggableConversations(); // Configurar arrastre en conversaciones recientes
 });
 
 // Observar cambios en el DOM de Gemini para asegurar que el botón y el sidebar persistan
@@ -400,18 +531,12 @@ const observer = new MutationObserver((mutationsList, observer) => {
     const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
     // Condición para reinicializar:
-    // 1. Si no se encuentra el wrapper de nuestro botón.
-    // 2. Si el wrapper del botón existe, pero no está en el DOM del body (fue removido).
-    // 3. Si el sidebar no existe.
-    // 4. Si el sidebar existe, pero no es hijo de nuestro wrapper (fue movido o desadjuntado).
-    // 5. Si el elemento de referencia (Descubrir Gems) no está en el DOM (toda la barra lateral se recargó).
     if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper) ||
         !sidebar || !toggleButtonWrapper.contains(sidebar) ||
         !discoverGemsButtonWrapper || !document.body.contains(discoverGemsButtonWrapper)) {
         
         console.log('Detectado cambio en la estructura de la barra lateral de Gemini. Reinicializando el complemento.');
         
-        // Limpiar elementos existentes para una reinicialización limpia, si están en el DOM.
         if (toggleButtonWrapper && document.body.contains(toggleButtonWrapper)) {
             toggleButtonWrapper.remove();
         }
@@ -419,8 +544,10 @@ const observer = new MutationObserver((mutationsList, observer) => {
             sidebar.remove(); 
         }
 
-        addToggleButton(); // Intentar añadir de nuevo el botón y el sidebar
+        addToggleButton(); 
     }
+    // Siempre intentamos configurar las conversaciones arrastrables, ya que pueden aparecer nuevas.
+    setupDraggableConversations(); 
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
