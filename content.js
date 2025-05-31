@@ -14,8 +14,6 @@ function initializeSidebar() {
         // Si ya existe, su visibilidad será controlada por el CSS que ya aplicamos.
         sidebar.classList.add('hidden'); 
         sidebar.innerHTML = `
-            <h3>Organizador de Conversaciones</h3>
-
             <div class="folder-controls">
                 <h4>Crear Nueva Carpeta</h4>
                 <input type="text" id="new-folder-name" placeholder="Nombre de la carpeta">
@@ -74,12 +72,12 @@ function addToggleButton() {
             button.setAttribute('aria-disabled', 'false');
 
             button.innerHTML = `
-                <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start">
+                <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start" style="margin-left: 0px;margin-right: 0px;">
                     <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open" fonticon="folder_open"></mat-icon>
                 </div>
                 <span class="mdc-list-item__content">
                     <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
-                        <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador</span>
+                        <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador de Conversaciones</span>
                     </span>
                 </span>
                 <div class="mat-focus-indicator"></div>
