@@ -153,8 +153,16 @@ async function loadAndDisplayFolders() {
         expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
         expandIcon.setAttribute('fonticon', 'expand_more');
 
+        // NUEVO: Botón de eliminar carpeta
+        const deleteFolderButton = document.createElement('button');
+        deleteFolderButton.classList.add('delete-folder-btn');
+        deleteFolderButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon>`;
+        deleteFolderButton.title = `Eliminar carpeta: "${folderName}"`;
+        deleteFolderButton.dataset.folderName = folderName; // Guardamos el nombre de la carpeta
+
         folderHeader.appendChild(folderTitle);
-        folderHeader.appendChild(expandIcon);
+        folderHeader.appendChild(deleteFolderButton); // Añadimos el botón de eliminar
+        folderHeader.appendChild(expandIcon); // El ícono de expandir va al final
 
         const conversationsWrapper = document.createElement('div');
         conversationsWrapper.classList.add('conversations-list-wrapper', 'hidden');
@@ -203,7 +211,11 @@ async function loadAndDisplayFolders() {
 
         foldersListUl.appendChild(folderContainer);
 
+        // NUEVO: Listener para el botón de eliminar carpeta
+        deleteFolderButton.addEventListener('click', deleteFolder);
+
         folderHeader.addEventListener('click', (event) => {
+            // ... tu código existente para expandir/contraer
             conversationsWrapper.classList.toggle('hidden');
             if (conversationsWrapper.classList.contains('hidden')) {
                 expandIcon.setAttribute('fonticon', 'expand_more');
@@ -236,6 +248,37 @@ async function createFolder() {
         }
     } else {
         alert("Por favor, ingresa un nombre para la carpeta.");
+    }
+}
+
+// NUEVO: Función para borrar una carpeta completa
+async function deleteFolder(event) {
+    // Detenemos la propagación del evento para que no se active el click de expandir/contraer la carpeta
+    event.stopPropagation();
+
+    const folderName = event.currentTarget.dataset.folderName;
+
+    if (!folderName) {
+        console.error('Error: No se pudo obtener el nombre de la carpeta para eliminar.');
+        alert('Hubo un error al intentar eliminar la carpeta. Por favor, inténtalo de nuevo.');
+        return;
+    }
+
+    if (!confirm(`¿Estás seguro de que quieres eliminar la carpeta "${folderName}"? Todas las conversaciones dentro de ella también se eliminarán.`)) {
+        return;
+    }
+
+    const data = await chrome.storage.local.get(STORAGE_KEY);
+    let storedFolders = data[STORAGE_KEY] || {};
+
+    if (storedFolders[folderName]) {
+        delete storedFolders[folderName]; // Elimina la carpeta del objeto
+
+        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+        alert(`Carpeta "${folderName}" y sus conversaciones eliminadas exitosamente.`);
+        loadAndDisplayFolders(); // Recargar la lista para que la carpeta desaparezca
+    } else {
+        alert("La carpeta especificada no existe.");
     }
 }
 

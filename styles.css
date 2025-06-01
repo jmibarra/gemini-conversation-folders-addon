@@ -144,16 +144,17 @@
     box-sizing: border-box;
 }
 
-/* Título de la carpeta (similar a "Reciente" o "Gems") */
+/* Ajuste al contenedor del título de la carpeta para acomodar el nuevo botón */
 #gemini-organizer-sidebar .gemini-folder-item .title-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Esto ayuda a distribuir los elementos */
     align-items: center;
-    padding: 8px 8px; /* Padding interno del botón del título de la carpeta */
-    border-radius: 20px; /* Bordes redondeados */
-    margin-bottom: 0px; /* No queremos margen aquí, el gap lo controla el LI padre */
+    padding: 8px 8px;
+    border-radius: 20px;
+    margin-bottom: 0px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    /* Aseguramos que el flex-grow del título empuje los botones hacia los lados */
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container:hover {
@@ -161,6 +162,8 @@
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
+    flex-grow: 1; /* Permite que el título crezca y empuje los botones a los extremos */
+    margin-right: 8px; /* Espacio entre el título y el botón de eliminar */
     margin: 0; 
     font-size: 0.9em; /* Más pequeño para los títulos de carpeta */
     color: #202124;
@@ -336,4 +339,35 @@
 /* Cursor de arrastre (opcional, el browser lo maneja bien con dataTransfer.dropEffect) */
 body.dragging * {
     cursor: grabbing !important;
+}
+
+/* Estilos para el botón de eliminar carpeta */
+.delete-folder-btn {
+    background: none;
+    border: none;
+    color: #5f6368;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 8px; /* Espacio entre el botón y el título/icono */
+    z-index: 1; /* Asegura que sea clickeable */
+}
+
+.delete-folder-btn:hover {
+    background-color: #fce8e6; /* Fondo rojo claro al pasar el ratón */
+    color: #dc3545; /* Color del icono rojo */
+}
+
+.delete-folder-btn mat-icon {
+    font-size: 18px; /* Tamaño del icono */
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
