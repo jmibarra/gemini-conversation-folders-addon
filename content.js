@@ -185,6 +185,7 @@ async function loadAndDisplayFolders() {
             // Ya no necesitamos dataset.conversationUrl aquí, solo el ID
             convTitle.style.flexGrow = '1';
             convTitle.style.cursor = 'pointer';
+            convTitle.title = conv.title;
 
             const deleteButton = document.createElement('button');
             deleteButton.classList.add('delete-conversation-btn');
