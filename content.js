@@ -10,7 +10,7 @@ function initializeSidebar() {
     if (!sidebar) {
         sidebar = document.createElement('div');
         sidebar.id = SIDEBAR_ID;
-        sidebar.classList.add('hidden'); 
+        sidebar.classList.add('hidden');
         sidebar.innerHTML = `
             <div class="folder-controls">
                 <h4>Crear Nueva Carpeta</h4>
@@ -18,7 +18,7 @@ function initializeSidebar() {
                 <button id="create-folder-btn">Crear</button>
             </div>
             <div class="folders-list">
-                <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4> 
+                <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
                 <ul id="folders-list-ul">
                     </ul>
             </div>
@@ -47,9 +47,9 @@ function addToggleButton() {
             button = document.createElement('button');
             button.id = TOGGLE_BUTTON_ID;
             button.classList.add(
-                'mat-mdc-list-item', 'mdc-list-item', 'side-nav-action-button', 
-                'explicit-gmat-override', 'mat-mdc-list-item-interactive', 
-                'mdc-list-item--with-leading-icon', 'mat-mdc-list-item-single-line', 
+                'mat-mdc-list-item', 'mdc-list-item', 'side-nav-action-button',
+                'explicit-gmat-override', 'mat-mdc-list-item-interactive',
+                'mdc-list-item--with-leading-icon', 'mat-mdc-list-item-single-line',
                 'mdc-list-item--with-one-line', 'ng-star-inserted'
             );
             button.type = 'button';
@@ -67,37 +67,37 @@ function addToggleButton() {
                 </span>
                 <div class="mat-focus-indicator"></div>
             `;
-            
+
             ourButtonWrapper.appendChild(button);
             discoverGemsButtonWrapper.after(ourButtonWrapper);
         }
 
         if (!sidebar) {
-            sidebar = initializeSidebar(); 
+            sidebar = initializeSidebar();
         }
         if (sidebar && !ourButtonWrapper.contains(sidebar)) {
-            ourButtonWrapper.appendChild(sidebar); 
+            ourButtonWrapper.appendChild(sidebar);
 
             const createFolderBtn = document.getElementById('create-folder-btn');
-            const saveConversationBtn = document.getElementById('save-conversation-btn');
+            const saveConversationBtn = document.getElementById('save-conversation-btn'); // Considera si necesitas este botón con drag-and-drop
 
             if (createFolderBtn && !createFolderBtn.hasAttribute('data-listener-attached')) {
                 createFolderBtn.addEventListener('click', createFolder);
                 createFolderBtn.setAttribute('data-listener-attached', 'true');
             }
-            
+
             if (saveConversationBtn && !saveConversationBtn.hasAttribute('data-listener-attached')) {
                 saveConversationBtn.addEventListener('click', saveCurrentConversation);
                 saveConversationBtn.setAttribute('data-listener-attached', 'true');
             }
-            
+
             if (!sidebar.hasAttribute('data-loaded-once')) {
                 loadAndDisplayFolders();
                 sidebar.setAttribute('data-loaded-once', 'true');
             }
         }
         // Asegurarse de que el listener del botón principal esté siempre adjunto
-        if (button && !button.hasAttribute('data-listener-attached')) { // Check again after sidebar logic
+        if (button && !button.hasAttribute('data-listener-attached')) {
              button.addEventListener('click', toggleSidebarVisibility);
              button.setAttribute('data-listener-attached', 'true');
         }
@@ -115,11 +115,10 @@ function toggleSidebarVisibility() {
     }
 }
 
-// Función para cargar y mostrar las carpetas y conversaciones (MODIFICADA: Agrega eventos de Drop)
+// Función para cargar y mostrar las carpetas y conversaciones (actualizada para usar ID de Gemini)
 async function loadAndDisplayFolders() {
     const foldersListUl = document.getElementById('folders-list-ul');
-    const folderSelector = document.getElementById('create-folder-btn');
-    foldersListUl.innerHTML = '';
+    foldersListUl.innerHTML = ''; // Limpiar la lista actual
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
@@ -127,75 +126,70 @@ async function loadAndDisplayFolders() {
     const sortedFolderNames = Object.keys(storedFolders).sort();
 
     for (const folderName of sortedFolderNames) {
-        const option = document.createElement('option');
-        option.value = folderName;
-        option.textContent = folderName;
-
         const folderContainer = document.createElement('li');
-        folderContainer.classList.add('gemini-folder-item'); 
+        folderContainer.classList.add('gemini-folder-item');
 
         const folderHeader = document.createElement('div');
-        folderHeader.classList.add('title-container'); 
+        folderHeader.classList.add('title-container');
         folderHeader.setAttribute('role', 'button');
         folderHeader.setAttribute('tabindex', '0');
-        
+
         // Agregar eventos de drag and drop a la cabecera de la carpeta
         folderHeader.addEventListener('dragover', handleDragOver);
         folderHeader.addEventListener('dragleave', handleDragLeave);
         folderHeader.addEventListener('drop', handleDrop);
-        folderHeader.dataset.folderName = folderName; // Para saber en qué carpeta se soltó
+        folderHeader.dataset.folderName = folderName;
 
         const folderTitle = document.createElement('span');
         folderTitle.classList.add('title', 'gds-label-l', 'gemini-folder-title');
         folderTitle.textContent = folderName;
-        folderTitle.dataset.folderName = folderName; 
-        
+        folderTitle.dataset.folderName = folderName;
+
         const expandIcon = document.createElement('mat-icon');
         expandIcon.classList.add('mat-icon', 'notranslate', 'gds-icon-l', 'google-symbols', 'mat-ligature-font', 'mat-icon-no-color', 'gemini-expand-icon');
         expandIcon.setAttribute('role', 'img');
         expandIcon.setAttribute('aria-hidden', 'true');
         expandIcon.setAttribute('data-mat-icon-type', 'font');
-        expandIcon.setAttribute('data-mat-icon-name', 'expand_more'); 
+        expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
         expandIcon.setAttribute('fonticon', 'expand_more');
 
         folderHeader.appendChild(folderTitle);
         folderHeader.appendChild(expandIcon);
-        
+
         const conversationsWrapper = document.createElement('div');
-        conversationsWrapper.classList.add('conversations-list-wrapper', 'hidden'); 
-        
+        conversationsWrapper.classList.add('conversations-list-wrapper', 'hidden');
+
         const conversationsUl = document.createElement('ul');
         conversationsUl.classList.add('conversation-items-container', 'side-nav-opened');
 
-
         storedFolders[folderName].forEach((conv) => {
             const convItem = document.createElement('li');
-            convItem.classList.add('conversation-item-wrapper'); 
-            
+            convItem.classList.add('conversation-item-wrapper');
+
             const convContentFlex = document.createElement('div');
-            convContentFlex.classList.add('conversation-item-content'); 
-            
+            convContentFlex.classList.add('conversation-item-content');
+
             const convTitle = document.createElement('div');
-            convTitle.classList.add('conversation-title', 'gds-body-m'); 
+            convTitle.classList.add('conversation-title', 'gds-body-m');
             convTitle.textContent = conv.title;
             convTitle.dataset.folderName = folderName;
-            convTitle.dataset.convId = conv.id;
-            convTitle.dataset.conversationUrl = conv.url;
-            convTitle.style.flexGrow = '1'; 
-            convTitle.style.cursor = 'pointer'; 
-            
+            convTitle.dataset.convId = conv.id; // ¡Este es el ID de Gemini real, sin "c_"!
+            // Ya no necesitamos dataset.conversationUrl aquí, solo el ID
+            convTitle.style.flexGrow = '1';
+            convTitle.style.cursor = 'pointer';
+
             const deleteButton = document.createElement('button');
-            deleteButton.classList.add('delete-conversation-btn'); 
+            deleteButton.classList.add('delete-conversation-btn');
             deleteButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon>`;
-            deleteButton.title = `Eliminar conversación: "${conv.title}"`; 
+            deleteButton.title = `Eliminar conversación: "${conv.title}"`;
             deleteButton.dataset.folderName = folderName;
-            deleteButton.dataset.convId = conv.id; 
+            deleteButton.dataset.convId = conv.id;
 
             convContentFlex.appendChild(convTitle);
             convContentFlex.appendChild(deleteButton);
-            
-            convItem.appendChild(convContentFlex); 
-            
+
+            convItem.appendChild(convContentFlex);
+
             convTitle.addEventListener('click', openGeminiChat);
             deleteButton.addEventListener('click', deleteConversation);
 
@@ -203,7 +197,7 @@ async function loadAndDisplayFolders() {
         });
 
         conversationsWrapper.appendChild(conversationsUl);
-        
+
         folderContainer.appendChild(folderHeader);
         folderContainer.appendChild(conversationsWrapper);
 
@@ -212,10 +206,10 @@ async function loadAndDisplayFolders() {
         folderHeader.addEventListener('click', (event) => {
             conversationsWrapper.classList.toggle('hidden');
             if (conversationsWrapper.classList.contains('hidden')) {
-                expandIcon.setAttribute('fonticon', 'expand_more'); 
+                expandIcon.setAttribute('fonticon', 'expand_more');
                 expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
             } else {
-                expandIcon.setAttribute('fonticon', 'expand_less'); 
+                expandIcon.setAttribute('fonticon', 'expand_less');
                 expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
             }
         });
@@ -245,9 +239,9 @@ async function createFolder() {
     }
 }
 
-// Función para guardar la conversación actual (sin cambios)
+// Función para guardar la conversación actual (Considera si la sigues necesitando con el drag-and-drop)
 async function saveCurrentConversation() {
-    const folderSelector = document.getElementById('folder-selector');
+    const folderSelector = document.getElementById('folder-selector'); // Asegúrate de que este elemento exista
     const selectedFolderName = folderSelector.value;
 
     if (!selectedFolderName) {
@@ -256,21 +250,29 @@ async function saveCurrentConversation() {
     }
 
     const conversationTitle = extractConversationTitle();
-    const conversationUrl = window.location.href;
+    // Nuevo: Extraer el ID real de la conversación activa
+    const conversationId = extractRealConversationIdFromCurrentUrl();
 
-    if (!conversationTitle || conversationTitle === "Conversación sin título") {
-        alert("No se pudo extraer el título de la conversación o no hay una conversación activa. Por favor, asegúrate de que estás en un chat con un título para guardar.");
+    if (!conversationTitle || conversationTitle === "Conversación sin título" || !conversationId) {
+        alert("No se pudo extraer el título o ID de la conversación actual. Por favor, asegúrate de que estás en un chat con un título para guardar.");
         return;
     }
-    
-    const conversationId = Date.now().toString() + Math.random().toString(36).substring(2, 9); 
+
+    const conversationUrl = `https://gemini.google.com/app/${conversationId}`; // URL con el ID real
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
 
     if (storedFolders[selectedFolderName]) {
+        // Verificar si la conversación ya existe en la carpeta (por ID real)
+        const exists = storedFolders[selectedFolderName].some(conv => conv.id === conversationId);
+        if (exists) {
+            alert(`La conversación "${conversationTitle}" ya está en la carpeta "${selectedFolderName}".`);
+            return;
+        }
+
         storedFolders[selectedFolderName].push({
-            id: conversationId, 
+            id: conversationId,
             timestamp: new Date().toLocaleString(),
             title: conversationTitle,
             url: conversationUrl
@@ -298,22 +300,49 @@ function extractConversationTitle() {
     const pageTitle = document.title;
     if (pageTitle && pageTitle.includes('Gemini')) {
         const cleanTitle = pageTitle.replace(/^(.*?) - Gemini.*$/, '$1').trim();
-        if (cleanTitle && cleanTitle !== "Gemini") { 
+        if (cleanTitle && cleanTitle !== "Gemini") {
             return cleanTitle;
         }
     }
-    
+
     return "Conversación sin título";
 }
 
-// Función para abrir la URL de la conversación guardada (sin cambios)
+// Nueva función para extraer el ID real de la URL (sin el prefijo 'c_')
+function extractRealConversationIdFromCurrentUrl() {
+    const url = window.location.href;
+    // La URL de Gemini puede ser /app/ID_CONVERSACION o /gem/ID_CONVERSACION
+    const match = url.match(/\/app\/([a-zA-Z0-9_-]+)/) || url.match(/\/gem\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+        return match[1]; // Retorna el ID sin prefijo 'c_'
+    }
+    return null;
+}
+
+// Función para abrir la URL de la conversación guardada (¡CRÍTICO: MODIFICADA para simular clic nativo!)
 function openGeminiChat(event) {
-    const conversationUrl = event.target.dataset.conversationUrl;
-    if (conversationUrl) {
-        window.location.href = conversationUrl;
-        document.getElementById(SIDEBAR_ID).classList.add('hidden');
+    const conversationId = event.target.dataset.convId; // Obtenemos el ID real (sin 'c_')
+    if (conversationId) {
+        // Buscar el elemento de conversación nativa usando el conversationId en el jslog
+        // El jslog contiene "\x22c_ID_REAL\x22" (con el prefijo 'c_')
+        const targetConversationElement = document.querySelector(`.chat-history-list .conversation[jslog*="\\x22c_${conversationId}\\x22"]`);
+
+        if (targetConversationElement) {
+            // Simular un clic en el elemento de la conversación nativa
+            // Esto debería hacer que Gemini maneje la navegación internamente sin recargar
+            targetConversationElement.click();
+            // Ocultar el sidebar después de la acción, posiblemente con un pequeño retraso
+            setTimeout(() => {
+                document.getElementById(SIDEBAR_ID).classList.add('hidden');
+            }, 100); // Pequeño retraso para que la animación de Gemini se inicie
+        } else {
+            console.warn(`No se encontró el elemento de conversación nativa con ID: c_${conversationId}. Intentando navegación directa como fallback.`);
+            // Fallback: Si no se encuentra el elemento, navega directamente. Esto causará una recarga.
+            window.location.href = `https://gemini.google.com/app/${conversationId}`;
+            document.getElementById(SIDEBAR_ID).classList.add('hidden');
+        }
     } else {
-        alert("No se pudo encontrar la URL de esta conversación.");
+        alert("No se pudo encontrar el ID de esta conversación.");
     }
 }
 
@@ -324,7 +353,7 @@ async function deleteConversation(event) {
     }
 
     const folderName = event.currentTarget.dataset.folderName;
-    const convId = event.currentTarget.dataset.convId; 
+    const convId = event.currentTarget.dataset.convId;
 
     if (!folderName || !convId) {
         console.error('Error: Faltan datos para eliminar la conversación (carpeta o ID).', { folderName, convId });
@@ -333,12 +362,12 @@ async function deleteConversation(event) {
     }
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
-    let storedFolders = data[STORAGE_KEY] || {}; 
+    let storedFolders = data[STORAGE_KEY] || {};
 
     if (storedFolders[folderName]) {
         const initialLength = storedFolders[folderName].length;
         storedFolders[folderName] = storedFolders[folderName].filter(conv => conv.id !== convId);
-        
+
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
 
         if (storedFolders[folderName].length < initialLength) {
@@ -346,64 +375,65 @@ async function deleteConversation(event) {
         } else {
             alert("La conversación no se encontró en la carpeta.");
         }
-        
+
         loadAndDisplayFolders();
     } else {
         alert("La carpeta especificada no existe.");
     }
 }
 
-// --- NUEVAS FUNCIONES PARA DRAG AND DROP ---
-
-// 1. Manejador para el inicio del arrastre (dragstart)
+// 1. Manejador para el inicio del arrastre (dragstart) (¡MODIFICADA para ID y URL correctos!)
 function handleDragStart(event) {
-    // Selector más preciso basado en tu HTML
-    const conversationElement = event.target.closest('.conversation[data-test-id="conversation"]'); 
+    const conversationElement = event.target.closest('.conversation[data-test-id="conversation"]');
 
     if (conversationElement) {
         const titleElement = conversationElement.querySelector('.conversation-title');
-        let convTitle = titleElement ? titleElement.textContent.trim() : 'Conversación sin título';
+        const convTitle = titleElement ? titleElement.textContent.trim() : 'Conversación sin título';
+
+        let realConversationId = null;
         let convUrl = '';
 
-        // --- Lógica para extraer la URL de la conversación ---
-        // La URL de Gemini sigue un patrón como: https://gemini.google.com/gem/ID_CONVERSACION
-        // El ID de conversación puede estar en el jslog o en la URL cuando la conversación está activa.
-        
-        // Primero, intentar obtener el ID de conversación del jslog, si está presente y bien estructurado
+        // Extraer el ID real del jslog, quitando el prefijo "c_"
         const jslogAttribute = conversationElement.getAttribute('jslog');
         if (jslogAttribute) {
-            const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]+,null,null,null,null,null,null,\["([^"]+)"/);
+            // Ajustar la regex para capturar el ID *después* de "c_"
+            const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]*\x22c_([^\x22]+)\x22/);
             if (match && match[1]) {
-                const conversationId = match[1];
-                convUrl = `https://gemini.google.com/gem/${conversationId}`;
+                realConversationId = match[1]; // Este es el ID sin el "c_"
+                convUrl = `https://gemini.google.com/app/${realConversationId}`; // URL con el formato /app/
             }
         }
 
-        // Si la URL no se pudo extraer del jslog, y la conversación actual ES la arrastrada,
-        // usar la URL de la ventana.
-        // Esto cubre el caso de la conversación "selected".
-        if (!convUrl && conversationElement.classList.contains('selected')) {
-             convUrl = window.location.href.split('?')[0]; // Tomar solo la URL base, sin parámetros UTM
-             // Asegurarse de que la URL contenga '/gem/'
-             if (!convUrl.includes('/gem/')) {
-                 // Si no es una URL de chat específica, entonces no podemos arrastrarla como tal.
-                 // Podrías poner una URL por defecto o abortar el drag.
-                 console.warn("No se pudo obtener una URL de chat específica para la conversación arrastrada.");
-                 // Puedes hacer event.preventDefault() aquí para cancelar el drag si no hay URL.
-                 // event.preventDefault(); 
-                 // return;
-             }
+        // Si no se encontró el ID del jslog, y la conversación actual ES la arrastrada,
+        // intentar obtenerlo de la URL actual.
+        if (!realConversationId && conversationElement.classList.contains('selected')) {
+            realConversationId = extractRealConversationIdFromCurrentUrl(); // Usa la nueva función
+            if (realConversationId) {
+                convUrl = `https://gemini.google.com/app/${realConversationId}`;
+            }
         }
-        
-        // Si aún no tenemos una URL, o si es una URL genérica de Gemini (ej. https://gemini.google.com/),
-        // podríamos simplemente usar la URL de la página actual como último recurso, o dar un error.
-        if (!convUrl || convUrl === 'https://gemini.google.com/') {
-            convUrl = window.location.href.split('?')[0]; // Considerar la URL actual si no se pudo extraer una específica
+
+        if (!realConversationId || !convUrl) {
+            console.warn("No se pudo obtener un ID de conversación o URL válida para la conversación arrastrada.");
+            // Si no se puede obtener el ID real, es mejor no arrastrar o usar un ID temporal y la URL actual.
+            // Para evitar problemas con la navegación, forzaremos un ID de fallback y la URL actual.
+            // Aunque lo ideal es que siempre se extraiga el ID real.
+            if (!convUrl) {
+                convUrl = window.location.href.split('?')[0];
+                if (!convUrl.includes('/app/') && !convUrl.includes('/gem/')) {
+                    // Si la URL actual tampoco es una URL de chat específica, dale una por defecto
+                    convUrl = '[https://gemini.google.com/app/](https://gemini.google.com/app/)';
+                }
+            }
+            if (!realConversationId) {
+                realConversationId = 'fallback_' + Date.now().toString() + Math.random().toString(36).substring(2, 9);
+            }
         }
 
         const conversationData = JSON.stringify({
+            id: realConversationId, // Guardar el ID real de Gemini
             title: convTitle,
-            url: convUrl
+            url: convUrl // Guardar la URL completa con el ID real y formato /app/
         });
 
         event.dataTransfer.setData('application/json', conversationData);
@@ -413,7 +443,7 @@ function handleDragStart(event) {
     }
 }
 
-// 2. Manejador para el elemento que recibe el arrastre (dragover)
+// 2. Manejador para el elemento que recibe el arrastre (dragover) (sin cambios)
 function handleDragOver(event) {
     event.preventDefault(); // Esto es CRUCIAL para permitir el drop
     event.dataTransfer.dropEffect = 'move'; // Cambiar el cursor a "mover"
@@ -424,17 +454,17 @@ function handleDragOver(event) {
     }
 }
 
-// 3. Manejador cuando el arrastre sale del elemento (dragleave)
+// 3. Manejador cuando el arrastre sale del elemento (dragleave) (sin cambios)
 function handleDragLeave(event) {
     if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
         event.currentTarget.classList.remove('drag-over');
     }
 }
 
-// 4. Manejador para el soltado (drop)
+// 4. Manejador para el soltado (drop) (actualizada para usar ID de Gemini)
 async function handleDrop(event) {
     event.preventDefault(); // CRUCIAL
-    
+
     // Remover feedback visual
     if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
         event.currentTarget.classList.remove('drag-over');
@@ -454,8 +484,9 @@ async function handleDrop(event) {
         return;
     }
 
-    if (!conversation.title || !conversation.url) {
-        alert('La información de la conversación arrastrada está incompleta.');
+    // Ahora verificamos también el ID de conversación real
+    if (!conversation.title || !conversation.url || !conversation.id) {
+        alert('La información de la conversación arrastrada está incompleta (falta título, URL o ID real).');
         return;
     }
 
@@ -464,19 +495,18 @@ async function handleDrop(event) {
     let storedFolders = data[STORAGE_KEY] || {};
 
     if (storedFolders[folderName]) {
-        // Verificar si la conversación ya existe en la carpeta (opcional, para evitar duplicados)
-        const exists = storedFolders[folderName].some(conv => conv.url === conversation.url);
+        // Verificar si la conversación ya existe en la carpeta usando el ID real de Gemini
+        const exists = storedFolders[folderName].some(conv => conv.id === conversation.id);
         if (exists) {
             alert(`La conversación "${conversation.title}" ya está en la carpeta "${folderName}".`);
             return;
         }
 
-        const newConvId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
         storedFolders[folderName].push({
-            id: newConvId,
+            id: conversation.id, // Usamos el ID real de Gemini para identificarla
             timestamp: new Date().toLocaleString(),
             title: conversation.title,
-            url: conversation.url
+            url: conversation.url // La URL debería ser correcta ahora (con /app/ y ID real)
         });
 
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
@@ -487,30 +517,27 @@ async function handleDrop(event) {
     }
 }
 
-
-// --- NUEVA LÓGICA DE OBSERVACIÓN Y EVENTOS PARA CONVERSACIONES "RECIENTES" ---
+// --- LÓGICA DE OBSERVACIÓN Y EVENTOS PARA CONVERSACIONES "RECIENTES" ---
 function setupDraggableConversations() {
     // Selector para las conversaciones en la sección "Recientes"
-    // .conversation[data-test-id="conversation"] es el selector más robusto de tu HTML
     const recentConversations = document.querySelectorAll('.chat-history-list .conversation[data-test-id="conversation"]');
 
     recentConversations.forEach(convElement => {
-        if (!convElement.hasAttribute('data-draggable-setup')) { // Usar un atributo para marcar que ya se configuró
+        if (!convElement.hasAttribute('data-draggable-setup')) {
             convElement.setAttribute('draggable', 'true');
             convElement.addEventListener('dragstart', handleDragStart);
             convElement.addEventListener('dragend', (event) => {
                 event.target.classList.remove('is-dragging');
             });
-            convElement.setAttribute('data-draggable-setup', 'true'); // Marcar como configurado
+            convElement.setAttribute('data-draggable-setup', 'true');
         }
     });
 }
 
-
 // Ejecutar la inicialización cuando el DOM esté cargado
 window.requestIdleCallback(() => {
     addToggleButton();
-    setupDraggableConversations(); // Configurar arrastre en conversaciones recientes
+    setupDraggableConversations();
 });
 
 // Observar cambios en el DOM de Gemini para asegurar que el botón y el sidebar persistan
@@ -519,24 +546,22 @@ const observer = new MutationObserver((mutationsList, observer) => {
     const sidebar = document.getElementById(SIDEBAR_ID);
     const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
-    // Condición para reinicializar:
     if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper) ||
         !sidebar || !toggleButtonWrapper.contains(sidebar) ||
         !discoverGemsButtonWrapper || !document.body.contains(discoverGemsButtonWrapper)) {
-        
+
         console.log('Detectado cambio en la estructura de la barra lateral de Gemini. Reinicializando el complemento.');
-        
+
         if (toggleButtonWrapper && document.body.contains(toggleButtonWrapper)) {
             toggleButtonWrapper.remove();
         }
         if (sidebar && document.body.contains(sidebar)) {
-            sidebar.remove(); 
+            sidebar.remove();
         }
 
-        addToggleButton(); 
+        addToggleButton();
     }
-    // Siempre intentamos configurar las conversaciones arrastrables, ya que pueden aparecer nuevas.
-    setupDraggableConversations(); 
+    setupDraggableConversations();
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
