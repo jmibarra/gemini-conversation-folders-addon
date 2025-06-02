@@ -371,3 +371,48 @@ body.dragging * {
     align-items: center;
     justify-content: center;
 }
+
+/* Estilos para el botón de editar carpeta */
+.edit-folder-btn {
+    background: none;
+    border: none;
+    color: #5f6368;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 8px; /* Espacio entre el título y el botón de editar */
+    z-index: 1;
+}
+
+.edit-folder-btn:hover {
+    background-color: #e6f4ea; /* Fondo verde claro */
+    color: #34a853; /* Color de icono verde */
+}
+
+.edit-folder-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilos para el campo de entrada de renombrado */
+.folder-rename-input {
+    flex-grow: 1; /* Ocupa el espacio disponible */
+    padding: 6px 8px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 0.9em; /* Mismo tamaño que el título */
+    color: #202124;
+    background-color: white;
+    box-sizing: border-box;
+    margin-left: 8px; /* Espacio desde el borde */
+    margin-right: 8px; /* Espacio antes del botón de eliminar */
+}

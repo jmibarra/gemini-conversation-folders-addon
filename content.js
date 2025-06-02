@@ -153,15 +153,22 @@ async function loadAndDisplayFolders() {
         expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
         expandIcon.setAttribute('fonticon', 'expand_more');
 
-        // NUEVO: Botón de eliminar carpeta
         const deleteFolderButton = document.createElement('button');
         deleteFolderButton.classList.add('delete-folder-btn');
         deleteFolderButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon>`;
         deleteFolderButton.title = `Eliminar carpeta: "${folderName}"`;
         deleteFolderButton.dataset.folderName = folderName; // Guardamos el nombre de la carpeta
 
+        // NUEVO: Botón de editar carpeta
+        const editFolderButton = document.createElement('button');
+        editFolderButton.classList.add('edit-folder-btn');
+        editFolderButton.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="edit" fonticon="edit"></mat-icon>`;
+        editFolderButton.title = `Renombrar carpeta: "${folderName}"`;
+        editFolderButton.dataset.folderName = folderName;
+
         folderHeader.appendChild(folderTitle);
-        folderHeader.appendChild(deleteFolderButton); // Añadimos el botón de eliminar
+        folderHeader.appendChild(editFolderButton);
+        folderHeader.appendChild(deleteFolderButton);
         folderHeader.appendChild(expandIcon); // El ícono de expandir va al final
 
         const conversationsWrapper = document.createElement('div');
@@ -212,11 +219,16 @@ async function loadAndDisplayFolders() {
 
         foldersListUl.appendChild(folderContainer);
 
-        // NUEVO: Listener para el botón de eliminar carpeta
+        editFolderButton.addEventListener('click', (event) => {
+            // Detenemos la propagación para que no active el click de expandir/contraer
+            event.stopPropagation();
+            // Llamamos a la función que maneja el modo de edición
+            enableFolderEditMode(event.currentTarget.dataset.folderName, folderTitle, deleteFolderButton, editFolderButton, expandIcon);
+        });
+
         deleteFolderButton.addEventListener('click', deleteFolder);
 
         folderHeader.addEventListener('click', (event) => {
-            // ... tu código existente para expandir/contraer
             conversationsWrapper.classList.toggle('hidden');
             if (conversationsWrapper.classList.contains('hidden')) {
                 expandIcon.setAttribute('fonticon', 'expand_more');
@@ -252,7 +264,101 @@ async function createFolder() {
     }
 }
 
-// NUEVO: Función para borrar una carpeta completa
+// NUEVO: Función para habilitar el modo de edición de una carpeta
+function enableFolderEditMode(folderName, folderTitleElement, deleteBtn, editBtn, expandIcon) {
+    const originalFolderName = folderName; // Guardamos el nombre original
+    folderTitleElement.style.display = 'none'; // Ocultar el span del título
+    deleteBtn.style.display = 'none'; // Ocultar el botón de eliminar durante la edición
+    editBtn.style.display = 'none'; // Ocultar el botón de editar
+    expandIcon.style.display = 'none'; // Ocultar el icono de expandir
+
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.value = originalFolderName;
+    inputField.classList.add('folder-rename-input');
+    inputField.dataset.originalFolderName = originalFolderName; // Guardar el nombre original
+    inputField.dataset.folderTitleElementId = folderTitleElement.id || `temp-folder-title-${Date.now()}`; // Para referencia
+    folderTitleElement.id = inputField.dataset.folderTitleElementId; // Asegurarse de que tenga ID
+
+    // Insertar el input antes del folderTitleElement (que ahora está oculto)
+    folderTitleElement.parentNode.insertBefore(inputField, folderTitleElement);
+
+    inputField.focus();
+    inputField.select(); // Seleccionar todo el texto para fácil edición
+
+    // Evento para guardar al presionar Enter
+    inputField.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            await saveFolderRename(inputField, originalFolderName, folderTitleElement, deleteBtn, editBtn, expandIcon);
+        }
+    });
+
+    // Evento para guardar al perder el foco (click fuera)
+    inputField.addEventListener('blur', async () => {
+        await saveFolderRename(inputField, originalFolderName, folderTitleElement, deleteBtn, editBtn, expandIcon);
+    });
+}
+
+async function saveFolderRename(inputField, originalFolderName, folderTitleElement, deleteBtn, editBtn, expandIcon) {
+    const newFolderName = inputField.value.trim();
+
+    // Si el campo ya ha sido procesado o eliminado, no hacer nada
+    if (!inputField.parentNode) {
+        return;
+    }
+
+    // Remover los listeners para evitar múltiples llamadas
+    inputField.removeEventListener('keypress', saveFolderRename);
+    inputField.removeEventListener('blur', saveFolderRename);
+
+    // Si el nombre es el mismo, simplemente restaurar la UI
+    if (newFolderName === originalFolderName) {
+        inputField.remove();
+        folderTitleElement.style.display = 'block';
+        deleteBtn.style.display = 'block';
+        editBtn.style.display = 'block';
+        expandIcon.style.display = 'block';
+        return;
+    }
+
+    if (!newFolderName) {
+        alert("El nombre de la carpeta no puede estar vacío. Se restaurará el nombre original.");
+        inputField.remove();
+        folderTitleElement.style.display = 'block';
+        deleteBtn.style.display = 'block';
+        editBtn.style.display = 'block';
+        expandIcon.style.display = 'block';
+        return;
+    }
+
+    const data = await chrome.storage.local.get(STORAGE_KEY);
+    let storedFolders = data[STORAGE_KEY] || {};
+
+    // Verificar si el nuevo nombre ya existe (y no es la misma carpeta)
+    if (storedFolders[newFolderName] && newFolderName !== originalFolderName) {
+        alert(`Ya existe una carpeta con el nombre "${newFolderName}". Por favor, elige un nombre diferente.`);
+        // Restaurar la UI al estado original
+        inputField.remove();
+        folderTitleElement.style.display = 'block';
+        deleteBtn.style.display = 'block';
+        editBtn.style.display = 'block';
+        expandIcon.style.display = 'block';
+        return;
+    }
+
+    // Realizar el renombrado
+    const folderContent = storedFolders[originalFolderName];
+    delete storedFolders[originalFolderName]; // Eliminar la carpeta antigua
+    storedFolders[newFolderName] = folderContent; // Asignar el contenido al nuevo nombre
+
+    await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+    alert(`Carpeta "${originalFolderName}" renombrada a "${newFolderName}" exitosamente.`);
+
+    // Eliminar el campo de entrada y restaurar la UI
+    inputField.remove();
+    loadAndDisplayFolders(); // Recargar toda la lista para actualizar los nombres y datasets
+}
+
 async function deleteFolder(event) {
     // Detenemos la propagación del evento para que no se active el click de expandir/contraer la carpeta
     event.stopPropagation();
