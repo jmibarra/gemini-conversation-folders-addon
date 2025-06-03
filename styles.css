@@ -78,6 +78,39 @@
     background-color: #1764cc;
 }
 
+/* NUEVO: Controles de búsqueda */
+#gemini-organizer-sidebar .search-controls {
+    margin: 0 16px 20px 16px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+#gemini-organizer-sidebar .search-controls h4 {
+    font-size: 0.95em;
+    color: #5f6368;
+    margin-bottom: 10px;
+}
+
+#gemini-organizer-sidebar .search-controls input[type="search"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: white;
+    font-size: 0.9em;
+}
+
+#gemini-organizer-sidebar .search-controls input[type="search"]::placeholder {
+    color: #80868b;
+}
+
+#gemini-organizer-sidebar .search-controls input[type="search"]:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 1px #1a73e8;
+}
+
 /* Selector de carpeta y botón de guardar */
 #gemini-organizer-sidebar .save-controls {
     margin: 0 16px 20px 16px;

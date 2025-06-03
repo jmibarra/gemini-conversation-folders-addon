@@ -17,6 +17,10 @@ function initializeSidebar() {
                 <input type="text" id="new-folder-name" placeholder="Nombre de la carpeta">
                 <button id="create-folder-btn">Crear</button>
             </div>
+            <div class="search-controls">
+                <h4>Buscar Conversaciones</h4>
+                <input type="search" id="search-conversations-input" placeholder="Buscar por nombre de carpeta o conversación...">
+            </div>
             <div class="folders-list">
                 <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
                 <ul id="folders-list-ul">
@@ -94,6 +98,13 @@ function addToggleButton() {
             if (!sidebar.hasAttribute('data-loaded-once')) {
                 loadAndDisplayFolders();
                 sidebar.setAttribute('data-loaded-once', 'true');
+            }
+
+            // NUEVO: Listener para el campo de búsqueda
+            const searchInput = document.getElementById('search-conversations-input');
+            if (searchInput && !searchInput.hasAttribute('data-listener-attached')) {
+                searchInput.addEventListener('input', filterConversationsAndFolders);
+                searchInput.setAttribute('data-listener-attached', 'true');
             }
         }
         // Asegurarse de que el listener del botón principal esté siempre adjunto
@@ -667,6 +678,64 @@ async function handleDrop(event) {
     }
 }
 
+// NUEVO: Función para filtrar carpetas y conversaciones
+function filterConversationsAndFolders() {
+    const searchTerm = document.getElementById('search-conversations-input').value.toLowerCase().trim();
+    const foldersListUl = document.getElementById('folders-list-ul');
+    const folderItems = foldersListUl.querySelectorAll('.gemini-folder-item');
+
+    folderItems.forEach(folderItem => {
+        const folderTitleElement = folderItem.querySelector('.gemini-folder-title');
+        const folderName = folderTitleElement.textContent.toLowerCase();
+        const conversationsWrapper = folderItem.querySelector('.conversations-list-wrapper');
+        const conversationsUl = conversationsWrapper.querySelector('.conversation-items-container');
+        const conversationItems = conversationsUl.querySelectorAll('.conversation-item-wrapper');
+        const expandIcon = folderItem.querySelector('.gemini-expand-icon');
+
+        let folderMatches = false;
+        let anyConversationMatches = false;
+
+        if (searchTerm === '') {
+            // Si el término de búsqueda está vacío, mostrar todo y colapsar carpetas
+            folderItem.style.display = ''; // Mostrar la carpeta
+            conversationsWrapper.classList.add('hidden'); // Colapsar
+            expandIcon.setAttribute('fonticon', 'expand_more');
+            expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
+            conversationItems.forEach(convItem => convItem.style.display = ''); // Mostrar todas las conversaciones
+            return;
+        }
+
+        // 1. Comprobar si el nombre de la carpeta coincide
+        if (folderName.includes(searchTerm)) {
+            folderMatches = true;
+        }
+
+        // 2. Comprobar si alguna conversación dentro de la carpeta coincide
+        conversationItems.forEach(convItem => {
+            const convTitleElement = convItem.querySelector('.conversation-title');
+            const convTitle = convTitleElement.textContent.toLowerCase();
+
+            if (convTitle.includes(searchTerm)) {
+                convItem.style.display = ''; // Mostrar esta conversación
+                anyConversationMatches = true;
+            } else {
+                convItem.style.display = 'none'; // Ocultar esta conversación
+            }
+        });
+
+        // 3. Decidir si mostrar la carpeta y en qué estado
+        if (folderMatches || anyConversationMatches) {
+            folderItem.style.display = ''; // Mostrar la carpeta
+            // Si la carpeta o alguna de sus conversaciones coincide, expandir
+            conversationsWrapper.classList.remove('hidden');
+            expandIcon.setAttribute('fonticon', 'expand_less');
+            expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
+        } else {
+            folderItem.style.display = 'none'; // Ocultar la carpeta si no hay coincidencias
+        }
+    });
+}
+
 // --- LÓGICA DE OBSERVACIÓN Y EVENTOS PARA CONVERSACIONES "RECIENTES" ---
 function setupDraggableConversations() {
     // Selector para las conversaciones en la sección "Recientes"
@@ -683,6 +752,7 @@ function setupDraggableConversations() {
         }
     });
 }
+
 
 // Ejecutar la inicialización cuando el DOM esté cargado
 window.requestIdleCallback(() => {
