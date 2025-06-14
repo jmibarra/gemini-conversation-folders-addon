@@ -4,7 +4,7 @@ const STORAGE_KEY = 'geminiConversations';
 const TOGGLE_BUTTON_ID = 'gemini-organizer-toggle-btn';
 const TOGGLE_BUTTON_WRAPPER_ID = 'gemini-organizer-wrapper';
 
-// Función para inicializar la interfaz del complemento (sin cambios)
+// Función para inicializar la interfaz del complemento
 function initializeSidebar() {
     let sidebar = document.getElementById(SIDEBAR_ID);
     if (!sidebar) {
@@ -26,7 +26,7 @@ function initializeSidebar() {
                 <ul id="folders-list-ul">
                     </ul>
             </div>
-        `;
+            <div id="gemini-organizer-toast-container"></div> `;
     }
     return sidebar;
 }
@@ -268,7 +268,7 @@ async function loadAndDisplayFolders() {
     }
 }
 
-// Función para crear una nueva carpeta (sin cambios)
+// Función para crear una nueva carpeta
 async function createFolder() {
     const newFolderNameInput = document.getElementById('new-folder-name');
     const folderName = newFolderNameInput.value.trim();
@@ -282,12 +282,12 @@ async function createFolder() {
             await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
             newFolderNameInput.value = '';
             loadAndDisplayFolders();
-            alert(`Carpeta "${folderName}" creada exitosamente.`);
+            showToast(`Carpeta "${folderName}" creada exitosamente.`, 'success'); // REEMPLAZADO
         } else {
-            alert(`La carpeta "${folderName}" ya existe.`);
+            showToast(`La carpeta "${folderName}" ya existe.`, 'warning'); // REEMPLAZADO
         }
     } else {
-        alert("Por favor, ingresa un nombre para la carpeta.");
+        showToast("Por favor, ingresa un nombre para la carpeta.", 'warning'); // REEMPLAZADO
     }
 }
 
@@ -329,16 +329,13 @@ function enableFolderEditMode(folderName, folderTitleElement, deleteBtn, editBtn
 async function saveFolderRename(inputField, originalFolderName, folderTitleElement, deleteBtn, editBtn, expandIcon) {
     const newFolderName = inputField.value.trim();
 
-    // Si el campo ya ha sido procesado o eliminado, no hacer nada
     if (!inputField.parentNode) {
         return;
     }
 
-    // Remover los listeners para evitar múltiples llamadas
     inputField.removeEventListener('keypress', saveFolderRename);
     inputField.removeEventListener('blur', saveFolderRename);
 
-    // Si el nombre es el mismo, simplemente restaurar la UI
     if (newFolderName === originalFolderName) {
         inputField.remove();
         folderTitleElement.style.display = 'block';
@@ -349,7 +346,7 @@ async function saveFolderRename(inputField, originalFolderName, folderTitleEleme
     }
 
     if (!newFolderName) {
-        alert("El nombre de la carpeta no puede estar vacío. Se restaurará el nombre original.");
+        showToast("El nombre de la carpeta no puede estar vacío. Se restaurará el nombre original.", 'warning'); // REEMPLAZADO
         inputField.remove();
         folderTitleElement.style.display = 'block';
         deleteBtn.style.display = 'block';
@@ -361,10 +358,8 @@ async function saveFolderRename(inputField, originalFolderName, folderTitleEleme
     const data = await chrome.storage.local.get(STORAGE_KEY);
     let storedFolders = data[STORAGE_KEY] || {};
 
-    // Verificar si el nuevo nombre ya existe (y no es la misma carpeta)
     if (storedFolders[newFolderName] && newFolderName !== originalFolderName) {
-        alert(`Ya existe una carpeta con el nombre "${newFolderName}". Por favor, elige un nombre diferente.`);
-        // Restaurar la UI al estado original
+        showToast(`Ya existe una carpeta con el nombre "${newFolderName}". Por favor, elige un nombre diferente.`, 'warning'); // REEMPLAZADO
         inputField.remove();
         folderTitleElement.style.display = 'block';
         deleteBtn.style.display = 'block';
@@ -373,28 +368,24 @@ async function saveFolderRename(inputField, originalFolderName, folderTitleEleme
         return;
     }
 
-    // Realizar el renombrado
     const folderContent = storedFolders[originalFolderName];
-    delete storedFolders[originalFolderName]; // Eliminar la carpeta antigua
-    storedFolders[newFolderName] = folderContent; // Asignar el contenido al nuevo nombre
+    delete storedFolders[originalFolderName];
+    storedFolders[newFolderName] = folderContent;
 
     await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-    alert(`Carpeta "${originalFolderName}" renombrada a "${newFolderName}" exitosamente.`);
+    showToast(`Carpeta "${originalFolderName}" renombrada a "${newFolderName}" exitosamente.`, 'success'); // REEMPLAZADO
 
-    // Eliminar el campo de entrada y restaurar la UI
     inputField.remove();
-    loadAndDisplayFolders(); // Recargar toda la lista para actualizar los nombres y datasets
+    loadAndDisplayFolders();
 }
 
 async function deleteFolder(event) {
-    // Detenemos la propagación del evento para que no se active el click de expandir/contraer la carpeta
     event.stopPropagation();
-
     const folderName = event.currentTarget.dataset.folderName;
 
     if (!folderName) {
         console.error('Error: No se pudo obtener el nombre de la carpeta para eliminar.');
-        alert('Hubo un error al intentar eliminar la carpeta. Por favor, inténtalo de nuevo.');
+        showToast('Hubo un error al intentar eliminar la carpeta. Por favor, inténtalo de nuevo.', 'error'); // REEMPLAZADO
         return;
     }
 
@@ -406,45 +397,43 @@ async function deleteFolder(event) {
     let storedFolders = data[STORAGE_KEY] || {};
 
     if (storedFolders[folderName]) {
-        delete storedFolders[folderName]; // Elimina la carpeta del objeto
+        delete storedFolders[folderName];
 
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-        alert(`Carpeta "${folderName}" y sus conversaciones eliminadas exitosamente.`);
-        loadAndDisplayFolders(); // Recargar la lista para que la carpeta desaparezca
+        showToast(`Carpeta "${folderName}" y sus conversaciones eliminadas exitosamente.`, 'success'); // REEMPLAZADO
+        loadAndDisplayFolders();
     } else {
-        alert("La carpeta especificada no existe.");
+        showToast("La carpeta especificada no existe.", 'error'); // REEMPLAZADO
     }
 }
 
 // Función para guardar la conversación actual (Considera si la sigues necesitando con el drag-and-drop)
 async function saveCurrentConversation() {
-    const folderSelector = document.getElementById('folder-selector'); // Asegúrate de que este elemento exista
+    const folderSelector = document.getElementById('folder-selector');
     const selectedFolderName = folderSelector.value;
 
     if (!selectedFolderName) {
-        alert("Por favor, selecciona una carpeta para guardar la conversación.");
+        showToast("Por favor, selecciona una carpeta para guardar la conversación.", 'warning'); // REEMPLAZADO
         return;
     }
 
     const conversationTitle = extractConversationTitle();
-    // Nuevo: Extraer el ID real de la conversación activa
     const conversationId = extractRealConversationIdFromCurrentUrl();
 
     if (!conversationTitle || conversationTitle === "Conversación sin título" || !conversationId) {
-        alert("No se pudo extraer el título o ID de la conversación actual. Por favor, asegúrate de que estás en un chat con un título para guardar.");
+        showToast("No se pudo extraer el título o ID de la conversación actual. Por favor, asegúrate de que estás en un chat con un título para guardar.", 'warning'); // REEMPLAZADO
         return;
     }
 
-    const conversationUrl = `https://gemini.google.com/app/${conversationId}`; // URL con el ID real
+    const conversationUrl = `https://gemini.google.com/app/${conversationId}`;
 
     const data = await chrome.storage.local.get(STORAGE_KEY);
     const storedFolders = data[STORAGE_KEY] || {};
 
     if (storedFolders[selectedFolderName]) {
-        // Verificar si la conversación ya existe en la carpeta (por ID real)
         const exists = storedFolders[selectedFolderName].some(conv => conv.id === conversationId);
         if (exists) {
-            alert(`La conversación "${conversationTitle}" ya está en la carpeta "${selectedFolderName}".`);
+            showToast(`La conversación "${conversationTitle}" ya está en la carpeta "${selectedFolderName}".`, 'info'); // REEMPLAZADO
             return;
         }
 
@@ -455,10 +444,10 @@ async function saveCurrentConversation() {
             url: conversationUrl
         });
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-        alert("Conversación guardada exitosamente en la carpeta: " + selectedFolderName);
+        showToast("Conversación guardada exitosamente en la carpeta: " + selectedFolderName, 'success'); // REEMPLAZADO
         loadAndDisplayFolders();
     } else {
-        alert("La carpeta seleccionada no existe.");
+        showToast("La carpeta seleccionada no existe. Por favor, recarga el complemento.", 'error'); // REEMPLAZADO
     }
 }
 
@@ -500,48 +489,30 @@ function extractRealConversationIdFromCurrentUrl() {
 function openGeminiChat(event) {
     const conversationId = event.target.dataset.convId;
     if (conversationId) {
-        // Buscar el elemento de conversación nativa usando el conversationId en el jslog
         const targetConversationElement = document.querySelector(`.chat-history-list .conversation[jslog*="\\x22c_${conversationId}\\x22"]`);
 
         if (targetConversationElement) {
             console.log(`Simulando clic en elemento nativo con ID: c_${conversationId}`);
-            // Simular un evento MouseEvent completo
-            const clickEvent = new MouseEvent('click', {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-                buttons: 1 // Indica que el botón primario del ratón está presionado
-            });
-            const mouseDownEvent = new MouseEvent('mousedown', {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-                buttons: 1
-            });
-            const mouseUpEvent = new MouseEvent('mouseup', {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-            });
+            const clickEvent = new MouseEvent('click', { view: window, bubbles: true, cancelable: true, buttons: 1 });
+            const mouseDownEvent = new MouseEvent('mousedown', { view: window, bubbles: true, cancelable: true, buttons: 1 });
+            const mouseUpEvent = new MouseEvent('mouseup', { view: window, bubbles: true, cancelable: true });
 
-            // Disparar los eventos en orden
             targetConversationElement.dispatchEvent(mouseDownEvent);
             targetConversationElement.dispatchEvent(mouseUpEvent);
-            targetConversationElement.dispatchEvent(clickEvent); // El evento 'click' final
+            targetConversationElement.dispatchEvent(clickEvent);
 
-            // Ocultar el sidebar después de la acción, con un pequeño retraso
             setTimeout(() => {
                 document.getElementById(SIDEBAR_ID).classList.add('hidden');
-            }, 100); // Dar un poco de tiempo para que la SPA responda
+            }, 100);
 
         } else {
             console.warn(`No se encontró el elemento de conversación nativa con ID: c_${conversationId}. Intentando navegación directa como fallback.`);
-            // Fallback: Si no se encuentra el elemento, navega directamente. Esto causará una recarga.
+            showToast(`No se pudo cargar la conversación rápidamente. Recargando página...`, 'info'); // REEMPLAZADO
             window.location.href = `https://gemini.google.com/app/${conversationId}`;
             document.getElementById(SIDEBAR_ID).classList.add('hidden');
         }
     } else {
-        alert("No se pudo encontrar el ID de esta conversación.");
+        showToast("No se pudo encontrar el ID de esta conversación.", 'error'); // REEMPLAZADO
     }
 }
 
@@ -556,7 +527,7 @@ async function deleteConversation(event) {
 
     if (!folderName || !convId) {
         console.error('Error: Faltan datos para eliminar la conversación (carpeta o ID).', { folderName, convId });
-        alert('Hubo un error al intentar eliminar la conversación. Por favor, inténtalo de nuevo.');
+        showToast('Hubo un error al intentar eliminar la conversación. Por favor, inténtalo de nuevo.', 'error'); // REEMPLAZADO
         return;
     }
 
@@ -570,16 +541,17 @@ async function deleteConversation(event) {
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
 
         if (storedFolders[folderName].length < initialLength) {
-            alert("Conversación eliminada exitosamente.");
+            showToast("Conversación eliminada exitosamente.", 'success'); // REEMPLAZADO
         } else {
-            alert("La conversación no se encontró en la carpeta.");
+            showToast("La conversación no se encontró en la carpeta.", 'warning'); // REEMPLAZADO
         }
 
         loadAndDisplayFolders();
     } else {
-        alert("La carpeta especificada no existe.");
+        showToast("La carpeta especificada no existe.", 'error'); // REEMPLAZADO
     }
 }
+
 
 // 1. Manejador para el inicio del arrastre (dragstart) (¡MODIFICADA para incluir folder_from y originalIndex!)
 function handleDragStart(event) {
@@ -711,31 +683,30 @@ function handleDragLeave(event) {
 
 // 4. Manejador para el soltado (drop) (¡MODIFICADA para mover entre y dentro de carpetas!)
 async function handleDrop(event) {
-    event.preventDefault(); // CRUCIAL
+    event.preventDefault();
 
-    // Remover feedback visual de la carpeta
     if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
         event.currentTarget.classList.remove('drag-over');
     }
 
     const droppedData = event.dataTransfer.getData('application/json');
     if (!droppedData) {
-        alert('No se pudo recuperar la información de la conversación arrastrada.');
+        showToast('No se pudo recuperar la información de la conversación arrastrada.', 'error'); // REEMPLAZADO
         return;
     }
 
     const conversation = JSON.parse(droppedData);
-    const targetFolderName = event.currentTarget.dataset.folderName; // La carpeta donde se soltó
-    const sourceFolderName = conversation.folder_from; // La carpeta de origen (null si viene de Gemini)
-    const originalIndex = conversation.original_index; // Índice original (si viene de una carpeta guardada)
+    const targetFolderName = event.currentTarget.dataset.folderName;
+    const sourceFolderName = conversation.folder_from;
+    const originalIndex = conversation.original_index; // Este ya no es tan relevante aquí, pero se mantiene para la estructura.
 
     if (!targetFolderName) {
-        alert('No se pudo identificar la carpeta de destino.');
+        showToast('No se pudo identificar la carpeta de destino.', 'error'); // REEMPLAZADO
         return;
     }
 
     if (!conversation.title || !conversation.url || !conversation.id) {
-        alert('La información de la conversación arrastrada está incompleta (falta título, URL o ID real).');
+        showToast('La información de la conversación arrastrada está incompleta.', 'error'); // REEMPLAZADO
         return;
     }
 
@@ -743,57 +714,27 @@ async function handleDrop(event) {
     let storedFolders = data[STORAGE_KEY] || {};
 
     if (!storedFolders[targetFolderName]) {
-        alert("La carpeta de destino no existe. Por favor, recarga el complemento.");
+        showToast("La carpeta de destino no existe. Por favor, recarga el complemento.", 'error'); // REEMPLAZADO
         return;
     }
 
     // Caso de Drag & Drop entre/dentro de carpetas
     if (sourceFolderName !== null) { // La conversación proviene de una carpeta guardada
         if (sourceFolderName === targetFolderName) {
-            // Reordenar dentro de la misma carpeta
-            const targetItem = event.target.closest('.conversation-item-wrapper');
-            let newIndex;
-            if (targetItem) {
-                const boundingBox = targetItem.getBoundingClientRect();
-                const offset = event.clientY - boundingBox.top;
-                const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
-
-                if (offset < boundingBox.height / 2) {
-                    newIndex = targetIndex; // Soltar encima del target
-                } else {
-                    newIndex = targetIndex + 1; // Soltar debajo del target
-                }
-            } else {
-                // Soltar al final de la lista si no hay targetItem específico
-                newIndex = storedFolders[targetFolderName].length;
-            }
-
-            if (originalIndex === newIndex || (originalIndex + 1 === newIndex && originalIndex < newIndex)) {
-                // Evitar reordenamiento si la posición es la misma o adyacente en la dirección de arrastre
-                console.log("No hay cambio de orden significativo.");
-                loadAndDisplayFolders(); // Recargar para limpiar highlights
-                return;
-            }
-
-            // Realizar el reordenamiento en el array de conversaciones
-            const [movedConversation] = storedFolders[targetFolderName].splice(originalIndex, 1);
-            storedFolders[targetFolderName].splice(newIndex > originalIndex ? newIndex - 1 : newIndex, 0, movedConversation);
-
-            await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-            console.log(`Conversación "${conversation.title}" reordenada dentro de "${targetFolderName}".`);
-            alert(`Conversación "${conversation.title}" reordenada.`);
-
+             // Este caso de drop en la cabecera de la misma carpeta no debería reordenar.
+             // La reordenación se maneja en handleConversationListDrop
+            showToast(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`, 'info'); // REEMPLAZADO
+            loadAndDisplayFolders(); // Recargar para limpiar highlights
+            return;
         } else {
             // Mover a una carpeta DIFERENTE
-            // Verificar si ya existe en la carpeta de destino antes de mover
             const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
             if (existsInTarget) {
-                alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
-                loadAndDisplayFolders(); // Recargar para limpiar highlights
+                showToast(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`, 'info'); // REEMPLAZADO
+                loadAndDisplayFolders();
                 return;
             }
 
-            // Eliminar de la carpeta de origen
             if (storedFolders[sourceFolderName]) {
                 storedFolders[sourceFolderName] = storedFolders[sourceFolderName].filter(
                     conv => conv.id !== conversation.id
@@ -802,7 +743,6 @@ async function handleDrop(event) {
                 console.warn(`Carpeta de origen "${sourceFolderName}" no encontrada al intentar mover.`);
             }
 
-            // Añadir a la carpeta de destino
             storedFolders[targetFolderName].push({
                 id: conversation.id,
                 timestamp: new Date().toLocaleString(),
@@ -810,14 +750,14 @@ async function handleDrop(event) {
                 url: conversation.url
             });
             await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-            alert(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`);
+            showToast(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`, 'success'); // REEMPLAZADO
         }
     } else {
         // Caso: La conversación viene de Gemini (folder_from es null)
         const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
         if (existsInTarget) {
-            alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
-            loadAndDisplayFolders(); // Recargar para limpiar highlights
+            showToast(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`, 'info'); // REEMPLAZADO
+            loadAndDisplayFolders();
             return;
         }
         storedFolders[targetFolderName].push({
@@ -827,40 +767,39 @@ async function handleDrop(event) {
             url: conversation.url
         });
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-        alert(`Conversación "${conversation.title}" guardada en "${targetFolderName}" exitosamente.`);
+        showToast(`Conversación "${conversation.title}" guardada en "${targetFolderName}" exitosamente.`, 'success'); // REEMPLAZADO
     }
-
-    loadAndDisplayFolders(); // Recargar la lista de carpetas para reflejar los cambios
+    loadAndDisplayFolders();
 }
 
 
 // NUEVO: Manejador para el soltado en la UL de conversaciones (para reordenar)
 async function handleConversationListDrop(event) {
-    event.preventDefault(); // CRUCIAL
+    event.preventDefault();
 
-    // Limpiar clases de highlight
     event.currentTarget.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
         el.classList.remove('drag-over-top', 'drag-over-bottom');
     });
 
     const droppedData = event.dataTransfer.getData('application/json');
     if (!droppedData) {
-        alert('No se pudo recuperar la información de la conversación arrastrada.');
+        showToast('No se pudo recuperar la información de la conversación arrastrada.', 'error'); // REEMPLAZADO
         return;
     }
 
     const conversation = JSON.parse(droppedData);
-    const targetFolderName = event.currentTarget.dataset.folderName; // La carpeta actual de la UL
+    const targetFolderName = event.currentTarget.dataset.folderName;
     const sourceFolderName = conversation.folder_from;
     const originalIndex = conversation.original_index;
 
     if (!targetFolderName) {
         console.error('Error: No se pudo identificar la carpeta de destino de la lista.');
+        showToast('Hubo un error al identificar la carpeta de destino.', 'error'); // REEMPLAZADO
         return;
     }
 
     if (!conversation.title || !conversation.url || !conversation.id) {
-        alert('La información de la conversación arrastrada está incompleta.');
+        showToast('La información de la conversación arrastrada está incompleta.', 'error'); // REEMPLAZADO
         return;
     }
 
@@ -868,11 +807,10 @@ async function handleConversationListDrop(event) {
     let storedFolders = data[STORAGE_KEY] || {};
 
     if (!storedFolders[targetFolderName]) {
-        alert("La carpeta de destino no existe. Por favor, recarga el complemento.");
+        showToast("La carpeta de destino no existe. Por favor, recarga el complemento.", 'error'); // REEMPLAZADO
         return;
     }
 
-    // Determine the new index based on where the drop happened
     const targetItem = event.target.closest('.conversation-item-wrapper');
     let newIndex;
 
@@ -882,21 +820,20 @@ async function handleConversationListDrop(event) {
         const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
 
         if (offset < boundingBox.height / 2) {
-            newIndex = targetIndex; // Drop encima del target
+            newIndex = targetIndex;
         } else {
-            newIndex = targetIndex + 1; // Drop debajo del target
+            newIndex = targetIndex + 1;
         }
     } else {
-        // Drop en el espacio vacío al final de la lista
         newIndex = storedFolders[targetFolderName].length;
     }
 
 
     if (sourceFolderName === targetFolderName) {
-        // Caso: Reordenar dentro de la misma carpeta
         if (originalIndex === newIndex || (originalIndex + 1 === newIndex && originalIndex < newIndex && newIndex <= storedFolders[targetFolderName].length) || (originalIndex -1 === newIndex && originalIndex > newIndex && newIndex >= 0)) {
             console.log("No hay cambio de orden significativo. originalIndex:", originalIndex, "newIndex:", newIndex);
-            loadAndDisplayFolders(); // Recargar para limpiar highlights
+            showToast("No se realizó ningún cambio en el orden.", 'info', 2000); // REEMPLAZADO
+            loadAndDisplayFolders();
             return;
         }
 
@@ -905,18 +842,17 @@ async function handleConversationListDrop(event) {
 
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
         console.log(`Conversación "${conversation.title}" reordenada dentro de "${targetFolderName}".`);
-        alert(`Conversación "${conversation.title}" reordenada.`);
+        showToast(`Conversación "${conversation.title}" reordenada.`, 'success'); // REEMPLAZADO
 
     } else {
-        // Caso: Mover de una carpeta a otra diferente o de Gemini a esta carpeta
         const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
         if (existsInTarget) {
-            alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
+            showToast(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`, 'info'); // REEMPLAZADO
             loadAndDisplayFolders();
             return;
         }
 
-        if (sourceFolderName) { // Si viene de otra carpeta guardada
+        if (sourceFolderName) {
             if (storedFolders[sourceFolderName]) {
                 storedFolders[sourceFolderName] = storedFolders[sourceFolderName].filter(
                     conv => conv.id !== conversation.id
@@ -926,7 +862,6 @@ async function handleConversationListDrop(event) {
             }
         }
 
-        // Insertar en la nueva posición
         storedFolders[targetFolderName].splice(newIndex, 0, {
             id: conversation.id,
             timestamp: new Date().toLocaleString(),
@@ -935,10 +870,9 @@ async function handleConversationListDrop(event) {
         });
 
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-        alert(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`);
+        showToast(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`, 'success'); // REEMPLAZADO
     }
-
-    loadAndDisplayFolders(); // Recargar la lista para reflejar los cambios
+    loadAndDisplayFolders();
 }
 
 
@@ -998,6 +932,38 @@ function filterConversationsAndFolders() {
             folderItem.style.display = 'none'; // Ocultar la carpeta si no hay coincidencias
         }
     });
+}
+
+function showToast(message, type = 'info', duration = 3000) {
+    const toastContainer = document.getElementById('gemini-organizer-toast-container');
+    if (!toastContainer) {
+        console.error('Contenedor de toast no encontrado.');
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.classList.add('gemini-organizer-toast', `gemini-organizer-toast-${type}`);
+    toast.textContent = message;
+
+    // Añadir el toast al contenedor
+    toastContainer.appendChild(toast);
+
+    // Forzar un reflow para asegurar que las transiciones CSS se apliquen correctamente
+    toast.offsetHeight;
+
+    // Añadir clase para mostrar con animación
+    toast.classList.add('show');
+
+    // Programar la eliminación del toast después de 'duration' milisegundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        // Esperar a que la animación de salida termine antes de remover el elemento del DOM
+        toast.addEventListener('transitionend', () => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, { once: true });
+    }, duration);
 }
 
 // --- LÓGICA DE OBSERVACIÓN Y EVENTOS PARA CONVERSACIONES "RECIENTES" ---

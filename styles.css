@@ -466,3 +466,57 @@ body.dragging * {
     padding-top: 8px; /* Padding normal */
     padding-bottom: 8px; /* Padding normal */
 }
+
+#gemini-organizer-toast-container {
+    position: fixed; /* O 'absolute' si quieres que se mueva con el sidebar */
+    bottom: 20px; /* Distancia desde abajo */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Asegurar que esté por encima de otros elementos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none; /* Permite clics a través del contenedor si está vacío */
+}
+
+.gemini-organizer-toast {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px; /* Espacio entre múltiples toasts */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
+    font-size: 0.9em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    max-width: 300px;
+    text-align: center;
+    pointer-events: auto; /* Permite interactuar con el toast si es necesario (aunque no hay interacción aquí) */
+}
+
+.gemini-organizer-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Tipos de toast */
+.gemini-organizer-toast-success {
+    background-color: #4CAF50; /* Verde */
+}
+
+.gemini-organizer-toast-error {
+    background-color: #F44336; /* Rojo */
+}
+
+.gemini-organizer-toast-warning {
+    background-color: #FFC107; /* Amarillo/Naranja */
+    color: #333; /* Texto oscuro para contraste */
+}
+
+.gemini-organizer-toast-info {
+    background-color: #2196F3; /* Azul */
+}
