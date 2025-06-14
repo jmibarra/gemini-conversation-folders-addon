@@ -112,7 +112,7 @@ function addToggleButton() {
         }
 
     } else {
-        console.warn('No se pudo encontrar el lugar para insertar el botón "Organizador" en la barra lateral de Gemini. Selector usado: side-nav-action-button[data-test-id="manage-instructions-control"]');
+        console.info('No se pudo encontrar el lugar para insertar el botón "Organizador" en la barra lateral de Gemini. Selector usado: side-nav-action-button[data-test-id="manage-instructions-control"]');
     }
 }
 
@@ -126,6 +126,10 @@ function toggleSidebarVisibility() {
 // Función para cargar y mostrar las carpetas y conversaciones (actualizada para usar ID de Gemini)
 async function loadAndDisplayFolders() {
     const foldersListUl = document.getElementById('folders-list-ul');
+
+    if (!foldersListUl) {
+        return;
+    }
 
     // PASO 1: Capturar el estado actual de las carpetas abiertas antes de limpiar el DOM
     const openFolderStates = {};
