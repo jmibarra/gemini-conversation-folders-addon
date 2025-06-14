@@ -191,6 +191,16 @@ async function loadAndDisplayFolders() {
         storedFolders[folderName].forEach((conv) => {
             const convItem = document.createElement('li');
             convItem.classList.add('conversation-item-wrapper');
+            convItem.setAttribute('draggable', 'true'); // ¡Hacer arrastrable!
+            convItem.dataset.folderName = folderName; // Añadir la carpeta de origen
+            convItem.dataset.convId = conv.id; // Añadir el ID de la conversación
+            convItem.dataset.convTitle = conv.title; // Añadir el título de la conversación
+            convItem.dataset.convUrl = conv.url; // Añadir la URL de la conversación
+            convItem.addEventListener('dragstart', handleDragStart); // Añadir listener para el arrastre
+            convItem.addEventListener('dragend', (event) => {
+                event.target.classList.remove('is-dragging');
+            });
+
 
             const convContentFlex = document.createElement('div');
             convContentFlex.classList.add('conversation-item-content');
@@ -199,7 +209,7 @@ async function loadAndDisplayFolders() {
             convTitle.classList.add('conversation-title', 'gds-body-m');
             convTitle.textContent = conv.title;
             convTitle.dataset.folderName = folderName;
-            convTitle.dataset.convId = conv.id; // ¡Este es el ID de Gemini real, sin "c_"!
+            convTitle.dataset.convId = conv.id;
             convTitle.style.flexGrow = '1';
             convTitle.style.cursor = 'pointer';
             convTitle.title = conv.title;
@@ -564,46 +574,44 @@ async function deleteConversation(event) {
     }
 }
 
-// 1. Manejador para el inicio del arrastre (dragstart) (¡MODIFICADA para ID y URL correctos!)
+// 1. Manejador para el inicio del arrastre (dragstart) (¡MODIFICADA para incluir folder_from!)
 function handleDragStart(event) {
-    const conversationElement = event.target.closest('.conversation[data-test-id="conversation"]');
+    // Si se arrastra desde la lista de "Recientes" de Gemini
+    const geminiConversationElement = event.target.closest('.chat-history-list .conversation[data-test-id="conversation"]');
 
-    if (conversationElement) {
-        const titleElement = conversationElement.querySelector('.conversation-title');
+    // Si se arrastra desde una conversación guardada en el sidebar
+    const savedConversationElement = event.target.closest('.conversation-item-wrapper[draggable="true"]');
+
+    let conversationData;
+
+    if (geminiConversationElement) {
+        const titleElement = geminiConversationElement.querySelector('.conversation-title');
         const convTitle = titleElement ? titleElement.textContent.trim() : 'Conversación sin título';
 
         let realConversationId = null;
         let convUrl = '';
 
-        // Extraer el ID real del jslog, quitando el prefijo "c_"
-        const jslogAttribute = conversationElement.getAttribute('jslog');
+        const jslogAttribute = geminiConversationElement.getAttribute('jslog');
         if (jslogAttribute) {
-            // Ajustar la regex para capturar el ID *después* de "c_"
             const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]*\x22c_([^\x22]+)\x22/);
             if (match && match[1]) {
-                realConversationId = match[1]; // Este es el ID sin el "c_"
-                convUrl = `https://gemini.google.com/app/${realConversationId}`; // URL con el formato /app/
+                realConversationId = match[1];
+                convUrl = `https://gemini.google.com/app/${realConversationId}`;
             }
         }
 
-        // Si no se encontró el ID del jslog, y la conversación actual ES la arrastrada,
-        // intentar obtenerlo de la URL actual.
-        if (!realConversationId && conversationElement.classList.contains('selected')) {
-            realConversationId = extractRealConversationIdFromCurrentUrl(); // Usa la nueva función
+        if (!realConversationId && geminiConversationElement.classList.contains('selected')) {
+            realConversationId = extractRealConversationIdFromCurrentUrl();
             if (realConversationId) {
                 convUrl = `https://gemini.google.com/app/${realConversationId}`;
             }
         }
 
         if (!realConversationId || !convUrl) {
-            console.warn("No se pudo obtener un ID de conversación o URL válida para la conversación arrastrada.");
-            // Si no se puede obtener el ID real, es mejor no arrastrar o usar un ID temporal y la URL actual.
-            // Para evitar problemas con la navegación, forzaremos un ID de fallback y la URL actual.
-            // Aunque lo ideal es que siempre se extraiga el ID real.
+            console.warn("No se pudo obtener un ID de conversación o URL válida para la conversación arrastrada desde Gemini.");
             if (!convUrl) {
                 convUrl = window.location.href.split('?')[0];
                 if (!convUrl.includes('/app/') && !convUrl.includes('/gem/')) {
-                    // Si la URL actual tampoco es una URL de chat específica, dale una por defecto
                     convUrl = 'https://gemini.google.com/app/';
                 }
             }
@@ -612,17 +620,30 @@ function handleDragStart(event) {
             }
         }
 
-        const conversationData = JSON.stringify({
-            id: realConversationId, // Guardar el ID real de Gemini
+        conversationData = {
+            id: realConversationId,
             title: convTitle,
-            url: convUrl // Guardar la URL completa con el ID real y formato /app/
-        });
-
-        event.dataTransfer.setData('application/json', conversationData);
-        event.dataTransfer.effectAllowed = 'move';
-
-        conversationElement.classList.add('is-dragging');
+            url: convUrl,
+            folder_from: null // Indicar que viene de Gemini (no de una carpeta guardada)
+        };
+        geminiConversationElement.classList.add('is-dragging');
+    } else if (savedConversationElement) {
+        // Si se arrastra desde una conversación guardada
+        conversationData = {
+            id: savedConversationElement.dataset.convId,
+            title: savedConversationElement.dataset.convTitle,
+            url: savedConversationElement.dataset.convUrl,
+            folder_from: savedConversationElement.dataset.folderName // ¡Carpeta de origen!
+        };
+        savedConversationElement.classList.add('is-dragging');
+    } else {
+        // No se está arrastrando un elemento relevante
+        event.preventDefault();
+        return;
     }
+
+    event.dataTransfer.setData('application/json', JSON.stringify(conversationData));
+    event.dataTransfer.effectAllowed = 'move';
 }
 
 // 2. Manejador para el elemento que recibe el arrastre (dragover) (sin cambios)
@@ -643,7 +664,7 @@ function handleDragLeave(event) {
     }
 }
 
-// 4. Manejador para el soltado (drop) (actualizada para usar ID de Gemini)
+// 4. Manejador para el soltado (drop) (¡MODIFICADA para mover entre carpetas!)
 async function handleDrop(event) {
     event.preventDefault(); // CRUCIAL
 
@@ -659,45 +680,73 @@ async function handleDrop(event) {
     }
 
     const conversation = JSON.parse(droppedData);
-    const folderName = event.currentTarget.dataset.folderName; // La carpeta donde se soltó
+    const targetFolderName = event.currentTarget.dataset.folderName; // La carpeta donde se soltó
+    const sourceFolderName = conversation.folder_from; // La carpeta de origen (null si viene de Gemini)
 
-    if (!folderName) {
+    if (!targetFolderName) {
         alert('No se pudo identificar la carpeta de destino.');
         return;
     }
 
-    // Ahora verificamos también el ID de conversación real
     if (!conversation.title || !conversation.url || !conversation.id) {
         alert('La información de la conversación arrastrada está incompleta (falta título, URL o ID real).');
         return;
     }
 
-    // Lógica para guardar la conversación en la carpeta
     const data = await chrome.storage.local.get(STORAGE_KEY);
     let storedFolders = data[STORAGE_KEY] || {};
 
-    if (storedFolders[folderName]) {
-        // Verificar si la conversación ya existe en la carpeta usando el ID real de Gemini
-        const exists = storedFolders[folderName].some(conv => conv.id === conversation.id);
-        if (exists) {
-            alert(`La conversación "${conversation.title}" ya está en la carpeta "${folderName}".`);
-            return;
-        }
+    if (!storedFolders[targetFolderName]) {
+        alert("La carpeta de destino no existe. Por favor, recarga el complemento.");
+        return;
+    }
 
-        storedFolders[folderName].push({
-            id: conversation.id, // Usamos el ID real de Gemini para identificarla
+    // Verificar si la conversación ya existe en la carpeta de destino
+    const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
+
+    if (existsInTarget) {
+        alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
+        return;
+    }
+
+    // Lógica para mover o agregar la conversación
+    if (sourceFolderName && sourceFolderName !== targetFolderName) {
+        // MOVER: Eliminar de la carpeta de origen
+        if (storedFolders[sourceFolderName]) {
+            storedFolders[sourceFolderName] = storedFolders[sourceFolderName].filter(
+                conv => conv.id !== conversation.id
+            );
+        } else {
+            console.warn(`Carpeta de origen "${sourceFolderName}" no encontrada. Solo se agregará la conversación a la carpeta de destino.`);
+        }
+        // AGREGAR: Añadir a la carpeta de destino
+        storedFolders[targetFolderName].push({
+            id: conversation.id,
             timestamp: new Date().toLocaleString(),
             title: conversation.title,
-            url: conversation.url // La URL debería ser correcta ahora (con /app/ y ID real)
+            url: conversation.url
         });
-
         await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-        alert(`Conversación "${conversation.title}" guardada en "${folderName}" exitosamente.`);
-        loadAndDisplayFolders(); // Actualizar la lista de carpetas
+        alert(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`);
+
+    } else if (sourceFolderName === targetFolderName) {
+        alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
+        return; // No hacer nada si se suelta en la misma carpeta
     } else {
-        alert("La carpeta de destino no existe.");
+        // AGREGAR (si viene de Gemini, folder_from es null)
+        storedFolders[targetFolderName].push({
+            id: conversation.id,
+            timestamp: new Date().toLocaleString(),
+            title: conversation.title,
+            url: conversation.url
+        });
+        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+        alert(`Conversación "${conversation.title}" guardada en "${targetFolderName}" exitosamente.`);
     }
+
+    loadAndDisplayFolders(); // Recargar la lista de carpetas para reflejar los cambios
 }
+
 
 // NUEVO: Función para filtrar carpetas y conversaciones
 function filterConversationsAndFolders() {
