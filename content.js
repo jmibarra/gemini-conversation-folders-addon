@@ -200,7 +200,6 @@ async function loadAndDisplayFolders() {
             convTitle.textContent = conv.title;
             convTitle.dataset.folderName = folderName;
             convTitle.dataset.convId = conv.id; // ¡Este es el ID de Gemini real, sin "c_"!
-            // Ya no necesitamos dataset.conversationUrl aquí, solo el ID
             convTitle.style.flexGrow = '1';
             convTitle.style.cursor = 'pointer';
             convTitle.title = conv.title;
@@ -442,7 +441,7 @@ async function saveCurrentConversation() {
         alert("Conversación guardada exitosamente en la carpeta: " + selectedFolderName);
         loadAndDisplayFolders();
     } else {
-        alert("La carpeta seleccionada no existe. Por favor, recarga el complemento.");
+        alert("La carpeta seleccionada no existe.");
     }
 }
 
@@ -480,22 +479,44 @@ function extractRealConversationIdFromCurrentUrl() {
     return null;
 }
 
-// Función para abrir la URL de la conversación guardada (¡CRÍTICO: MODIFICADA para simular clic nativo!)
+// Función para abrir la URL de la conversación guardada (¡CRÍTICO: MODIFICADA para simular clic nativo con MouseEvent!)
 function openGeminiChat(event) {
-    const conversationId = event.target.dataset.convId; // Obtenemos el ID real (sin 'c_')
+    const conversationId = event.target.dataset.convId;
     if (conversationId) {
         // Buscar el elemento de conversación nativa usando el conversationId en el jslog
-        // El jslog contiene "\x22c_ID_REAL\x22" (con el prefijo 'c_')
         const targetConversationElement = document.querySelector(`.chat-history-list .conversation[jslog*="\\x22c_${conversationId}\\x22"]`);
 
         if (targetConversationElement) {
-            // Simular un clic en el elemento de la conversación nativa
-            // Esto debería hacer que Gemini maneje la navegación internamente sin recargar
-            targetConversationElement.click();
-            // Ocultar el sidebar después de la acción, posiblemente con un pequeño retraso
+            console.log(`Simulando clic en elemento nativo con ID: c_${conversationId}`);
+            // Simular un evento MouseEvent completo
+            const clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                buttons: 1 // Indica que el botón primario del ratón está presionado
+            });
+            const mouseDownEvent = new MouseEvent('mousedown', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                buttons: 1
+            });
+            const mouseUpEvent = new MouseEvent('mouseup', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+            });
+
+            // Disparar los eventos en orden
+            targetConversationElement.dispatchEvent(mouseDownEvent);
+            targetConversationElement.dispatchEvent(mouseUpEvent);
+            targetConversationElement.dispatchEvent(clickEvent); // El evento 'click' final
+
+            // Ocultar el sidebar después de la acción, con un pequeño retraso
             setTimeout(() => {
                 document.getElementById(SIDEBAR_ID).classList.add('hidden');
-            }, 100); // Pequeño retraso para que la animación de Gemini se inicie
+            }, 100); // Dar un poco de tiempo para que la SPA responda
+
         } else {
             console.warn(`No se encontró el elemento de conversación nativa con ID: c_${conversationId}. Intentando navegación directa como fallback.`);
             // Fallback: Si no se encuentra el elemento, navega directamente. Esto causará una recarga.
@@ -583,7 +604,7 @@ function handleDragStart(event) {
                 convUrl = window.location.href.split('?')[0];
                 if (!convUrl.includes('/app/') && !convUrl.includes('/gem/')) {
                     // Si la URL actual tampoco es una URL de chat específica, dale una por defecto
-                    convUrl = '[https://gemini.google.com/app/](https://gemini.google.com/app/)';
+                    convUrl = 'https://gemini.google.com/app/';
                 }
             }
             if (!realConversationId) {
