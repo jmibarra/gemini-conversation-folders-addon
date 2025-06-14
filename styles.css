@@ -449,3 +449,20 @@ body.dragging * {
     margin-left: 8px; /* Espacio desde el borde */
     margin-right: 8px; /* Espacio antes del botón de eliminar */
 }
+
+/* Feedback visual para reordenamiento de conversaciones */
+#gemini-organizer-sidebar .conversation-item-wrapper.drag-over-top {
+    border-top: 2px solid #1a73e8; /* Borde azul en la parte superior */
+    padding-top: 6px; /* Ajuste para compensar el borde */
+}
+
+#gemini-organizer-sidebar .conversation-item-wrapper.drag-over-bottom {
+    border-bottom: 2px solid #1a73e8; /* Borde azul en la parte inferior */
+    padding-bottom: 6px; /* Ajuste para compensar el borde */
+}
+
+/* Limpiar padding cuando no hay borde */
+#gemini-organizer-sidebar .conversation-item-wrapper:not(.drag-over-top):not(.drag-over-bottom) {
+    padding-top: 8px; /* Padding normal */
+    padding-bottom: 8px; /* Padding normal */
+}

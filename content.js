@@ -188,14 +188,21 @@ async function loadAndDisplayFolders() {
         const conversationsUl = document.createElement('ul');
         conversationsUl.classList.add('conversation-items-container', 'side-nav-opened');
 
-        storedFolders[folderName].forEach((conv) => {
+        // NEW: Agregamos el listener para dragover y drop a la UL de conversaciones también
+        conversationsUl.addEventListener('dragover', handleConversationListDragOver);
+        conversationsUl.addEventListener('drop', handleConversationListDrop);
+        conversationsUl.dataset.folderName = folderName; // Para saber en qué lista se soltó
+
+
+        storedFolders[folderName].forEach((conv, index) => { // Añadimos 'index' al forEach
             const convItem = document.createElement('li');
             convItem.classList.add('conversation-item-wrapper');
             convItem.setAttribute('draggable', 'true'); // ¡Hacer arrastrable!
             convItem.dataset.folderName = folderName; // Añadir la carpeta de origen
-            convItem.dataset.convId = conv.id; // Añadir el ID de la conversación
+            convItem.dataset.convId = conv.id;       // Añadir el ID de la conversación
             convItem.dataset.convTitle = conv.title; // Añadir el título de la conversación
-            convItem.dataset.convUrl = conv.url; // Añadir la URL de la conversación
+            convItem.dataset.convUrl = conv.url;     // Añadir la URL de la conversación
+            convItem.dataset.originalIndex = index;  // ¡NUEVO! Guardar el índice original
             convItem.addEventListener('dragstart', handleDragStart); // Añadir listener para el arrastre
             convItem.addEventListener('dragend', (event) => {
                 event.target.classList.remove('is-dragging');
@@ -574,7 +581,7 @@ async function deleteConversation(event) {
     }
 }
 
-// 1. Manejador para el inicio del arrastre (dragstart) (¡MODIFICADA para incluir folder_from!)
+// 1. Manejador para el inicio del arrastre (dragstart) (¡MODIFICADA para incluir folder_from y originalIndex!)
 function handleDragStart(event) {
     // Si se arrastra desde la lista de "Recientes" de Gemini
     const geminiConversationElement = event.target.closest('.chat-history-list .conversation[data-test-id="conversation"]');
@@ -624,7 +631,8 @@ function handleDragStart(event) {
             id: realConversationId,
             title: convTitle,
             url: convUrl,
-            folder_from: null // Indicar que viene de Gemini (no de una carpeta guardada)
+            folder_from: null, // Indicar que viene de Gemini (no de una carpeta guardada)
+            original_index: -1 // No aplica para arrastres desde Gemini
         };
         geminiConversationElement.classList.add('is-dragging');
     } else if (savedConversationElement) {
@@ -633,7 +641,8 @@ function handleDragStart(event) {
             id: savedConversationElement.dataset.convId,
             title: savedConversationElement.dataset.convTitle,
             url: savedConversationElement.dataset.convUrl,
-            folder_from: savedConversationElement.dataset.folderName // ¡Carpeta de origen!
+            folder_from: savedConversationElement.dataset.folderName, // ¡Carpeta de origen!
+            original_index: parseInt(savedConversationElement.dataset.originalIndex) // ¡NUEVO! Índice original
         };
         savedConversationElement.classList.add('is-dragging');
     } else {
@@ -657,18 +666,54 @@ function handleDragOver(event) {
     }
 }
 
-// 3. Manejador cuando el arrastre sale del elemento (dragleave) (sin cambios)
+// NUEVO: Manejador para el dragover en la lista de conversaciones (para reordenar)
+function handleConversationListDragOver(event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+
+    // Añadir feedback visual al arrastrar sobre un item o el espacio entre ellos
+    const targetItem = event.target.closest('.conversation-item-wrapper');
+    const conversationList = event.currentTarget; // Es la UL .conversation-items-container
+
+    // Limpiar clases de highlight existentes
+    conversationList.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    if (targetItem) {
+        const boundingBox = targetItem.getBoundingClientRect();
+        const offset = event.clientY - boundingBox.top;
+
+        if (offset < boundingBox.height / 2) {
+            targetItem.classList.add('drag-over-top'); // Resaltar encima
+        } else {
+            targetItem.classList.add('drag-over-bottom'); // Resaltar debajo
+        }
+    } else {
+        // Si no hay un item específico, se arrastra sobre la lista vacía o el final
+        conversationList.classList.add('drag-over-bottom'); // Resaltar como añadir al final
+    }
+}
+
+
+// 3. Manejador cuando el arrastre sale del elemento (dragleave) (modificado para listas de conversaciones)
 function handleDragLeave(event) {
     if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
         event.currentTarget.classList.remove('drag-over');
     }
+
+    // Limpiar clases de highlight para la lista de conversaciones
+    event.currentTarget.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
 }
 
-// 4. Manejador para el soltado (drop) (¡MODIFICADA para mover entre carpetas!)
+
+// 4. Manejador para el soltado (drop) (¡MODIFICADA para mover entre y dentro de carpetas!)
 async function handleDrop(event) {
     event.preventDefault(); // CRUCIAL
 
-    // Remover feedback visual
+    // Remover feedback visual de la carpeta
     if (event.currentTarget && event.currentTarget.classList.contains('title-container')) {
         event.currentTarget.classList.remove('drag-over');
     }
@@ -682,6 +727,7 @@ async function handleDrop(event) {
     const conversation = JSON.parse(droppedData);
     const targetFolderName = event.currentTarget.dataset.folderName; // La carpeta donde se soltó
     const sourceFolderName = conversation.folder_from; // La carpeta de origen (null si viene de Gemini)
+    const originalIndex = conversation.original_index; // Índice original (si viene de una carpeta guardada)
 
     if (!targetFolderName) {
         alert('No se pudo identificar la carpeta de destino.');
@@ -701,39 +747,79 @@ async function handleDrop(event) {
         return;
     }
 
-    // Verificar si la conversación ya existe en la carpeta de destino
-    const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
+    // Caso de Drag & Drop entre/dentro de carpetas
+    if (sourceFolderName !== null) { // La conversación proviene de una carpeta guardada
+        if (sourceFolderName === targetFolderName) {
+            // Reordenar dentro de la misma carpeta
+            const targetItem = event.target.closest('.conversation-item-wrapper');
+            let newIndex;
+            if (targetItem) {
+                const boundingBox = targetItem.getBoundingClientRect();
+                const offset = event.clientY - boundingBox.top;
+                const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
 
-    if (existsInTarget) {
-        alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
-        return;
-    }
+                if (offset < boundingBox.height / 2) {
+                    newIndex = targetIndex; // Soltar encima del target
+                } else {
+                    newIndex = targetIndex + 1; // Soltar debajo del target
+                }
+            } else {
+                // Soltar al final de la lista si no hay targetItem específico
+                newIndex = storedFolders[targetFolderName].length;
+            }
 
-    // Lógica para mover o agregar la conversación
-    if (sourceFolderName && sourceFolderName !== targetFolderName) {
-        // MOVER: Eliminar de la carpeta de origen
-        if (storedFolders[sourceFolderName]) {
-            storedFolders[sourceFolderName] = storedFolders[sourceFolderName].filter(
-                conv => conv.id !== conversation.id
-            );
+            if (originalIndex === newIndex || (originalIndex + 1 === newIndex && originalIndex < newIndex)) {
+                // Evitar reordenamiento si la posición es la misma o adyacente en la dirección de arrastre
+                console.log("No hay cambio de orden significativo.");
+                loadAndDisplayFolders(); // Recargar para limpiar highlights
+                return;
+            }
+
+            // Realizar el reordenamiento en el array de conversaciones
+            const [movedConversation] = storedFolders[targetFolderName].splice(originalIndex, 1);
+            storedFolders[targetFolderName].splice(newIndex > originalIndex ? newIndex - 1 : newIndex, 0, movedConversation);
+
+            await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+            console.log(`Conversación "${conversation.title}" reordenada dentro de "${targetFolderName}".`);
+            alert(`Conversación "${conversation.title}" reordenada.`);
+
         } else {
-            console.warn(`Carpeta de origen "${sourceFolderName}" no encontrada. Solo se agregará la conversación a la carpeta de destino.`);
-        }
-        // AGREGAR: Añadir a la carpeta de destino
-        storedFolders[targetFolderName].push({
-            id: conversation.id,
-            timestamp: new Date().toLocaleString(),
-            title: conversation.title,
-            url: conversation.url
-        });
-        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
-        alert(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`);
+            // Mover a una carpeta DIFERENTE
+            // Verificar si ya existe en la carpeta de destino antes de mover
+            const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
+            if (existsInTarget) {
+                alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
+                loadAndDisplayFolders(); // Recargar para limpiar highlights
+                return;
+            }
 
-    } else if (sourceFolderName === targetFolderName) {
-        alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
-        return; // No hacer nada si se suelta en la misma carpeta
+            // Eliminar de la carpeta de origen
+            if (storedFolders[sourceFolderName]) {
+                storedFolders[sourceFolderName] = storedFolders[sourceFolderName].filter(
+                    conv => conv.id !== conversation.id
+                );
+            } else {
+                console.warn(`Carpeta de origen "${sourceFolderName}" no encontrada al intentar mover.`);
+            }
+
+            // Añadir a la carpeta de destino
+            storedFolders[targetFolderName].push({
+                id: conversation.id,
+                timestamp: new Date().toLocaleString(),
+                title: conversation.title,
+                url: conversation.url
+            });
+            await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+            alert(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`);
+        }
     } else {
-        // AGREGAR (si viene de Gemini, folder_from es null)
+        // Caso: La conversación viene de Gemini (folder_from es null)
+        const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
+        if (existsInTarget) {
+            alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
+            loadAndDisplayFolders(); // Recargar para limpiar highlights
+            return;
+        }
         storedFolders[targetFolderName].push({
             id: conversation.id,
             timestamp: new Date().toLocaleString(),
@@ -745,6 +831,114 @@ async function handleDrop(event) {
     }
 
     loadAndDisplayFolders(); // Recargar la lista de carpetas para reflejar los cambios
+}
+
+
+// NUEVO: Manejador para el soltado en la UL de conversaciones (para reordenar)
+async function handleConversationListDrop(event) {
+    event.preventDefault(); // CRUCIAL
+
+    // Limpiar clases de highlight
+    event.currentTarget.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    const droppedData = event.dataTransfer.getData('application/json');
+    if (!droppedData) {
+        alert('No se pudo recuperar la información de la conversación arrastrada.');
+        return;
+    }
+
+    const conversation = JSON.parse(droppedData);
+    const targetFolderName = event.currentTarget.dataset.folderName; // La carpeta actual de la UL
+    const sourceFolderName = conversation.folder_from;
+    const originalIndex = conversation.original_index;
+
+    if (!targetFolderName) {
+        console.error('Error: No se pudo identificar la carpeta de destino de la lista.');
+        return;
+    }
+
+    if (!conversation.title || !conversation.url || !conversation.id) {
+        alert('La información de la conversación arrastrada está incompleta.');
+        return;
+    }
+
+    const data = await chrome.storage.local.get(STORAGE_KEY);
+    let storedFolders = data[STORAGE_KEY] || {};
+
+    if (!storedFolders[targetFolderName]) {
+        alert("La carpeta de destino no existe. Por favor, recarga el complemento.");
+        return;
+    }
+
+    // Determine the new index based on where the drop happened
+    const targetItem = event.target.closest('.conversation-item-wrapper');
+    let newIndex;
+
+    if (targetItem) {
+        const boundingBox = targetItem.getBoundingClientRect();
+        const offset = event.clientY - boundingBox.top;
+        const targetIndex = Array.from(targetItem.parentNode.children).indexOf(targetItem);
+
+        if (offset < boundingBox.height / 2) {
+            newIndex = targetIndex; // Drop encima del target
+        } else {
+            newIndex = targetIndex + 1; // Drop debajo del target
+        }
+    } else {
+        // Drop en el espacio vacío al final de la lista
+        newIndex = storedFolders[targetFolderName].length;
+    }
+
+
+    if (sourceFolderName === targetFolderName) {
+        // Caso: Reordenar dentro de la misma carpeta
+        if (originalIndex === newIndex || (originalIndex + 1 === newIndex && originalIndex < newIndex && newIndex <= storedFolders[targetFolderName].length) || (originalIndex -1 === newIndex && originalIndex > newIndex && newIndex >= 0)) {
+            console.log("No hay cambio de orden significativo. originalIndex:", originalIndex, "newIndex:", newIndex);
+            loadAndDisplayFolders(); // Recargar para limpiar highlights
+            return;
+        }
+
+        const [movedConversation] = storedFolders[targetFolderName].splice(originalIndex, 1);
+        storedFolders[targetFolderName].splice(newIndex > originalIndex ? newIndex - 1 : newIndex, 0, movedConversation);
+
+        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+        console.log(`Conversación "${conversation.title}" reordenada dentro de "${targetFolderName}".`);
+        alert(`Conversación "${conversation.title}" reordenada.`);
+
+    } else {
+        // Caso: Mover de una carpeta a otra diferente o de Gemini a esta carpeta
+        const existsInTarget = storedFolders[targetFolderName].some(conv => conv.id === conversation.id);
+        if (existsInTarget) {
+            alert(`La conversación "${conversation.title}" ya está en la carpeta "${targetFolderName}".`);
+            loadAndDisplayFolders();
+            return;
+        }
+
+        if (sourceFolderName) { // Si viene de otra carpeta guardada
+            if (storedFolders[sourceFolderName]) {
+                storedFolders[sourceFolderName] = storedFolders[sourceFolderName].filter(
+                    conv => conv.id !== conversation.id
+                );
+            } else {
+                console.warn(`Carpeta de origen "${sourceFolderName}" no encontrada al intentar mover.`);
+            }
+        }
+
+        // Insertar en la nueva posición
+        storedFolders[targetFolderName].splice(newIndex, 0, {
+            id: conversation.id,
+            timestamp: new Date().toLocaleString(),
+            title: conversation.title,
+            url: conversation.url
+        });
+
+        await chrome.storage.local.set({ [STORAGE_KEY]: storedFolders });
+        alert(`Conversación "${conversation.title}" movida a "${targetFolderName}" exitosamente.`);
+    }
+
+    loadAndDisplayFolders(); // Recargar la lista para reflejar los cambios
 }
 
 
@@ -827,7 +1021,8 @@ function setupDraggableConversations() {
 // Ejecutar la inicialización cuando el DOM esté cargado
 window.requestIdleCallback(() => {
     addToggleButton();
-    setupDraggableConversations();
+    loadAndDisplayFolders(); // Asegurarse de que las carpetas se carguen y los listeners de D&D se adjunten
+    setupDraggableConversations(); // Configurar arrastre en conversaciones recientes
 });
 
 // Observar cambios en el DOM de Gemini para asegurar que el botón y el sidebar persistan
