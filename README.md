@@ -20,8 +20,13 @@ Este es un proyecto en desarrollo. Es posible que encuentres errores o que la fu
 
 ---
 
-## 🚀 **Cómo Instalar (Versión Beta - Modo Desarrollador):**
+## 🚀 **Cómo Instalar:**
 
+### Chrome web store
+
+Puedes descargar la versión estable productiva desde el store de Chrome: [Organizador de Conversaciones de Gemini](https://chromewebstore.google.com/detail/gafkcjhjichbmdclinadljhmpaenmpgd?utm_source=item-share-cb)
+
+### Versión Beta - Modo Desarrollador
 Dado que esta es una versión beta y no está en la Chrome Web Store, deberás instalarla en el "Modo de desarrollador" de Chrome.
 
 1.  **Descarga el Complemento:**
