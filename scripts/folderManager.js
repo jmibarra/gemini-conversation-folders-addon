@@ -1,0 +1,155 @@
+class FolderManager {
+    constructor(storage, ui) {
+        this.storage = storage;
+        this.ui = ui;
+    }
+
+    async loadAndDisplayFolders() {
+        const openFolderStates = this.getOpenFolderStates();
+        const folders = await this.storage.getFolders();
+        this.ui.renderFolders(folders, openFolderStates, this.eventHandler, this.dragAndDropHandler);
+    }
+
+    async createFolder() {
+        const newFolderNameInput = document.getElementById('new-folder-name');
+        const folderName = newFolderNameInput.value.trim();
+
+        if (folderName) {
+            const storedFolders = await this.storage.getFolders();
+
+            if (!storedFolders[folderName]) {
+                storedFolders[folderName] = [];
+                await this.storage.saveFolders(storedFolders);
+                newFolderNameInput.value = '';
+                this.loadAndDisplayFolders();
+                showToast(`Carpeta "${folderName}" creada exitosamente.`, 'success');
+            } else {
+                showToast(`La carpeta "${folderName}" ya existe.`, 'warning');
+            }
+        } else {
+            showToast("Por favor, ingresa un nombre para la carpeta.", 'warning');
+        }
+    }
+
+    async saveFolderRename(inputField, originalFolderName, folderTitleElement, deleteBtn, editBtn, expandIcon) {
+        const newFolderName = inputField.value.trim();
+
+        if (!inputField.parentNode) {
+            return;
+        }
+
+        if (newFolderName === originalFolderName) {
+            inputField.remove();
+            folderTitleElement.style.display = 'block';
+            deleteBtn.style.display = 'block';
+            editBtn.style.display = 'block';
+            expandIcon.style.display = 'block';
+            return;
+        }
+
+        if (!newFolderName) {
+            showToast("El nombre de la carpeta no puede estar vacío. Se restaurará el nombre original.", 'warning');
+            inputField.remove();
+            folderTitleElement.style.display = 'block';
+            deleteBtn.style.display = 'block';
+            editBtn.style.display = 'block';
+            expandIcon.style.display = 'block';
+            return;
+        }
+
+        const storedFolders = await this.storage.getFolders();
+
+        if (storedFolders[newFolderName] && newFolderName !== originalFolderName) {
+            showToast(`Ya existe una carpeta con el nombre "${newFolderName}". Por favor, elige un nombre diferente.`, 'warning');
+            inputField.remove();
+            folderTitleElement.style.display = 'block';
+            deleteBtn.style.display = 'block';
+            editBtn.style.display = 'block';
+            expandIcon.style.display = 'block';
+            return;
+        }
+
+        const folderContent = storedFolders[originalFolderName];
+        delete storedFolders[originalFolderName];
+        storedFolders[newFolderName] = folderContent;
+
+        await this.storage.saveFolders(storedFolders);
+        showToast(`Carpeta "${originalFolderName}" renombrada a "${newFolderName}" exitosamente.`, 'success');
+
+        inputField.remove();
+        this.loadAndDisplayFolders();
+    }
+
+    async deleteFolder(event) {
+        event.stopPropagation();
+        const folderName = event.currentTarget.dataset.folderName;
+
+        if (!folderName) {
+            showToast('Hubo un error al intentar eliminar la carpeta.', 'error');
+            return;
+        }
+
+        if (!confirm(`¿Estás seguro de que quieres eliminar la carpeta "${folderName}"?`)) {
+            return;
+        }
+
+        const storedFolders = await this.storage.getFolders();
+
+        if (storedFolders[folderName]) {
+            delete storedFolders[folderName];
+            await this.storage.saveFolders(storedFolders);
+            showToast(`Carpeta "${folderName}" eliminada.`, 'success');
+            this.loadAndDisplayFolders();
+        } else {
+            showToast("La carpeta especificada no existe.", 'error');
+        }
+    }
+
+    async deleteConversation(event) {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta conversación?')) {
+            return;
+        }
+
+        const folderName = event.currentTarget.dataset.folderName;
+        const convId = event.currentTarget.dataset.convId;
+
+        if (!folderName || !convId) {
+            showToast('Hubo un error al intentar eliminar la conversación.', 'error');
+            return;
+        }
+
+        const storedFolders = await this.storage.getFolders();
+
+        if (storedFolders[folderName]) {
+            storedFolders[folderName] = storedFolders[folderName].filter(conv => conv.id !== convId);
+            await this.storage.saveFolders(storedFolders);
+            showToast("Conversación eliminada.", 'success');
+            this.loadAndDisplayFolders();
+        } else {
+            showToast("La carpeta especificada no existe.", 'error');
+        }
+    }
+
+    getOpenFolderStates() {
+        const openFolderStates = {};
+        const foldersListUl = document.getElementById('folders-list-ul');
+        if (foldersListUl) {
+            foldersListUl.querySelectorAll('.gemini-folder-item').forEach(folderItem => {
+                const folderName = folderItem.querySelector('.gemini-folder-title').dataset.folderName;
+                const conversationsWrapper = folderItem.querySelector('.conversations-list-wrapper');
+                if (conversationsWrapper && !conversationsWrapper.classList.contains('hidden')) {
+                    openFolderStates[folderName] = true;
+                }
+            });
+        }
+        return openFolderStates;
+    }
+
+    setEventHandler(eventHandler) {
+        this.eventHandler = eventHandler;
+    }
+
+    setDragAndDropHandler(dragAndDropHandler) {
+        this.dragAndDropHandler = dragAndDropHandler;
+    }
+}

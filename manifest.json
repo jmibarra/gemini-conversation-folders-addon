@@ -11,7 +11,16 @@
   "content_scripts": [
     {
       "matches": ["https://gemini.google.com/*"],
-      "js": ["content.js"],
+      "js": [
+        "scripts/storage.js",
+        "scripts/utils.js",
+        "scripts/ui.js",
+        "scripts/folderManager.js",
+        "scripts/dragAndDrop.js",
+        "scripts/eventHandler.js",
+        "scripts/app.js",
+        "content.js"
+      ],
       "css": ["styles.css"]
     }
   ],
