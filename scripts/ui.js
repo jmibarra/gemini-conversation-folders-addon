@@ -23,8 +23,7 @@ class UI {
                 <div class="folders-list">
                     <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
                     <ul id="folders-list-ul"></ul>
-                </div>
-                <div id="gemini-organizer-toast-container"></div>`;
+                </div>`;
         }
         this.sidebar = sidebar;
         return sidebar;

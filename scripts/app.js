@@ -15,6 +15,13 @@ class App {
     }
 
     init() {
+
+        if (!document.getElementById('gemini-organizer-toast-container')) {
+            const toastContainer = document.createElement('div');
+            toastContainer.id = 'gemini-organizer-toast-container';
+            document.body.appendChild(toastContainer);
+        }
+        
         window.requestIdleCallback(() => {
 
             this.ui.addToggleButton(this.eventHandler, this.folderManager);
