@@ -10,12 +10,15 @@ class App {
         this.folderManager.setDragAndDropHandler(this.dragAndDropHandler);
 
         this.observer = new MutationObserver(this.handleMutations.bind(this));
+        
+        chrome.storage.onChanged.addListener(this.handleStorageChange.bind(this));
     }
 
     init() {
         window.requestIdleCallback(() => {
-            this.ui.addToggleButton(this.eventHandler);
-            this.folderManager.loadAndDisplayFolders();
+
+            this.ui.addToggleButton(this.eventHandler, this.folderManager);
+
             this.dragAndDropHandler.setupDraggableConversations();
             this.observer.observe(document.body, { childList: true, subtree: true });
         });
@@ -24,8 +27,15 @@ class App {
     handleMutations() {
         const toggleButtonWrapper = document.getElementById('gemini-organizer-wrapper');
         if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper)) {
-            this.ui.addToggleButton(this.eventHandler);
+            this.ui.addToggleButton(this.eventHandler, this.folderManager);
         }
         this.dragAndDropHandler.setupDraggableConversations();
+    }
+
+    handleStorageChange(changes, namespace) {
+        if (namespace === 'local' && changes[this.storage.key]) {
+            console.log('El almacenamiento ha cambiado. Recargando las carpetas para mantener la sincronización.');
+            this.folderManager.loadAndDisplayFolders();
+        }
     }
 }

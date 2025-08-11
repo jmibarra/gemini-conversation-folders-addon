@@ -30,7 +30,8 @@ class UI {
         return sidebar;
     }
 
-    addToggleButton(eventHandler) {
+
+    addToggleButton(eventHandler, folderManager) {
         const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
 
         if (discoverGemsButtonWrapper) {
@@ -62,7 +63,7 @@ class UI {
                     </div>
                     <span class="mdc-list-item__content">
                         <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
-                            <span data-test-id="side-nav-action-button-content" class="gds-body-m">Organizador de Conversaciones</span>
+                            <span data-test-id="side-nav-action-button-content" class="gds-body-m">Mis conversaciones</span>
                         </span>
                     </span>
                     <div class="mat-focus-indicator"></div>
@@ -71,6 +72,10 @@ class UI {
                 ourButtonWrapper.appendChild(button);
                 discoverGemsButtonWrapper.after(ourButtonWrapper);
                 this.toggleButton = button;
+                
+                if (folderManager) {
+                    folderManager.loadAndDisplayFolders();
+                }
             }
 
             if (!this.sidebar) {
@@ -88,7 +93,7 @@ class UI {
             this.sidebar.classList.toggle('hidden');
         }
     }
-
+    
     renderFolders(folders, openFolderStates, eventHandler, dragAndDropHandler) {
         const foldersListUl = document.getElementById('folders-list-ul');
         if (!foldersListUl) return;
