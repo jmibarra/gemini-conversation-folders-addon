@@ -680,3 +680,57 @@ body.dragging * {
     font-size: 0.9em;
 }
 
+/* --- ESTILOS PARA COMPATIBILIDAD CON MODO OSCURO DE GEMINI --- */
+
+/* 1. Color de texto general para los títulos y nombres de carpeta */
+.dark-theme #gemini-organizer-sidebar h4,
+.dark-theme #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
+    color: #e8eaed; /* Un gris muy claro, estándar en los temas oscuros de Google */
+}
+
+/* 2. Color de los íconos en la lista de carpetas */
+.dark-theme #gemini-organizer-sidebar .edit-folder-btn,
+.dark-theme #gemini-organizer-sidebar .delete-folder-btn,
+.dark-theme #gemini-organizer-sidebar .gemini-expand-icon {
+    color: #bdc1c6; /* Un gris un poco más suave para los íconos */
+}
+
+/* 3. Estilo para el contenedor de los inputs en modo oscuro */
+.dark-theme #gemini-organizer-sidebar .input-with-button-wrapper {
+    background-color: #404144; /* Fondo gris oscuro para los inputs */
+    border-color: #5f6368;     /* Borde gris más oscuro */
+}
+
+/* 4. Estilo de los inputs al hacer foco en modo oscuro */
+.dark-theme #gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
+    border-color: #8ab4f8; /* Borde azul claro al hacer foco */
+    box-shadow: 0 0 0 1px #8ab4f8;
+}
+
+/* 5. Color del texto que se escribe dentro de los inputs */
+.dark-theme #gemini-organizer-sidebar .folder-controls input[type="text"],
+.dark-theme #gemini-organizer-sidebar .search-controls input[type="search"] {
+    color: #e8eaed; /* Texto claro para lo que se escribe */
+}
+
+/* 6. Color del placeholder (texto de ejemplo) en los inputs */
+.dark-theme #gemini-organizer-sidebar .folder-controls input[type="text"]::placeholder,
+.dark-theme #gemini-organizer-sidebar .search-controls input[type="search"]::placeholder {
+    color: #9aa0a6; /* Un gris más tenue para el placeholder */
+}
+
+/* 7. Íconos dentro de los contenedores de input */
+.dark-theme #gemini-organizer-sidebar .input-with-button-wrapper mat-icon {
+    color: #bdc1c6;
+}
+
+/* 8. Efecto hover del botón '+' en modo oscuro */
+.dark-theme #gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
+    background-color: rgba(138, 180, 248, 0.1); /* Fondo azul translúcido */
+    color: #8ab4f8; /* Ícono azul claro */
+}
+
+.dark-theme #gemini-organizer-sidebar .conversation-item-wrapper .conversation-title {
+    color: rgb(162, 169, 176);
+}
+
