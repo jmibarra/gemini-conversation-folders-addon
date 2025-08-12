@@ -2,6 +2,7 @@ class UI {
     constructor() {
         this.sidebar = null;
         this.toggleButton = null;
+        this.activeSection = null; // Para rastrear la sección activa
     }
 
     initializeSidebar() {
@@ -11,14 +12,30 @@ class UI {
             sidebar.id = 'gemini-organizer-sidebar';
             sidebar.classList.add('hidden');
             sidebar.innerHTML = `
-                <div class="folder-controls">
-                    <h4>Crear Nueva Carpeta</h4>
-                    <input type="text" id="new-folder-name" placeholder="Nombre de la carpeta">
-                    <button id="create-folder-btn">Crear</button>
+                <div class="sidebar-actions">
+                    <button id="create-folder-section-btn" class="sidebar-action-btn">
+                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="create_new_folder" fonticon="add"></mat-icon>
+                        <span>Carpeta</span>
+                    </button>
+                    <button id="search-section-btn" class="sidebar-action-btn">
+                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="search" fonticon="search"></mat-icon>
+                        <span>Buscar</span>
+                    </button>
                 </div>
-                <div class="search-controls">
-                    <h4>Buscar Conversaciones</h4>
-                    <input type="search" id="search-conversations-input" placeholder="Buscar por nombre de carpeta o conversación...">
+                <div id="create-folder-container" class="collapsible-section hidden">
+                    <div class="folder-controls">
+                        <h4>Crear Nueva Carpeta</h4>
+                        <input type="text" id="new-folder-name" placeholder="Carpeta">
+                        <button id="create-folder-btn">
+                            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="create_new_folder" fonticon="add"></mat-icon>
+                        </button>
+                    </div>
+                </div>
+                <div id="search-conversations-container" class="collapsible-section hidden">
+                    <div class="search-controls">
+                        <h4>Buscar Conversaciones</h4>
+                        <input type="search" id="search-conversations-input" placeholder="Buscar por nombre de carpeta o conversación...">
+                    </div>
                 </div>
                 <div class="folders-list">
                     <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
@@ -90,6 +107,35 @@ class UI {
     toggleSidebarVisibility() {
         if (this.sidebar) {
             this.sidebar.classList.toggle('hidden');
+            // Si el panel se cierra, también cerramos cualquier sección abierta
+            if (this.sidebar.classList.contains('hidden')) {
+                this.toggleSectionVisibility(null);
+            }
+        }
+    }
+
+    toggleSectionVisibility(sectionId) {
+        const createContainer = document.getElementById('create-folder-container');
+        const searchContainer = document.getElementById('search-conversations-container');
+        const createBtn = document.getElementById('create-folder-section-btn');
+        const searchBtn = document.getElementById('search-section-btn');
+
+        // Si la sección clickeada ya está activa, la cerramos
+        if (this.activeSection === sectionId) {
+            sectionId = null;
+        }
+
+        this.activeSection = sectionId;
+
+        // Actualizamos los contenedores
+        if (createContainer && searchContainer) {
+            createContainer.classList.toggle('hidden', sectionId !== 'create-folder-container');
+            searchContainer.classList.toggle('hidden', sectionId !== 'search-conversations-container');
+        }
+
+        if (createBtn && searchBtn) {
+            createBtn.classList.toggle('active', sectionId === 'create-folder-container');
+            searchBtn.classList.toggle('active', sectionId === 'search-conversations-container');
         }
     }
     

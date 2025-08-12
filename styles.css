@@ -67,7 +67,7 @@
     background-color: #1a73e8;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 2px 6px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9em;
@@ -522,3 +522,74 @@ body.dragging * {
 .gemini-organizer-toast-info {
     background-color: #2196F3; /* Azul */
 }
+
+/* --- ESTILOS PARA SECCIONES DESPLEGABLES --- */
+
+/* Contenedor para los nuevos botones de acción */
+#gemini-organizer-sidebar .sidebar-actions {
+    display: flex;
+    justify-content: space-around;
+    margin: 0 16px 20px 16px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8eaed;
+    gap: 10px; /* Espacio entre los dos botones */
+}
+
+/* Estilo para los nuevos botones de sección */
+#gemini-organizer-sidebar .sidebar-action-btn {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* Reducimos el espacio entre el ícono y el texto */
+    background-color: transparent;
+    border: 1px solid #dadce0;
+    color: #5f6368;
+    padding: 6px 10px; /* Reducimos el padding para hacer el botón más pequeño */
+    border-radius: 18px; /* Hacemos el borde un poco menos redondeado */
+    cursor: pointer;
+    font-size: 0.85em; /* Reducimos el tamaño de la fuente */
+    font-family: 'Google Sans', sans-serif;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+#gemini-organizer-sidebar .sidebar-action-btn:hover {
+    background-color: #f1f3f4;
+}
+
+/* Estado activo para los botones */
+#gemini-organizer-sidebar .sidebar-action-btn.active {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    border-color: #1a73e8;
+}
+
+#gemini-organizer-sidebar .sidebar-action-btn mat-icon {
+    font-size: 18px; /* Hacemos el ícono ligeramente más pequeño */
+    width: 18px;
+    height: 18px;
+}
+
+/* Contenedor para el contenido desplegable */
+.collapsible-section {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+}
+
+.collapsible-section:not(.hidden) {
+    max-height: 200px;
+    opacity: 1;
+    padding: 5px 0 0 0;
+}
+
+/* Eliminamos los bordes originales */
+#gemini-organizer-sidebar .folder-controls,
+#gemini-organizer-sidebar .search-controls {
+    border-bottom: none;
+    padding-bottom: 5px;
+}
+

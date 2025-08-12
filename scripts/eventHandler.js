@@ -6,6 +6,17 @@ class EventHandler {
     }
 
     addEventListeners() {
+        const createFolderSectionBtn = document.getElementById('create-folder-section-btn');
+        if (createFolderSectionBtn) {
+            createFolderSectionBtn.addEventListener('click', () => this.ui.toggleSectionVisibility('create-folder-container'));
+        }
+
+        const searchSectionBtn = document.getElementById('search-section-btn');
+        if (searchSectionBtn) {
+            searchSectionBtn.addEventListener('click', () => this.ui.toggleSectionVisibility('search-conversations-container'));
+        }
+
+
         const createFolderBtn = document.getElementById('create-folder-btn');
         if (createFolderBtn) {
             createFolderBtn.addEventListener('click', this.folderManager.createFolder.bind(this.folderManager));
