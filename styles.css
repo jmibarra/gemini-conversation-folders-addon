@@ -593,3 +593,90 @@ body.dragging * {
     padding-bottom: 5px;
 }
 
+/* --- ESTILOS PARA INPUT Y BOTÓN INTEGRADOS --- */
+
+/* Resetear el contenedor de la sección de creación */
+#gemini-organizer-sidebar .folder-controls {
+    display: block; /* Volvemos al display por defecto */
+    gap: 0;
+}
+
+/* El nuevo contenedor que envuelve el input y el botón */
+#gemini-organizer-sidebar .input-with-button-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 20px; /* Bordes redondeados para un look moderno */
+    padding: 0 4px 0 16px; /* Padding: derecha para el botón, izquierda para el texto */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efecto de foco en el contenedor cuando el input está activo */
+#gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 1px #1a73e8;
+}
+
+/* Estilo del input dentro del nuevo contenedor */
+#gemini-organizer-sidebar .folder-controls input[type="text"] {
+    flex-grow: 1;
+    border: none;      /* Quitamos el borde, el contenedor ya lo tiene */
+    outline: none;     /* Quitamos el outline al hacer foco */
+    padding: 8px 0;    /* Padding vertical para darle altura */
+    background-color: transparent; /* Fondo transparente */
+    width: 100%;       /* Ocupa todo el espacio posible */
+    font-size: 0.9em;
+}
+
+/* Estilo del botón de ícono dentro del nuevo contenedor */
+#gemini-organizer-sidebar .folder-controls button#create-folder-btn {
+    background-color: transparent; /* Fondo transparente por defecto */
+    color: #5f6368; /* Color de ícono gris estándar de Google */
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Efecto hover para el botón: el fondo cambia y el ícono se vuelve azul */
+#gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
+    background-color: #e8f0fe; /* Fondo azul muy claro */
+    color: #1a73e8; /* Ícono azul */
+}
+
+/* --- ESTILOS PARA INPUT DE BÚSQUEDA --- */
+
+/* Ajustamos el contenedor de la sección de búsqueda */
+#gemini-organizer-sidebar .search-controls {
+    display: block;
+    border-bottom: none;
+    padding-bottom: 5px;
+}
+
+/* Añadimos el padding correcto al contenedor de búsqueda */
+#gemini-organizer-sidebar .search-controls .input-with-button-wrapper {
+    padding: 0 16px; /* Padding uniforme a ambos lados ya que no hay botón */
+}
+
+/* Posicionamos el ícono de búsqueda a la izquierda */
+#gemini-organizer-sidebar .search-controls .input-with-button-wrapper mat-icon {
+    margin-right: 8px; /* Espacio entre el ícono y el texto */
+    color: #5f6368;   /* Color gris estándar del ícono */
+}
+
+/* Estilos para el input de búsqueda */
+#gemini-organizer-sidebar .search-controls input[type="search"] {
+    width: 100%;
+    padding: 8px 0; /* Misma altura que el otro input */
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 0.9em;
+}
+
