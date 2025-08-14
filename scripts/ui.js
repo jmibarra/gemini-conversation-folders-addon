@@ -2,7 +2,7 @@ class UI {
     constructor() {
         this.sidebar = null;
         this.toggleButton = null;
-        this.activeSection = null; // Para rastrear la sección activa
+        this.activeSection = null;
     }
 
     initializeSidebar() {
@@ -269,7 +269,8 @@ class UI {
     openGeminiChat(event) {
         const conversationId = event.target.dataset.convId;
         if (conversationId) {
-            const targetConversationElement = document.querySelector(`.chat-history-list .conversation[jslog*="\x22c_${conversationId}\x22"]`);
+            const selector = '.chat-history-list .conversation[jslog*="\\"c_' + conversationId + '\\""]';
+            const targetConversationElement = document.querySelector(selector);
 
             if (targetConversationElement) {
                 const clickEvent = new MouseEvent('click', { view: window, bubbles: true, cancelable: true, buttons: 1 });
