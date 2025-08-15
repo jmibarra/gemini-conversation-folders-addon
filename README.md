@@ -53,7 +53,7 @@ Dado que esta es una versión beta y no está en la Chrome Web Store, deberás i
 ## 💡 **Cómo Usar:**
 
 1.  Abre `https://gemini.google.com/` en tu navegador.
-2.  Verás un nuevo botón **"Organizador"** en la barra lateral izquierda de Gemini (debajo de "Descubrir Gems"). Haz clic en él para abrir/cerrar el panel.
+2.  Verás un nuevo botón **"Mis conversaciones"** en la barra lateral izquierda de Gemini (debajo de "Descubrir Gems"). Haz clic en él para abrir/cerrar el panel.
 3.  Usa el panel para crear carpetas, guardar la conversación actual y acceder a tus chats guardados.
 
 ---
