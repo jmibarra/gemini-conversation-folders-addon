@@ -6,6 +6,8 @@
 
 ## ✨ **Características Actuales:**
 
+![Captura de pantalla menu contextual](images/main-section.png)
+
 * **Crear Carpetas:** Organiza tus conversaciones en categorías personalizadas.
 * **Guardar Conversaciones:** Guarda el título y el enlace de la conversación actual en una carpeta.
 * **Abrir Conversaciones:** Haz clic en un título guardado para regresar instantáneamente a esa conversación en Gemini.
