@@ -11,7 +11,7 @@
 * **Abrir Conversaciones:** Haz clic en un título guardado para regresar instantáneamente a esa conversación en Gemini.
 * **Eliminar Conversaciones:** Mantén tus carpetas limpias eliminando las conversaciones que ya no necesitas.
 * **Interfaz Integrada:** Un botón "Organizador" en la barra lateral de Gemini para invocar el panel, que aparece discretamente en la parte inferior derecha.
-* **Guarda tu conversación con 1 click:** Desde el menú contextual podés guardar la conversación actual en una carpeta.
+* **Guarda tu conversación con 1 click:** Desde el menú contextual podés guardar la conversación actual en una carpeta. ![Captura de pantalla menu contextual](images/context-menu.png)
 
 ---
 
