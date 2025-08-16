@@ -145,6 +145,37 @@ class FolderManager {
         return openFolderStates;
     }
 
+    async saveCurrentConversation(targetFolderName) {
+        const url = window.location.href;
+        const convId = extractRealConversationIdFromCurrentUrl();
+        const convTitle = extractConversationTitle();
+
+        if (!convId || !convTitle) {
+            showToast("No se pudo obtener la información de la conversación actual.", 'error');
+            return;
+        }
+
+        const storedFolders = await this.storage.getFolders();
+        
+        // Se asegura que la carpeta de destino exista
+        if (!storedFolders[targetFolderName]) {
+             showToast(`La carpeta "${targetFolderName}" no existe.`, 'error');
+             return;
+        }
+
+        const existingConversation = storedFolders[targetFolderName].find(c => c.id === convId);
+        if (existingConversation) {
+            showToast("Esta conversación ya está guardada en esta carpeta.", 'info');
+            return;
+        }
+
+        storedFolders[targetFolderName].push({ id: convId, title: convTitle, url: url, timestamp: new Date().toLocaleString() });
+
+        await this.storage.saveFolders(storedFolders);
+        showToast(`Conversación guardada en la carpeta "${targetFolderName}".`, 'success');
+        this.loadAndDisplayFolders();
+    }
+
     setEventHandler(eventHandler) {
         this.eventHandler = eventHandler;
     }
