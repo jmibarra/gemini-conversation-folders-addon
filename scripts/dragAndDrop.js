@@ -172,14 +172,52 @@ class DragAndDrop {
         showToast('Conversación reordenada', 'success');
     }
 
-    setupDraggableConversations() {
+    async setupDraggableConversations() {
         const recentConversations = document.querySelectorAll('.chat-history-list .conversation[data-test-id="conversation"]');
+
+        const allSavedConversations = await this.storage.getFolders();
+        const savedIds = new Set();
+        for (const folderName in allSavedConversations) {
+            allSavedConversations[folderName].forEach(conv => savedIds.add(conv.id));
+        }
+
         recentConversations.forEach(convElement => {
             if (!convElement.hasAttribute('data-draggable-setup')) {
                 convElement.setAttribute('draggable', 'true');
                 convElement.addEventListener('dragstart', this.handleDragStart.bind(this));
                 convElement.addEventListener('dragend', (event) => event.target.classList.remove('is-dragging'));
                 convElement.setAttribute('data-draggable-setup', 'true');
+            }
+
+            const jslogAttribute = convElement.getAttribute('jslog');
+            let realConversationId = null;
+            if (jslogAttribute) {
+                const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]*\x22c_([^\x22]+)\x22/);
+                if (match && match[1]) {
+                    realConversationId = match[1];
+                }
+            }
+
+            const titleElement = convElement.querySelector('.conversation-title');
+
+            if (realConversationId && savedIds.has(realConversationId)) {
+                convElement.classList.add('is-saved');
+                
+                // Lógica para agregar el ícono si no existe
+                let icon = titleElement.querySelector('.gemini-organizer-saved-icon');
+                if (!icon) {
+                    icon = document.createElement('span');
+                    icon.classList.add('gemini-organizer-saved-icon');
+                    icon.textContent = '📁';
+                    titleElement.insertBefore(icon, titleElement.firstChild);
+                }
+            } else {
+                convElement.classList.remove('is-saved');
+                // Lógica para eliminar el ícono si existe
+                const icon = titleElement.querySelector('.gemini-organizer-saved-icon');
+                if (icon) {
+                    icon.remove();
+                }
             }
         });
     }

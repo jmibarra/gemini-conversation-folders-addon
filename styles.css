@@ -734,3 +734,15 @@ body.dragging * {
     color: rgb(162, 169, 176);
 }
 
+/* Estilo para el nuevo elemento del ícono */
+.gemini-organizer-saved-icon {
+    color: #34a853; /* Verde, para que se parezca al de la carpeta */
+    font-size: 1em;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Mantén la regla para el borde lateral */
+.conversation.is-saved {
+    border-right: 4px solid #34a853;
+}
