@@ -1,0 +1,72 @@
+body {
+    font-family: 'Google Sans', sans-serif, system-ui;
+    background-color: #f8f9fa;
+    color: #202124;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 1.8em;
+    font-weight: 500;
+    color: #3c4043;
+    border-bottom: 1px solid #dadce0;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.setting-card {
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.setting-info h2 {
+    font-size: 1.2em;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.setting-info p {
+    font-size: 0.9em;
+    color: #5f6368;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.setting-info small {
+    font-size: 0.8em;
+    color: #80868b;
+}
+
+#status-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #3c4043;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+#status-message.show {
+    opacity: 1;
+}
+
+/* Reutilizamos los estilos del interruptor */
+.sync-toggle-switch{position:relative;display:inline-block;width:34px;height:20px}.sync-toggle-switch input{opacity:0;width:0;height:0}.sync-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#bdc1c6;transition:.4s;border-radius:34px}.sync-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}input:checked+.sync-slider{background-color:#1a73e8}input:checked+.sync-slider:before{transform:translateX(14px)}

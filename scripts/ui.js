@@ -42,17 +42,19 @@ class UI {
                         </div>
                         </div>
                 </div>
-                <div class="sync-settings-container">
-                    <label for="sync-toggle-checkbox" class="sync-toggle-label">Sincronizar entre dispositivos</label>
-                    <label class="sync-toggle-switch">
-                        <input type="checkbox" id="sync-toggle-checkbox">
-                        <span class="sync-slider round"></span>
-                    </label>
-                </div>
                 <div class="folders-list">
                     <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
                     <ul id="folders-list-ul"></ul>
-                </div>`;
+                </div>
+                <div class="sidebar-footer">
+                <button id="open-options-btn" class="sidebar-action-btn" title="Abrir configuración">
+                    <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="settings" fonticon="settings"></mat-icon>
+                    <span>Configuración</span>
+                </button>
+                </div>
+            `;
+                
+
         }
         this.sidebar = sidebar;
         return sidebar;

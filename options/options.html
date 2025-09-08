@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuración del Organizador de Gemini</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Configuración del Organizador</h1>
+        <div class="setting-card">
+            <div class="setting-info">
+                <h2>Sincronización entre dispositivos</h2>
+                <p>
+                    Guarda tus carpetas en tu cuenta de Google. Podrás acceder a ellas
+                    en cualquier computadora donde inicies sesión en Chrome.
+                </p>
+                <small>
+                    <strong>Nota:</strong> Al activar, se usarán los datos sincronizados. Los datos guardados
+                    localmente no se migrarán automáticamente.
+                </small>
+            </div>
+            <div class="setting-control">
+                <label class="sync-toggle-switch">
+                    <input type="checkbox" id="sync-toggle-checkbox">
+                    <span class="sync-slider round"></span>
+                </label>
+            </div>
+        </div>
+        <div id="status-message"></div>
+    </div>
+    <script src="../scripts/storage.js"></script> <script src="options.js"></script>
+</body>
+</html>

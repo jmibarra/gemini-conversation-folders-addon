@@ -32,31 +32,23 @@ class App {
     }
 
     async initializeSync() {
+
         const syncEnabled = await this.storage.getSyncEnabled();
         this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
         
-        // Actualizamos el interruptor en la UI
-        const syncToggle = document.getElementById('sync-toggle-checkbox');
-        if (syncToggle) {
-            syncToggle.checked = syncEnabled;
-            syncToggle.addEventListener('change', this.handleSyncToggle.bind(this));
+
+        const optionsBtn = document.getElementById('open-options-btn');
+
+
+        if (optionsBtn) {
+            optionsBtn.addEventListener('click', () => {
+                console.log('Botón de configuración clickeado. Abriendo página de opciones...'); 
+                chrome.runtime.sendMessage({ action: 'openOptionsPage' });
+            });
+        } else {
+            console.error('El botón de configuración (open-options-btn) no fue encontrado en el DOM.');
         }
-
-        // Cargamos las carpetas desde el área de almacenamiento correcta
         this.folderManager.loadAndDisplayFolders();
-    }
-
-    async handleSyncToggle(event) {
-        const enabled = event.target.checked;
-        await this.storage.setSyncEnabled(enabled);
-        this.storage.setStorageArea(enabled ? 'sync' : 'local');
-
-        showToast(`Sincronización ${enabled ? 'activada' : 'desactivada'}.`, 'info');
-        
-        // Advertencia: Cambiar esto no migra los datos automáticamente.
-        // Debo implementar una migración, pero por ahora solo recargamos.
-        showToast('Recargando carpetas desde la nueva ubicación.', 'info');
-        this.folderManager.loadAndDisplayFolders(); // Recargamos las carpetas
     }
 
     handleMutations() {
