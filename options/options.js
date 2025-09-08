@@ -1,28 +1,71 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const storage = new Storage('geminiConversations');
-    const syncToggle = document.getElementById('sync-toggle-checkbox');
-    const statusMessage = document.getElementById('status-message');
+    try {
+        const storage = new Storage('geminiConversations');
+        const syncToggle = document.getElementById('sync-toggle-checkbox');
+        const statusMessage = document.getElementById('status-message');
+        const versionElement = document.getElementById('extension-version');
 
-    // Función para guardar la preferencia
-    const saveOptions = async () => {
-        const syncEnabled = syncToggle.checked;
-        await storage.setSyncEnabled(syncEnabled);
+        // --- Lógica para guardar y restaurar opciones ---
+        const saveOptions = async () => {
+            try {
+                const syncEnabled = syncToggle.checked;
+                await storage.setSyncEnabled(syncEnabled);
+                
+                statusMessage.textContent = '¡Configuración guardada!';
+                statusMessage.classList.add('show');
+                setTimeout(() => {
+                    statusMessage.classList.remove('show');
+                }, 2000);
+            } catch (error) {
+                console.error('Error al guardar las opciones:', error);
+            }
+        };
+
+        const restoreOptions = async () => {
+            try {
+                if (!syncToggle) {
+                    console.error('El elemento del interruptor de sincronización no fue encontrado.');
+                    return;
+                }
+                const syncEnabled = await storage.getSyncEnabled();
+                syncToggle.checked = syncEnabled;
+            } catch (error) {
+                console.error('Error al restaurar las opciones:', error);
+            }
+        };
         
-        // Muestra un mensaje de confirmación
-        statusMessage.textContent = '¡Configuración guardada!';
-        statusMessage.classList.add('show');
-        setTimeout(() => {
-            statusMessage.classList.remove('show');
-        }, 2000);
-    };
+        if (syncToggle) {
+            syncToggle.addEventListener('change', saveOptions);
+        }
+        restoreOptions();
 
-    // Función para cargar la preferencia guardada
-    const restoreOptions = async () => {
-        const syncEnabled = await storage.getSyncEnabled();
-        syncToggle.checked = syncEnabled;
-    };
+        // --- Lógica para mostrar la versión ---
+        const displayVersion = () => {
+            try {
+                // Comprobamos si el elemento de la versión existe
+                if (!versionElement) {
+                    console.error('El elemento para mostrar la versión no fue encontrado.');
+                    return;
+                }
+                const manifest = chrome.runtime.getManifest();
+                const version = manifest.version;
+                versionElement.textContent = `Versión instalada: ${version}`;
+            } catch (error) {
+                console.error('Error al mostrar la versión:', error);
+                if (versionElement) {
+                    // Informamos al usuario del error en la propia página
+                    versionElement.textContent = 'Error al cargar la versión.';
+                }
+            }
+        };
 
-    // Asignamos los eventos
-    syncToggle.addEventListener('change', saveOptions);
-    restoreOptions();
+        displayVersion();
+
+    } catch (error) {
+        console.error('Ocurrió un error general en el script de opciones:', error);
+        const versionElement = document.getElementById('extension-version');
+        if (versionElement) {
+            versionElement.textContent = 'Error al cargar el script.';
+        }
+    }
 });

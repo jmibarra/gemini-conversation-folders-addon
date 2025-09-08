@@ -70,3 +70,63 @@ h1 {
 
 /* Reutilizamos los estilos del interruptor */
 .sync-toggle-switch{position:relative;display:inline-block;width:34px;height:20px}.sync-toggle-switch input{opacity:0;width:0;height:0}.sync-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#bdc1c6;transition:.4s;border-radius:34px}.sync-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}input:checked+.sync-slider{background-color:#1a73e8}input:checked+.sync-slider:before{transform:translateX(14px)}
+
+/* Estilos para la nueva tarjeta de "Acerca de" */
+.about-card {
+    background-color: #e8f0fe; /* Un azul claro para diferenciarla */
+    border: 1px solid #d2e3fc;
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 20px; /* Espacio respecto a la tarjeta anterior */
+    text-align: center; /* Centramos el contenido */
+}
+
+.dark-theme .about-card {
+    background-color: #282a2d;
+    border-color: #444746;
+}
+
+
+.about-card h2 {
+    font-size: 1.2em;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.about-card p {
+    font-size: 0.9em;
+    color: #5f6368;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.dark-theme .about-card p {
+    color: #bdc1c6;
+}
+
+/* Estilo para el botón de calificación */
+.rate-button {
+    display: inline-block;
+    background-color: #1a73e8;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.rate-button:hover {
+    background-color: #185abc;
+}
+
+/* Estilo para la información de la versión */
+.version-info {
+    margin-top: 20px;
+    font-size: 0.8em;
+    color: #80868b;
+}
+
+.dark-theme .version-info {
+    color: #9aa0a6;
+}
