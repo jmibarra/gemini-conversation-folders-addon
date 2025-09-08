@@ -3,22 +3,15 @@
     position: static; 
     width: 100%; 
     max-width: none; 
-
     background-color: transparent;
     border: none;
     border-radius: 0;
     box-shadow: none;
-    
     font-family: 'Google Sans', sans-serif;
     color: #202124;
-    
     padding: 0; 
-    padding-top: 0; 
-    padding-bottom: 0;
-    
     max-height: none; 
     overflow-y: hidden; 
-
     opacity: 0;
     transform: translateY(-10px); 
     visibility: hidden;
@@ -35,195 +28,257 @@
     padding-bottom: 15px; 
 }
 
-/* Ocultar el título principal del sidebar si se usaba antes (confirmado) */
 #gemini-organizer-sidebar h3 {
     display: none;
 }
 
-/* Controles de la carpeta */
-#gemini-organizer-sidebar .folder-controls {
-    margin: 0 16px 20px 16px; 
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e8eaed;
-}
+/* ======================================================================== */
+/* --- SECCIÓN DE CABECERA Y ACCIONES (VERSIÓN FINAL CORREGIDA) --- */
+/* ======================================================================== */
 
-#gemini-organizer-sidebar .folder-controls h4 {
-    font-size: 0.95em;
-    color: #5f6368;
-    margin-bottom: 10px;
-}
-
-#gemini-organizer-sidebar .folder-controls input[type="text"] {
-    width: calc(100% - 70px);
-    padding: 8px;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    margin-right: 5px;
-    box-sizing: border-box;
-    background-color: white;
-}
-
-#gemini-organizer-sidebar .folder-controls button {
-    background-color: #1a73e8;
-    color: white;
-    border: none;
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease;
-}
-
-#gemini-organizer-sidebar .folder-controls button:hover {
-    background-color: #1764cc;
-}
-
-/* NUEVO: Controles de búsqueda */
-#gemini-organizer-sidebar .search-controls {
+/* Contenedor principal de acciones */
+#gemini-organizer-sidebar .sidebar-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin: 0 16px 20px 16px;
     padding-bottom: 15px;
     border-bottom: 1px solid #e8eaed;
 }
 
+/* Grupo para los botones "Carpeta" y "Buscar" */
+#gemini-organizer-sidebar .action-buttons-group {
+    display: flex;
+    flex-grow: 1; /* Permite que el grupo ocupe el espacio sobrante */
+    gap: 2px;
+}
+
+/* Estilo para los botones principales ("Carpeta", "Buscar") */
+#gemini-organizer-sidebar .sidebar-action-btn {
+    flex-grow: 1; /* Para que los botones compartan el espacio del grupo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: transparent;
+    border: 1px solid #dadce0;
+    color: #5f6368;
+    padding: 6px 10px;
+    border-radius: 18px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-family: 'Google Sans', sans-serif;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+#gemini-organizer-sidebar .sidebar-action-btn:hover {
+    background-color: #f1f3f4;
+}
+
+#gemini-organizer-sidebar .sidebar-action-btn.active {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    border-color: #1a73e8;
+}
+
+/* Íconos dentro de los botones principales */
+#gemini-organizer-sidebar .sidebar-action-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Botón de Configuración (engranaje) */
+#gemini-organizer-sidebar .settings-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    /* CORRECCIÓN: Usamos width y height fijos para un círculo perfecto */
+    width: 32px;
+    height: 32px;
+    padding: 0; /* Sin padding que interfiera con el tamaño */
+    margin-left: 10px; /* Añadimos un margen para separarlo */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    color: #5f6368;
+    flex-shrink: 0; /* Evita que el botón se encoja */
+}
+
+#gemini-organizer-sidebar .settings-btn:hover {
+    background-color: #f1f3f4;
+}
+
+#gemini-organizer-sidebar .settings-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+
+/* =============================================================== */
+/* --- RESTO DE LOS ESTILOS (ORGANIZADOS) --- */
+/* =============================================================== */
+
+/* Contenedor para el contenido desplegable */
+.collapsible-section {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+}
+
+.collapsible-section:not(.hidden) {
+    max-height: 200px;
+    opacity: 1;
+    padding: 5px 0 0 0;
+}
+
+#gemini-organizer-sidebar .folder-controls,
+#gemini-organizer-sidebar .search-controls {
+    border-bottom: none;
+    padding-bottom: 5px;
+    margin: 0 16px 20px 16px; 
+}
+
+#gemini-organizer-sidebar .folder-controls h4,
 #gemini-organizer-sidebar .search-controls h4 {
     font-size: 0.95em;
     color: #5f6368;
     margin-bottom: 10px;
 }
 
-#gemini-organizer-sidebar .search-controls input[type="search"] {
-    width: 100%;
-    padding: 8px;
+/* El nuevo contenedor que envuelve el input y el botón */
+#gemini-organizer-sidebar .input-with-button-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
     border: 1px solid #dadce0;
-    border-radius: 4px;
-    box-sizing: border-box;
-    background-color: white;
-    font-size: 0.9em;
+    border-radius: 20px;
+    padding: 0 4px 0 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-#gemini-organizer-sidebar .search-controls input[type="search"]::placeholder {
-    color: #80868b;
-}
-
-#gemini-organizer-sidebar .search-controls input[type="search"]:focus {
-    outline: none;
+#gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
     border-color: #1a73e8;
     box-shadow: 0 0 0 1px #1a73e8;
 }
 
-/* Selector de carpeta y botón de guardar */
-#gemini-organizer-sidebar .save-controls {
-    margin: 0 16px 20px 16px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e8eaed;
-}
-
-#gemini-organizer-sidebar .save-controls h4 {
-    font-size: 0.95em;
-    color: #5f6368;
-    margin-bottom: 10px;
-}
-
-#gemini-organizer-sidebar .save-controls select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    background-color: white;
-    cursor: pointer;
-}
-
-#gemini-organizer-sidebar .save-controls button {
-    width: 100%;
-    background-color: #34a853;
-    color: white;
+/* Estilo del input dentro del nuevo contenedor */
+#gemini-organizer-sidebar .folder-controls input[type="text"] {
+    flex-grow: 1;
     border: none;
-    padding: 10px;
-    border-radius: 4px;
+    outline: none;
+    padding: 8px 0;
+    background-color: transparent;
+    width: 100%;
+    font-size: 0.9em;
+}
+
+/* Estilo del botón de ícono dentro del nuevo contenedor */
+#gemini-organizer-sidebar .folder-controls button#create-folder-btn {
+    background-color: transparent;
+    color: #5f6368;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-#gemini-organizer-sidebar .save-controls button:hover {
-    background-color: #2e8b46;
+#gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
+    background-color: #e8f0fe;
+    color: #1a73e8;
 }
 
-/* --- ESTILOS MEJORADOS PARA LAS CARPETAS TIPO "RECIENTE" --- */
+/* Estilos para input de búsqueda */
+#gemini-organizer-sidebar .search-controls .input-with-button-wrapper {
+    padding: 0 16px;
+}
 
-/* Contenedor principal de la lista de carpetas */
+#gemini-organizer-sidebar .search-controls .input-with-button-wrapper mat-icon {
+    margin-right: 8px;
+    color: #5f6368;
+}
+
+#gemini-organizer-sidebar .search-controls input[type="search"] {
+    width: 100%;
+    padding: 8px 0;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 0.9em;
+}
+
+/* --- ESTILOS MEJORADOS PARA LAS CARPETAS Y CONVERSACIONES --- */
+
 #gemini-organizer-sidebar .folders-list h4 {
     margin-top: 0;
-    margin-left: 16px; /* Alinear padding */
+    margin-left: 16px;
     margin-bottom: 10px;
     font-size: 0.95em;
     color: #5f6368;
 }
 
-/* Lista UL principal de carpetas - ELIMINAR VIÑETAS */
 #gemini-organizer-sidebar #folders-list-ul {
-    list-style: none !important; /* Asegura que no haya viñetas */
+    list-style: none !important;
     padding: 0;
     margin: 0;
 }
 
-/* Contenedor de cada carpeta (gemini-folder-item - que ahora es un LI) */
 #gemini-organizer-sidebar .gemini-folder-item {
-    list-style: none !important; /* Para asegurar que este LI no tenga viñetas */
-    margin-bottom: 4px; /* Espacio entre carpetas */
-    padding: 0 8px; /* Padding para alinearse con los elementos del menú */
+    list-style: none !important;
+    margin-bottom: 4px;
+    padding: 0 8px;
     box-sizing: border-box;
 }
 
-/* Ajuste al contenedor del título de la carpeta para acomodar el nuevo botón */
 #gemini-organizer-sidebar .gemini-folder-item .title-container {
     display: flex;
-    justify-content: space-between; /* Esto ayuda a distribuir los elementos */
+    justify-content: space-between;
     align-items: center;
     padding: 8px 8px;
     border-radius: 20px;
-    margin-bottom: 0px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    /* Aseguramos que el flex-grow del título empuje los botones hacia los lados */
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container:hover {
-    background-color: #e8f0fe; /* Fondo azul claro al pasar el ratón */
+    background-color: #e8f0fe;
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
-    flex-grow: 1; /* Permite que el título crezca y empuje los botones a los extremos */
-    margin-right: 8px; /* Espacio entre el título y el botón de eliminar */
-    margin: 0; 
-    font-size: 0.9em; /* Más pequeño para los títulos de carpeta */
+    flex-grow: 1;
+    margin: 0 8px 0 0; 
+    font-size: 0.9em;
     color: #202124;
     font-weight: 500;
-    flex-grow: 1;
-    white-space: nowrap; /* Evitar salto de línea */
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Puntos suspensivos si es largo */
+    text-overflow: ellipsis;
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container .gemini-expand-icon {
     font-size: 20px; 
     width: 20px;
     height: 20px;
-    color: #5f6368; /* Color de ícono estándar de Google */
+    color: #5f6368;
     transition: transform 0.3s ease; 
 }
 
-/* Rotar la flecha cuando la carpeta está expandida (no .hidden) */
-#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper:not(.hidden) + .title-container .gemini-expand-icon,
-#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper:not(.hidden) ~ .title-container .gemini-expand-icon { /* Usamos ~ por si el orden de los elementos varía */
+#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper:not(.hidden) ~ .title-container .gemini-expand-icon {
     transform: rotate(180deg);
 }
 
-/* Contenedor de las conversaciones (gemini-folder-container) */
 #gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper {
-    padding: 0; /* Ya no hay padding aquí */
     overflow: hidden; 
     transition: height 0.3s ease-out, opacity 0.3s ease-out; 
 }
@@ -233,38 +288,34 @@
     opacity: 0 !important; 
 }
 
-/* Lista UL interna de conversaciones - ELIMINAR VIÑETAS */
-#gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper .conversation-items-container {
-    list-style: none !important; /* Asegura que no haya viñetas */
+#gemini-organizer-sidebar .conversation-items-container {
+    list-style: none !important;
     padding: 0;
     margin: 0;
 }
 
-
-/* Wrapper de cada item de conversación individual (conversation-item-wrapper - que ahora es un LI) */
 #gemini-organizer-sidebar .conversation-item-wrapper {
-    list-style: none !important; /* Asegurar que este LI no tenga viñetas */
-    margin-bottom: 4px; /* Espacio entre conversaciones */
-    padding: 0; /* Padding se maneja en el div interno */
+    list-style: none !important;
+    margin-bottom: 4px;
+    padding: 0;
 }
 
-#gemini-organizer-sidebar .conversation-item-wrapper .conversation-item-content {
+#gemini-organizer-sidebar .conversation-item-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 16px; /* Padding similar a los elementos de chat reciente */
-    border-radius: 20px; /* Bordes redondeados */
+    padding: 8px 16px;
+    border-radius: 20px;
     background-color: transparent;
     transition: background-color 0.2s ease;
     cursor: pointer;
 }
 
-#gemini-organizer-sidebar .conversation-item-wrapper .conversation-item-content:hover {
+#gemini-organizer-sidebar .conversation-item-content:hover {
     background-color: #e8f0fe;
 }
 
-/* Título de la conversación dentro del wrapper (conversation-title) */
-#gemini-organizer-sidebar .conversation-item-wrapper .conversation-title {
+#gemini-organizer-sidebar .conversation-title {
     flex-grow: 1;
     margin: 0; 
     white-space: nowrap;
@@ -274,7 +325,8 @@
     color: #202124;
 }
 
-/* Estilos del botón de invocación (se mantienen) */
+/* --- BOTÓN DE INVOCACIÓN Y OTROS --- */
+
 #gemini-organizer-toggle-btn {
     background: none;
     border: none;
@@ -297,26 +349,6 @@
     background-color: #e8f0fe;
 }
 
-#gemini-organizer-toggle-btn .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-}
-
-#gemini-organizer-toggle-btn .icon-container img {
-    display: block;
-}
-
-#gemini-organizer-toggle-btn .text-container {
-    flex-grow: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Contenedor del botón del organizador (el <side-nav-action-button>) */
 #gemini-organizer-wrapper {
     list-style: none;
     margin-bottom: 8px;
@@ -325,8 +357,7 @@
     position: static; 
 }
 
-/* Estilos para el botón de eliminar conversación */
-.delete-conversation-btn {
+.delete-conversation-btn, .delete-folder-btn, .edit-folder-btn {
     background: none;
     border: none;
     color: #5f6368;
@@ -338,165 +369,99 @@
     justify-content: center;
     transition: background-color 0.2s ease, color 0.2s ease;
     flex-shrink: 0;
-    margin-left: 8px;
-    z-index: 1; 
+    margin-left: 4px;
+    z-index: 1;
 }
 
-.delete-conversation-btn:hover {
+.delete-conversation-btn:hover, .delete-folder-btn:hover {
     background-color: #fce8e6;
     color: #dc3545;
 }
 
-.delete-conversation-btn mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    display: flex; /* Asegura que la mat-icon se centre bien */
-    align-items: center;
-    justify-content: center;
-}
-
-.conversation.is-dragging {
-    opacity: 0.5; /* Hace que el elemento arrastrado sea semi-transparente */
-    border: 1px dashed #1a73e8; /* Borde punteado para indicar que se está arrastrando */
-    background-color: #f0f4f9; /* Cambiar fondo al arrastrar */
-}
-
-/* Carpeta al pasar el elemento arrastrado por encima */
-#gemini-organizer-sidebar .gemini-folder-item .title-container.drag-over {
-    background-color: #e8f0fe; /* Fondo azul claro */
-    border: 1px solid #1a73e8; /* Borde para indicar zona de drop */
-    box-shadow: 0 0 5px rgba(26, 115, 232, 0.5); /* Sombra sutil */
-}
-
-/* Cursor de arrastre (opcional, el browser lo maneja bien con dataTransfer.dropEffect) */
-body.dragging * {
-    cursor: grabbing !important;
-}
-
-/* Estilos para el botón de eliminar carpeta */
-.delete-folder-btn {
-    background: none;
-    border: none;
-    color: #5f6368;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    flex-shrink: 0;
-    margin-left: 8px; /* Espacio entre el botón y el título/icono */
-    z-index: 1; /* Asegura que sea clickeable */
-}
-
-.delete-folder-btn:hover {
-    background-color: #fce8e6; /* Fondo rojo claro al pasar el ratón */
-    color: #dc3545; /* Color del icono rojo */
-}
-
-.delete-folder-btn mat-icon {
-    font-size: 18px; /* Tamaño del icono */
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Estilos para el botón de editar carpeta */
-.edit-folder-btn {
-    background: none;
-    border: none;
-    color: #5f6368;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    flex-shrink: 0;
-    margin-left: 8px; /* Espacio entre el título y el botón de editar */
-    z-index: 1;
-}
-
 .edit-folder-btn:hover {
-    background-color: #e6f4ea; /* Fondo verde claro */
-    color: #34a853; /* Color de icono verde */
+    background-color: #e6f4ea;
+    color: #34a853;
 }
 
-.edit-folder-btn mat-icon {
+.delete-conversation-btn mat-icon, .delete-folder-btn mat-icon, .edit-folder-btn mat-icon {
     font-size: 18px;
     width: 18px;
     height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-/* Estilos para el campo de entrada de renombrado */
 .folder-rename-input {
-    flex-grow: 1; /* Ocupa el espacio disponible */
+    flex-grow: 1;
     padding: 6px 8px;
     border: 1px solid #dadce0;
     border-radius: 4px;
-    font-size: 0.9em; /* Mismo tamaño que el título */
+    font-size: 0.9em;
     color: #202124;
     background-color: white;
     box-sizing: border-box;
-    margin-left: 8px; /* Espacio desde el borde */
-    margin-right: 8px; /* Espacio antes del botón de eliminar */
+    margin: 0 8px;
 }
 
-/* Feedback visual para reordenamiento de conversaciones */
+/* --- ESTILOS DE DRAG & DROP --- */
+
+.conversation.is-dragging {
+    opacity: 0.5;
+    border: 1px dashed #1a73e8;
+    background-color: #f0f4f9;
+}
+
+#gemini-organizer-sidebar .gemini-folder-item .title-container.drag-over {
+    background-color: #e8f0fe;
+    border: 1px solid #1a73e8;
+    box-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
+}
+
 #gemini-organizer-sidebar .conversation-item-wrapper.drag-over-top {
-    border-top: 2px solid #1a73e8; /* Borde azul en la parte superior */
-    padding-top: 6px; /* Ajuste para compensar el borde */
+    border-top: 2px solid #1a73e8;
 }
 
 #gemini-organizer-sidebar .conversation-item-wrapper.drag-over-bottom {
-    border-bottom: 2px solid #1a73e8; /* Borde azul en la parte inferior */
-    padding-bottom: 6px; /* Ajuste para compensar el borde */
+    border-bottom: 2px solid #1a73e8;
 }
 
-/* Limpiar padding cuando no hay borde */
-#gemini-organizer-sidebar .conversation-item-wrapper:not(.drag-over-top):not(.drag-over-bottom) {
-    padding-top: 8px; /* Padding normal */
-    padding-bottom: 8px; /* Padding normal */
+.gemini-organizer-saved-icon {
+    color: #34a853;
+    font-size: 1em;
+    margin-right: 8px;
+    vertical-align: middle;
 }
 
+.conversation.is-saved {
+    border-right: 4px solid #34a853;
+}
+
+/* --- TOAST NOTIFICATIONS --- */
 
 #gemini-organizer-toast-container {
     position: fixed; 
     top: 20px; 
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: 10000;
     display: flex;
     flex-direction: column;
     align-items: center;
     pointer-events: none;
 }
 
-
 .gemini-organizer-toast {
     background-color: #333;
     color: white;
     padding: 10px 20px;
     border-radius: 8px;
-    margin-bottom: 10px; /* Espacio entre múltiples toasts */
+    margin-bottom: 10px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(20px);
     transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
     font-size: 0.9em;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    min-width: 200px;
-    max-width: 300px;
     text-align: center;
-    pointer-events: auto; /* Permite interactuar con el toast si es necesario (aunque no hay interacción aquí) */
+    pointer-events: auto;
 }
 
 .gemini-organizer-toast.show {
@@ -505,260 +470,70 @@ body.dragging * {
     transform: translateY(0);
 }
 
-/* Tipos de toast */
-.gemini-organizer-toast-success {
-    background-color: #4CAF50; /* Verde */
+.gemini-organizer-toast-success { background-color: #4CAF50; }
+.gemini-organizer-toast-error { background-color: #F44336; }
+.gemini-organizer-toast-warning { background-color: #FFC107; color: #333; }
+.gemini-organizer-toast-info { background-color: #2196F3; }
+
+/* --- ESTILOS PARA MODO OSCURO --- */
+
+.dark-theme #gemini-organizer-sidebar .sidebar-actions {
+    border-bottom-color: #5f6368;
 }
-
-.gemini-organizer-toast-error {
-    background-color: #F44336; /* Rojo */
+.dark-theme #gemini-organizer-sidebar .sidebar-action-btn {
+    border-color: #5f6368;
+    color: #e8eaed;
 }
-
-.gemini-organizer-toast-warning {
-    background-color: #FFC107; /* Amarillo/Naranja */
-    color: #333; /* Texto oscuro para contraste */
+.dark-theme #gemini-organizer-sidebar .sidebar-action-btn:hover {
+    background-color: rgba(232, 234, 237, 0.08);
 }
-
-.gemini-organizer-toast-info {
-    background-color: #2196F3; /* Azul */
+.dark-theme #gemini-organizer-sidebar .sidebar-action-btn.active {
+    border-color: #8ab4f8;
+    background-color: rgba(138, 180, 248, 0.12);
+    color: #8ab4f8;
 }
-
-/* --- ESTILOS PARA SECCIONES DESPLEGABLES --- */
-
-/* Contenedor para los nuevos botones de acción */
-#gemini-organizer-sidebar .sidebar-actions {
-    display: flex;
-    justify-content: space-around;
-    margin: 0 16px 20px 16px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e8eaed;
-    gap: 10px; /* Espacio entre los dos botones */
+.dark-theme #gemini-organizer-sidebar .settings-btn {
+    color: #bdc1c6;
 }
-
-/* Estilo para los nuevos botones de sección */
-#gemini-organizer-sidebar .sidebar-action-btn {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px; /* Reducimos el espacio entre el ícono y el texto */
-    background-color: transparent;
-    border: 1px solid #dadce0;
-    color: #5f6368;
-    padding: 6px 10px; /* Reducimos el padding para hacer el botón más pequeño */
-    border-radius: 18px; /* Hacemos el borde un poco menos redondeado */
-    cursor: pointer;
-    font-size: 0.85em; /* Reducimos el tamaño de la fuente */
-    font-family: 'Google Sans', sans-serif;
-    font-weight: 500;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+.dark-theme #gemini-organizer-sidebar .settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
-
-#gemini-organizer-sidebar .sidebar-action-btn:hover {
-    background-color: #f1f3f4;
+.dark-theme #gemini-organizer-sidebar h4 {
+    color: #e8eaed;
 }
-
-/* Estado activo para los botones */
-#gemini-organizer-sidebar .sidebar-action-btn.active {
-    background-color: #e8f0fe;
-    color: #1967d2;
-    border-color: #1a73e8;
-}
-
-#gemini-organizer-sidebar .sidebar-action-btn mat-icon {
-    font-size: 18px; /* Hacemos el ícono ligeramente más pequeño */
-    width: 18px;
-    height: 18px;
-}
-
-/* Contenedor para el contenido desplegable */
-.collapsible-section {
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
-    max-height: 0;
-    opacity: 0;
-    padding: 0;
-}
-
-.collapsible-section:not(.hidden) {
-    max-height: 200px;
-    opacity: 1;
-    padding: 5px 0 0 0;
-}
-
-/* Eliminamos los bordes originales */
-#gemini-organizer-sidebar .folder-controls,
-#gemini-organizer-sidebar .search-controls {
-    border-bottom: none;
-    padding-bottom: 5px;
-}
-
-/* --- ESTILOS PARA INPUT Y BOTÓN INTEGRADOS --- */
-
-/* Resetear el contenedor de la sección de creación */
-#gemini-organizer-sidebar .folder-controls {
-    display: block; /* Volvemos al display por defecto */
-    gap: 0;
-}
-
-/* El nuevo contenedor que envuelve el input y el botón */
-#gemini-organizer-sidebar .input-with-button-wrapper {
-    display: flex;
-    align-items: center;
-    background-color: #fff;
-    border: 1px solid #dadce0;
-    border-radius: 20px; /* Bordes redondeados para un look moderno */
-    padding: 0 4px 0 16px; /* Padding: derecha para el botón, izquierda para el texto */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Efecto de foco en el contenedor cuando el input está activo */
-#gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 1px #1a73e8;
-}
-
-/* Estilo del input dentro del nuevo contenedor */
-#gemini-organizer-sidebar .folder-controls input[type="text"] {
-    flex-grow: 1;
-    border: none;      /* Quitamos el borde, el contenedor ya lo tiene */
-    outline: none;     /* Quitamos el outline al hacer foco */
-    padding: 8px 0;    /* Padding vertical para darle altura */
-    background-color: transparent; /* Fondo transparente */
-    width: 100%;       /* Ocupa todo el espacio posible */
-    font-size: 0.9em;
-}
-
-/* Estilo del botón de ícono dentro del nuevo contenedor */
-#gemini-organizer-sidebar .folder-controls button#create-folder-btn {
-    background-color: transparent; /* Fondo transparente por defecto */
-    color: #5f6368; /* Color de ícono gris estándar de Google */
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Efecto hover para el botón: el fondo cambia y el ícono se vuelve azul */
-#gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
-    background-color: #e8f0fe; /* Fondo azul muy claro */
-    color: #1a73e8; /* Ícono azul */
-}
-
-/* --- ESTILOS PARA INPUT DE BÚSQUEDA --- */
-
-/* Ajustamos el contenedor de la sección de búsqueda */
-#gemini-organizer-sidebar .search-controls {
-    display: block;
-    border-bottom: none;
-    padding-bottom: 5px;
-}
-
-/* Añadimos el padding correcto al contenedor de búsqueda */
-#gemini-organizer-sidebar .search-controls .input-with-button-wrapper {
-    padding: 0 16px; /* Padding uniforme a ambos lados ya que no hay botón */
-}
-
-/* Posicionamos el ícono de búsqueda a la izquierda */
-#gemini-organizer-sidebar .search-controls .input-with-button-wrapper mat-icon {
-    margin-right: 8px; /* Espacio entre el ícono y el texto */
-    color: #5f6368;   /* Color gris estándar del ícono */
-}
-
-/* Estilos para el input de búsqueda */
-#gemini-organizer-sidebar .search-controls input[type="search"] {
-    width: 100%;
-    padding: 8px 0; /* Misma altura que el otro input */
-    border: none;
-    outline: none;
-    background-color: transparent;
-    font-size: 0.9em;
-}
-
-/* --- ESTILOS PARA COMPATIBILIDAD CON MODO OSCURO DE GEMINI --- */
-
-/* 1. Color de texto general para los títulos y nombres de carpeta */
-.dark-theme #gemini-organizer-sidebar h4,
 .dark-theme #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
-    color: #e8eaed; /* Un gris muy claro, estándar en los temas oscuros de Google */
+    color: #e8eaed;
 }
-
-/* 2. Color de los íconos en la lista de carpetas */
 .dark-theme #gemini-organizer-sidebar .edit-folder-btn,
 .dark-theme #gemini-organizer-sidebar .delete-folder-btn,
 .dark-theme #gemini-organizer-sidebar .gemini-expand-icon {
-    color: #bdc1c6; /* Un gris un poco más suave para los íconos */
+    color: #bdc1c6;
 }
-
-/* 3. Estilo para el contenedor de los inputs en modo oscuro */
 .dark-theme #gemini-organizer-sidebar .input-with-button-wrapper {
-    background-color: #404144; /* Fondo gris oscuro para los inputs */
-    border-color: #5f6368;     /* Borde gris más oscuro */
+    background-color: #404144;
+    border-color: #5f6368;
 }
-
-/* 4. Estilo de los inputs al hacer foco en modo oscuro */
 .dark-theme #gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
-    border-color: #8ab4f8; /* Borde azul claro al hacer foco */
+    border-color: #8ab4f8;
     box-shadow: 0 0 0 1px #8ab4f8;
 }
-
-/* 5. Color del texto que se escribe dentro de los inputs */
-.dark-theme #gemini-organizer-sidebar .folder-controls input[type="text"],
-.dark-theme #gemini-organizer-sidebar .search-controls input[type="search"] {
-    color: #e8eaed; /* Texto claro para lo que se escribe */
+.dark-theme #gemini-organizer-sidebar input {
+    color: #e8eaed;
 }
-
-/* 6. Color del placeholder (texto de ejemplo) en los inputs */
-.dark-theme #gemini-organizer-sidebar .folder-controls input[type="text"]::placeholder,
-.dark-theme #gemini-organizer-sidebar .search-controls input[type="search"]::placeholder {
-    color: #9aa0a6; /* Un gris más tenue para el placeholder */
+.dark-theme #gemini-organizer-sidebar input::placeholder {
+    color: #9aa0a6;
 }
-
-/* 7. Íconos dentro de los contenedores de input */
 .dark-theme #gemini-organizer-sidebar .input-with-button-wrapper mat-icon {
     color: #bdc1c6;
 }
-
-/* 8. Efecto hover del botón '+' en modo oscuro */
 .dark-theme #gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
-    background-color: rgba(138, 180, 248, 0.1); /* Fondo azul translúcido */
-    color: #8ab4f8; /* Ícono azul claro */
+    background-color: rgba(138, 180, 248, 0.1);
+    color: #8ab4f8;
 }
-
 .dark-theme #gemini-organizer-sidebar .conversation-item-wrapper .conversation-title {
-    color: rgb(162, 169, 176);
+    color: #bdc1c6;
 }
-
-/* Estilo para el nuevo elemento del ícono */
-.gemini-organizer-saved-icon {
-    color: #34a853; /* Verde, para que se parezca al de la carpeta */
-    font-size: 1em;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-/* Mantén la regla para el borde lateral */
-.conversation.is-saved {
-    border-right: 4px solid #34a853;
-}
-
-.sidebar-footer {
-    margin: 20px 16px 0 16px;
-    padding-top: 15px;
-    border-top: 1px solid #e8eaed;
-    display: flex;
-}
-
-.dark-theme .sidebar-footer {
-    border-top-color: #5f6368;
-}
-
-#open-options-btn {
-    justify-content: center !important; /* Asegura que el contenido esté centrado */
-    width: 100%;
+.dark-theme #gemini-organizer-sidebar .gemini-folder-item .title-container:hover,
+.dark-theme #gemini-organizer-sidebar .conversation-item-content:hover {
+    background-color: rgba(138, 180, 248, 0.08);
 }

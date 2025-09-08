@@ -13,13 +13,18 @@ class UI {
             sidebar.classList.add('hidden');
             sidebar.innerHTML = `
                 <div class="sidebar-actions">
-                    <button id="create-folder-section-btn" class="sidebar-action-btn">
-                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="create_new_folder" fonticon="add"></mat-icon>
-                        <span>Carpeta</span>
-                    </button>
-                    <button id="search-section-btn" class="sidebar-action-btn">
-                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="search" fonticon="search"></mat-icon>
-                        <span>Buscar</span>
+                    <div class="action-buttons-group">
+                        <button id="create-folder-section-btn" class="sidebar-action-btn">
+                            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="create_new_folder" fonticon="add"></mat-icon>
+                            <span>Carpeta</span>
+                        </button>
+                        <button id="search-section-btn" class="sidebar-action-btn">
+                            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="search" fonticon="search"></mat-icon>
+                            <span>Buscar</span>
+                        </button>
+                    </div>
+                    <button id="open-options-btn" class="settings-btn" title="Abrir configuración">
+                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="settings" fonticon="settings"></mat-icon>
                     </button>
                 </div>
                 <div id="create-folder-container" class="collapsible-section hidden">
@@ -45,12 +50,6 @@ class UI {
                 <div class="folders-list">
                     <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
                     <ul id="folders-list-ul"></ul>
-                </div>
-                <div class="sidebar-footer">
-                <button id="open-options-btn" class="sidebar-action-btn" title="Abrir configuración">
-                    <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="settings" fonticon="settings"></mat-icon>
-                    <span>Configuración</span>
-                </button>
                 </div>
             `;
                 
