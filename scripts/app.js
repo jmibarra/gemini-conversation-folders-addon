@@ -31,10 +31,39 @@ class App {
         });
     }
 
+    async initializeSync() {
+        const syncEnabled = await this.storage.getSyncEnabled();
+        this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
+        
+        // Actualizamos el interruptor en la UI
+        const syncToggle = document.getElementById('sync-toggle-checkbox');
+        if (syncToggle) {
+            syncToggle.checked = syncEnabled;
+            syncToggle.addEventListener('change', this.handleSyncToggle.bind(this));
+        }
+
+        // Cargamos las carpetas desde el área de almacenamiento correcta
+        this.folderManager.loadAndDisplayFolders();
+    }
+
+    async handleSyncToggle(event) {
+        const enabled = event.target.checked;
+        await this.storage.setSyncEnabled(enabled);
+        this.storage.setStorageArea(enabled ? 'sync' : 'local');
+
+        showToast(`Sincronización ${enabled ? 'activada' : 'desactivada'}.`, 'info');
+        
+        // Advertencia: Cambiar esto no migra los datos automáticamente.
+        // Debo implementar una migración, pero por ahora solo recargamos.
+        showToast('Recargando carpetas desde la nueva ubicación.', 'info');
+        this.folderManager.loadAndDisplayFolders(); // Recargamos las carpetas
+    }
+
     handleMutations() {
         const toggleButtonWrapper = document.getElementById('gemini-organizer-wrapper');
         if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper)) {
             this.ui.addToggleButton(this.eventHandler, this.folderManager);
+            this.initializeSync(); // Re-inicializamos si el botón se recrea
         }
         this.dragAndDropHandler.setupDraggableConversations();
     }

@@ -746,3 +746,79 @@ body.dragging * {
 .conversation.is-saved {
     border-right: 4px solid #34a853;
 }
+
+
+/* --- ESTILOS PARA EL INTERRUPTOR DE SINCRONIZACIÓN --- */
+.sync-settings-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 16px 15px 16px;
+    padding: 10px;
+    background-color: #f1f3f4;
+    border-radius: 8px;
+}
+
+.sync-toggle-label {
+    font-size: 0.88em;
+    color: #3c4043;
+    font-weight: 500;
+}
+
+.sync-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.sync-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.sync-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #bdc1c6;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.sync-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .sync-slider {
+    background-color: #1a73e8;
+}
+
+input:checked + .sync-slider:before {
+    transform: translateX(14px);
+}
+
+/* Modo Oscuro para el interruptor */
+.dark-theme .sync-settings-container {
+    background-color: #404144;
+}
+
+.dark-theme .sync-toggle-label {
+    color: #e8eaed;
+}
+
+.dark-theme input:checked + .sync-slider {
+    background-color: #8ab4f8;
+}
