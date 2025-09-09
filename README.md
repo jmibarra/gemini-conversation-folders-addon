@@ -31,26 +31,44 @@ Este es un proyecto en desarrollo. Es posible que encuentres errores o que la fu
 Puedes descargar la versión estable productiva desde el store de Chrome: [Organizador de Conversaciones de Gemini](https://chromewebstore.google.com/detail/gafkcjhjichbmdclinadljhmpaenmpgd?utm_source=item-share-cb)
 
 ### Versión Beta - Modo Desarrollador
-Dado que esta es una versión beta y no está en la Chrome Web Store, deberás instalarla en el "Modo de desarrollador" de Chrome.
 
-1.  **Descarga el Complemento:**
-    * Ve a la página principal de este repositorio en GitHub.
-    * Haz clic en el botón verde **"Code"** y luego selecciona **"Download ZIP"**.
-    * Descomprime el archivo ZIP descargado en una ubicación de tu computadora donde no lo vayas a borrar accidentalmente (ej. `C:\Users\TuUsuario\Documentos\MisComplementosChrome\GeminiOrganizer`).
+Para instalar esta extensión localmente, necesitarás Node.js y npm instalados en tu sistema. El proceso ahora incluye un paso de compilación para empaquetar los scripts.
 
-2.  **Activa el Modo Desarrollador en Chrome:**
+1.  **Obtén el Código Fuente:**
+    * **Opción A (con Git):** Clona el repositorio en tu máquina.
+        ```bash
+        git clone [https://github.com/jmibarra/gemini-conversation-folders-addon.git](https://github.com/jmibarra/gemini-conversation-folders-addon.git)
+        ```
+    * **Opción B (Descarga ZIP):**
+        * Ve a la página principal de este repositorio en GitHub.
+        * Haz clic en el botón verde **"Code"** y luego selecciona **"Download ZIP"**.
+        * Descomprime el archivo ZIP en una ubicación permanente en tu computadora.
+
+2.  **Compila la Extensión:**
+    * Abre una terminal y navega hasta la carpeta del proyecto que acabas de clonar o descomprimir.
+    * Instala las dependencias necesarias:
+        ```bash
+        npm install
+        ```
+    * Ejecuta el script de compilación para generar los archivos finales:
+        ```bash
+        npm run build
+        ```
+    * Este comando creará una nueva carpeta `dist` que contendrá el script empaquetado de la extensión.
+
+3.  **Activa el Modo Desarrollador en Chrome:**
     * Abre Google Chrome.
     * En la barra de direcciones, escribe `chrome://extensions` y presiona Enter.
     * En la esquina superior derecha de la página de Extensiones, activa el interruptor que dice **"Modo de desarrollador"**.
 
-3.  **Carga el Complemento:**
-    * Una vez activado el "Modo de desarrollador", aparecerá un botón **"Cargar extensión sin empaquetar"** (o "Load unpacked" en inglés). Haz clic en él.
-    * Se abrirá una ventana para seleccionar una carpeta. **Navega hasta la carpeta donde descomprimiste el ZIP** (la carpeta que contiene `manifest.json`, `content.js`, `styles.css`, y la carpeta `icons`).
+4.  **Carga el Complemento:**
+    * Una vez activado el "Modo de desarrollador", haz clic en el botón **"Cargar extensión sin empaquetar"**.
+    * Se abrirá una ventana para seleccionar una carpeta. **Navega y selecciona la carpeta raíz del proyecto** (la que contiene `manifest.json`, `src/` y la carpeta `dist/` que acabas de crear).
     * **Selecciona esa carpeta y haz clic en "Seleccionar carpeta".**
 
-4.  **¡Listo!**
+5.  **¡Listo!**
     * El "Organizador de Conversaciones de Gemini" debería aparecer ahora en tu lista de extensiones.
-    * Puedes hacer clic en el icono de la pieza de rompecabezas (🧩) en la barra de herramientas de Chrome y **fijar** (el icono de pin) el complemento para que su icono "Organizador" siempre esté visible en la barra lateral de Gemini.
+    * Puedes hacer clic en el icono de la pieza de rompecabezas (🧩) en la barra de herramientas de Chrome y **fijar** (el icono de pin) el complemento para un acceso más fácil.
 
 ---
 
