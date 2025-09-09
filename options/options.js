@@ -1,6 +1,10 @@
+// Importamos la clase Storage desde el archivo correspondiente.
+import Storage from '../src/scripts/storage.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        const storage = new Storage('geminiConversations');
+        // La clave 'geminiConversations' ahora se pasa al crear la instancia
+        const storage = new Storage('geminiConversations'); 
         const syncToggle = document.getElementById('sync-toggle-checkbox');
         const statusMessage = document.getElementById('status-message');
         const versionElement = document.getElementById('extension-version');
@@ -42,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Lógica para mostrar la versión ---
         const displayVersion = () => {
             try {
-                // Comprobamos si el elemento de la versión existe
                 if (!versionElement) {
                     console.error('El elemento para mostrar la versión no fue encontrado.');
                     return;
@@ -53,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error al mostrar la versión:', error);
                 if (versionElement) {
-                    // Informamos al usuario del error en la propia página
                     versionElement.textContent = 'Error al cargar la versión.';
                 }
             }

@@ -1,20 +1,17 @@
-class Storage {
+export default class  Storage {
     constructor(key) {
         this.key = key;
-        this.storageArea = chrome.storage.local; 
+        this.storageArea = null; 
     }
 
-    /**
-     * Establece el área de almacenamiento a 'local' o 'sync'.
+/**
+     * Establece el área de almacenamiento y devuelve la instancia para encadenar.
      * @param {string} area - 'local' o 'sync'.
      */
-    setStorageArea(area) {
-        if (area === 'sync') {
-            this.storageArea = chrome.storage.sync;
-        } else {
-            this.storageArea = chrome.storage.local;
-        }
-        console.log(`Área de almacenamiento establecida en: ${area}`);
+    async setStorageArea(area) {
+        this.storageArea = (area === 'sync') ? chrome.storage.sync : chrome.storage.local;
+        console.log(`Área de almacenamiento establecida en: ${this.storageArea === chrome.storage.sync ? 'sync' : 'local'}`);
+        return this; // Devolvemos la instancia
     }
 
     async getFolders() {

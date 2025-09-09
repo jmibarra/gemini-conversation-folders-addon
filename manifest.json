@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Organizador de Conversaciones de Gemini",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "Permite guardar y organizar tus conversaciones de Gemini en carpetas.",
   "options_page": "options/options.html",
   "icons": {
@@ -10,23 +10,13 @@
     "128": "icons/icon128.png"
   },
   "background": {
-    "service_worker": "scripts/background.js"
+    "service_worker": "src/scripts/background.js"
   },
   "content_scripts": [
     {
       "matches": ["https://gemini.google.com/*"],
-      "js": [
-        "scripts/storage.js",
-        "scripts/utils.js",
-        "scripts/ui.js",
-        "scripts/folderManager.js",
-        "scripts/dragAndDrop.js",
-        "scripts/eventHandler.js",
-        "scripts/background.js",
-        "scripts/app.js",
-        "content.js"
-      ],
-      "css": ["styles.css"]
+      "js": ["dist/main.js"],
+      "css": ["src/styles/styles.css"]
     }
   ],
   "permissions": [
