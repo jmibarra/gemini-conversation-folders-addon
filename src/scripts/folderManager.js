@@ -1,4 +1,4 @@
-class FolderManager {
+export default class FolderManager {
     constructor(storage, ui) {
         this.storage = storage;
         this.ui = ui;

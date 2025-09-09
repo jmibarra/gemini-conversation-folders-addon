@@ -1,4 +1,4 @@
-class EventHandler {
+export default class EventHandler {
     constructor(ui, folderManager, dragAndDropHandler) {
         this.ui = ui;
         this.folderManager = folderManager;

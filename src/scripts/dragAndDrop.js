@@ -1,4 +1,4 @@
-class DragAndDrop {
+export default class DragAndDrop {
     constructor(storage, folderManager) {
         this.storage = storage;
         this.folderManager = folderManager;

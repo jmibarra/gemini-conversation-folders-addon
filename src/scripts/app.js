@@ -1,3 +1,9 @@
+import UI from './ui.js';
+import Storage from './storage.js';
+import FolderManager from './folderManager.js';
+import DragAndDrop from './dragAndDrop.js';
+import EventHandler from './eventHandler.js';
+
 class App {
     constructor() {
         this.ui = new UI();
@@ -11,19 +17,25 @@ class App {
 
         this.observer = new MutationObserver(this.handleMutations.bind(this));
         
+        // Escuchamos cambios en la configuración de sync para recargar si es necesario.
         chrome.storage.onChanged.addListener(this.handleStorageChange.bind(this));
         
-        // Nuevo: Oyente para mensajes del background script
         chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
     }
 
-    init() {
+
+    async init() {
+        // 1. Añadimos el contenedor de notificaciones
         if (!document.getElementById('gemini-organizer-toast-container')) {
             const toastContainer = document.createElement('div');
             toastContainer.id = 'gemini-organizer-toast-container';
             document.body.appendChild(toastContainer);
         }
         
+        // 2. Esperamos a que la configuración de sync esté lista
+        await this.initializeSync();
+
+        // 3. Una vez configurado el storage, añadimos los botones y cargamos las carpetas
         window.requestIdleCallback(() => {
             this.ui.addToggleButton(this.eventHandler, this.folderManager);
             this.dragAndDropHandler.setupDraggableConversations();
@@ -32,45 +44,52 @@ class App {
     }
 
     async initializeSync() {
-
         const syncEnabled = await this.storage.getSyncEnabled();
-        this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
-        
+        await this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
 
-        const optionsBtn = document.getElementById('open-options-btn');
+        // La carga de carpetas se llama aquí, DESPUÉS de configurar el storage.
+        await this.folderManager.loadAndDisplayFolders();
 
-
-        if (optionsBtn) {
-            optionsBtn.addEventListener('click', () => {
-                console.log('Botón de configuración clickeado. Abriendo página de opciones...'); 
-                chrome.runtime.sendMessage({ action: 'openOptionsPage' });
-            });
-        } else {
-            console.error('El botón de configuración (open-options-btn) no fue encontrado en el DOM.');
-        }
-        this.folderManager.loadAndDisplayFolders();
+        // Configuramos el listener para el botón de opciones
+        const setupOptionsButton = () => {
+            const optionsBtn = document.getElementById('open-options-btn');
+            if (optionsBtn) {
+                optionsBtn.addEventListener('click', () => {
+                    chrome.runtime.sendMessage({ action: 'openOptionsPage' });
+                });
+            }
+        };
+        // Esperamos un poco a que la UI se renderice para añadir el listener
+        setTimeout(setupOptionsButton, 500);
     }
 
     handleMutations() {
         const toggleButtonWrapper = document.getElementById('gemini-organizer-wrapper');
         if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper)) {
             this.ui.addToggleButton(this.eventHandler, this.folderManager);
-            this.initializeSync(); // Re-inicializamos si el botón se recrea
+            this.initializeSync();
         }
         this.dragAndDropHandler.setupDraggableConversations();
     }
 
     handleStorageChange(changes, namespace) {
-        if (namespace === 'local' && changes[this.storage.key]) {
-            console.log('El almacenamiento ha cambiado. Recargando las carpetas para mantener la sincronización.');
+        // Si cambia la configuración de sync O las carpetas en sync, recargamos todo
+        if (namespace === 'sync' && (changes.syncEnabled || changes[this.storage.key])) {
+            console.log('La configuración de Sync ha cambiado. Recargando la extensión...');
+            this.initializeSync();
+        } else if (namespace === 'local' && changes[this.storage.key]) {
+            console.log('El almacenamiento local ha cambiado. Recargando las carpetas.');
             this.folderManager.loadAndDisplayFolders();
         }
     }
 
     handleMessage(request, sender, sendResponse) {
-        // Nuevo: la acción ahora incluye el nombre de la carpeta
         if (request.action === "save_current_conversation_to_folder") {
             this.folderManager.saveCurrentConversation(request.folderName);
         }
     }
 }
+
+// Inicializamos la aplicación
+const app = new App();
+app.init();

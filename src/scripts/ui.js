@@ -1,4 +1,4 @@
-class UI {
+export default class UI {
     constructor() {
         this.sidebar = null;
         this.toggleButton = null;
