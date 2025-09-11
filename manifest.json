@@ -25,5 +25,11 @@
   ],
   "host_permissions": [
     "https://gemini.google.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [ "src/templates/*.html" ],
+      "matches": [ "https://gemini.google.com/*" ]
+    }
   ]
 }

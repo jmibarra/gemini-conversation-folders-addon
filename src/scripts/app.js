@@ -17,7 +17,6 @@ class App {
 
         this.observer = new MutationObserver(this.handleMutations.bind(this));
         
-        // Escuchamos cambios en la configuración de sync para recargar si es necesario.
         chrome.storage.onChanged.addListener(this.handleStorageChange.bind(this));
         
         chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
@@ -25,19 +24,16 @@ class App {
 
 
     async init() {
-        // 1. Añadimos el contenedor de notificaciones
         if (!document.getElementById('gemini-organizer-toast-container')) {
             const toastContainer = document.createElement('div');
             toastContainer.id = 'gemini-organizer-toast-container';
             document.body.appendChild(toastContainer);
         }
         
-        // 2. Esperamos a que la configuración de sync esté lista
         await this.initializeSync();
 
-        // 3. Una vez configurado el storage, añadimos los botones y cargamos las carpetas
-        window.requestIdleCallback(() => {
-            this.ui.addToggleButton(this.eventHandler, this.folderManager);
+        window.requestIdleCallback(async () => {
+            await this.ui.addToggleButton(this.eventHandler, this.folderManager);
             this.dragAndDropHandler.setupDraggableConversations();
             this.observer.observe(document.body, { childList: true, subtree: true });
         });
@@ -45,14 +41,15 @@ class App {
 
     async initializeSync() {
         const syncEnabled = await this.storage.getSyncEnabled();
-        this.ui.updateSyncStatusIcon(syncEnabled); // <-- LÍNEA AÑADIDA
         await this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
-
-        // La carga de carpetas se llama aquí, DESPUÉS de configurar el storage.
         await this.folderManager.loadAndDisplayFolders();
 
-        // Configuramos el listener para el botón de opciones
-        const setupOptionsButton = () => {
+        const setupUI = async () => {
+            // Esperamos a que el sidebar se inicialice si es necesario
+            if (!this.ui.sidebar) {
+                 await this.ui.initializeSidebar();
+            }
+            this.ui.updateSyncStatusIcon(syncEnabled);
             const optionsBtn = document.getElementById('open-options-btn');
             if (optionsBtn) {
                 optionsBtn.addEventListener('click', () => {
@@ -60,21 +57,20 @@ class App {
                 });
             }
         };
-        // Esperamos un poco a que la UI se renderice para añadir el listener
-        setTimeout(setupOptionsButton, 500);
+        
+        setTimeout(setupUI, 500);
     }
 
-    handleMutations() {
+    async handleMutations() {
         const toggleButtonWrapper = document.getElementById('gemini-organizer-wrapper');
         if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper)) {
-            this.ui.addToggleButton(this.eventHandler, this.folderManager);
-            this.initializeSync();
+            await this.ui.addToggleButton(this.eventHandler, this.folderManager);
+            await this.initializeSync();
         }
         this.dragAndDropHandler.setupDraggableConversations();
     }
 
     handleStorageChange(changes, namespace) {
-        // Si cambia la configuración de sync O las carpetas en sync, recargamos todo
         if (namespace === 'sync' && (changes.syncEnabled || changes[this.storage.key])) {
             console.log('La configuración de Sync ha cambiado. Recargando la extensión...');
             this.initializeSync();
@@ -91,6 +87,5 @@ class App {
     }
 }
 
-// Inicializamos la aplicación
 const app = new App();
 app.init();

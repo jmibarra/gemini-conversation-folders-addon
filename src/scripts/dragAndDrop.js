@@ -104,7 +104,6 @@ export default class DragAndDrop {
         }
 
         await this.storage.saveFolders(storedFolders);
-        this.folderManager.loadAndDisplayFolders();
         showToast(`Conversación movida a "${targetFolderName}"`, 'success');
     }
 
@@ -168,7 +167,6 @@ export default class DragAndDrop {
         }
 
         await this.storage.saveFolders(storedFolders);
-        this.folderManager.loadAndDisplayFolders();
         showToast('Conversación reordenada', 'success');
     }
 
@@ -203,7 +201,6 @@ export default class DragAndDrop {
             if (realConversationId && savedIds.has(realConversationId)) {
                 convElement.classList.add('is-saved');
                 
-                // Lógica para agregar el ícono si no existe
                 let icon = titleElement.querySelector('.gemini-organizer-saved-icon');
                 if (!icon) {
                     icon = document.createElement('span');
@@ -213,7 +210,6 @@ export default class DragAndDrop {
                 }
             } else {
                 convElement.classList.remove('is-saved');
-                // Lógica para eliminar el ícono si existe
                 const icon = titleElement.querySelector('.gemini-organizer-saved-icon');
                 if (icon) {
                     icon.remove();

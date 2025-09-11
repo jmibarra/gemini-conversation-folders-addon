@@ -21,7 +21,6 @@ export default class FolderManager {
                 storedFolders[folderName] = [];
                 await this.storage.saveFolders(storedFolders);
                 newFolderNameInput.value = '';
-                this.loadAndDisplayFolders();
                 showToast(`Carpeta "${folderName}" creada exitosamente.`, 'success');
             } else {
                 showToast(`La carpeta "${folderName}" ya existe.`, 'warning');
@@ -77,7 +76,6 @@ export default class FolderManager {
         showToast(`Carpeta "${originalFolderName}" renombrada a "${newFolderName}" exitosamente.`, 'success');
 
         inputField.remove();
-        this.loadAndDisplayFolders();
     }
 
     async deleteFolder(event) {
@@ -99,7 +97,6 @@ export default class FolderManager {
             delete storedFolders[folderName];
             await this.storage.saveFolders(storedFolders);
             showToast(`Carpeta "${folderName}" eliminada.`, 'success');
-            this.loadAndDisplayFolders();
         } else {
             showToast("La carpeta especificada no existe.", 'error');
         }
@@ -124,7 +121,6 @@ export default class FolderManager {
             storedFolders[folderName] = storedFolders[folderName].filter(conv => conv.id !== convId);
             await this.storage.saveFolders(storedFolders);
             showToast("Conversación eliminada.", 'success');
-            this.loadAndDisplayFolders();
         } else {
             showToast("La carpeta especificada no existe.", 'error');
         }
@@ -157,7 +153,6 @@ export default class FolderManager {
 
         const storedFolders = await this.storage.getFolders();
         
-        // Se asegura que la carpeta de destino exista
         if (!storedFolders[targetFolderName]) {
              showToast(`La carpeta "${targetFolderName}" no existe.`, 'error');
              return;
@@ -173,7 +168,6 @@ export default class FolderManager {
 
         await this.storage.saveFolders(storedFolders);
         showToast(`Conversación guardada en la carpeta "${targetFolderName}".`, 'success');
-        this.loadAndDisplayFolders();
     }
 
     setEventHandler(eventHandler) {
