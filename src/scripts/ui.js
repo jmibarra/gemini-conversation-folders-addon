@@ -48,7 +48,10 @@ export default class UI {
                         </div>
                 </div>
                 <div class="folders-list">
-                    <h4 class="title gds-label-l" style="margin-left: 16px; margin-bottom: 10px;">Tus Carpetas Guardadas</h4>
+                    <div class="folders-list-header">
+                        <h4 class="title gds-label-l">Tus Carpetas Guardadas</h4>
+                        <span id="sync-status-icon" class="sync-status-indicator"></span>
+                    </div>
                     <ul id="folders-list-ul"></ul>
                 </div>
             `;
@@ -57,6 +60,19 @@ export default class UI {
         }
         this.sidebar = sidebar;
         return sidebar;
+    }
+    
+    updateSyncStatusIcon(isSyncEnabled) {
+        const iconElement = document.getElementById('sync-status-icon');
+        if (iconElement) {
+            if (isSyncEnabled) {
+                iconElement.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="cloud" fonticon="cloud"></mat-icon>`;
+                iconElement.title = 'Carpetas sincronizadas con tu cuenta de Google.';
+            } else {
+                iconElement.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="cloud_off" fonticon="cloud_off"></mat-icon>`;
+                iconElement.title = 'Carpetas guardadas localmente en este dispositivo.';
+            }
+        }
     }
 
 

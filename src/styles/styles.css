@@ -220,14 +220,6 @@
 
 /* --- ESTILOS MEJORADOS PARA LAS CARPETAS Y CONVERSACIONES --- */
 
-#gemini-organizer-sidebar .folders-list h4 {
-    margin-top: 0;
-    margin-left: 16px;
-    margin-bottom: 10px;
-    font-size: 0.95em;
-    color: #5f6368;
-}
-
 #gemini-organizer-sidebar #folders-list-ul {
     list-style: none !important;
     padding: 0;
@@ -536,4 +528,40 @@
 .dark-theme #gemini-organizer-sidebar .gemini-folder-item .title-container:hover,
 .dark-theme #gemini-organizer-sidebar .conversation-item-content:hover {
     background-color: rgba(138, 180, 248, 0.08);
+}
+
+/* --- NUEVOS ESTILOS PARA EL INDICADOR DE SYNC --- */
+
+#gemini-organizer-sidebar .folders-list-header {
+    display: flex;
+    align-items: center;
+    margin: 0 16px 10px 16px;
+}
+
+#gemini-organizer-sidebar .folders-list-header h4 {
+    margin: 0;
+    font-size: 0.95em;
+    color: #5f6368;
+}
+
+.sync-status-indicator {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    color: #5f6368;
+    cursor: help;
+}
+
+.sync-status-indicator mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.dark-theme .sync-status-indicator {
+    color: #bdc1c6;
+}
+
+.dark-theme #gemini-organizer-sidebar .folders-list-header h4 {
+    color: #e8eaed;
 }

@@ -45,6 +45,7 @@ class App {
 
     async initializeSync() {
         const syncEnabled = await this.storage.getSyncEnabled();
+        this.ui.updateSyncStatusIcon(syncEnabled); // <-- LÍNEA AÑADIDA
         await this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
 
         // La carga de carpetas se llama aquí, DESPUÉS de configurar el storage.
