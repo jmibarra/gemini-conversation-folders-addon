@@ -130,3 +130,50 @@ h1 {
 .dark-theme .version-info {
     color: #9aa0a6;
 }
+
+/* --- NUEVOS ESTILOS --- */
+
+.separator {
+    border-top: 1px solid #d2e3fc;
+    margin: 24px auto;
+    width: 80%;
+}
+
+.dark-theme .separator {
+    border-top-color: #444746;
+}
+
+.support-links {
+    margin-top: 20px;
+}
+
+.support-links .support-text {
+    font-size: 0.9em;
+    color: #5f6368;
+    margin-top: 0;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.dark-theme .support-links .support-text {
+    color: #bdc1c6;
+}
+
+.support-links a {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.support-links a:hover {
+    text-decoration: underline;
+}
+
+.cafecito-link img {
+    transition: transform 0.2s ease-in-out;
+    margin-top: 5px;
+}
+
+.cafecito-link:hover img {
+    transform: scale(1.05);
+}
