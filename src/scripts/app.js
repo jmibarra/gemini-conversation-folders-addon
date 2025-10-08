@@ -1,3 +1,4 @@
+import { getActiveConversationId } from './utils.js';
 import UI from './ui.js';
 import Storage from './storage.js';
 import FolderManager from './folderManager.js';
@@ -20,6 +21,8 @@ class App {
         chrome.storage.onChanged.addListener(this.handleStorageChange.bind(this));
         
         chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
+
+        this.lastUrl = window.location.href;
     }
 
 
@@ -31,6 +34,8 @@ class App {
         }
         
         await this.initializeSync();
+
+        await this.updateFolderIndicator(); 
 
         window.requestIdleCallback(async () => {
             await this.ui.addToggleButton(this.eventHandler, this.folderManager);
@@ -68,6 +73,22 @@ class App {
             await this.initializeSync();
         }
         this.dragAndDropHandler.setupDraggableConversations();
+
+        if (window.location.href !== this.lastUrl) {
+            this.lastUrl = window.location.href;
+            await this.updateFolderIndicator();
+        }
+    }
+
+    async updateFolderIndicator() {
+        try {
+            const currentConvId = getActiveConversationId(); // <--- ¡AQUÍ ESTÁ EL CAMBIO!
+            const folderName = await this.folderManager.findFolderForConversation(currentConvId);
+            await this.ui.displayFolderIndicator(folderName);
+        } catch (error) {
+            console.error('Error al actualizar el indicador de carpeta:', error);
+            this.ui.displayFolderIndicator(null);
+        }
     }
 
     handleStorageChange(changes, namespace) {

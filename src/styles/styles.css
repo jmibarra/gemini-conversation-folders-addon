@@ -565,3 +565,32 @@
 .dark-theme #gemini-organizer-sidebar .folders-list-header h4 {
     color: #e8eaed;
 }
+
+/* --- INDICADOR DE CARPETA EN EL CHAT --- */
+
+#gemini-organizer-folder-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #e8f0fe;
+    color: #1967d2;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.85em;
+    font-weight: 500;
+    margin: 0 16px 0 0; /* Espacio a la derecha */
+    flex-shrink: 0; /* Evita que se encoja si hay poco espacio */
+}
+
+#gemini-organizer-folder-indicator mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Soporte para el tema oscuro */
+.dark-theme #gemini-organizer-folder-indicator {
+    background-color: rgba(138, 180, 248, 0.12);
+    color: #8ab4f8;
+}

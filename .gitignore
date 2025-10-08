@@ -1,3 +1,4 @@
 .DS_Store
 Deploy versions/
 node_modules/
+dist/

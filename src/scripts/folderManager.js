@@ -1,3 +1,5 @@
+import { showToast } from './utils.js';
+
 export default class FolderManager {
     constructor(storage, ui) {
         this.storage = storage;
@@ -168,6 +170,40 @@ export default class FolderManager {
 
         await this.storage.saveFolders(storedFolders);
         showToast(`Conversación guardada en la carpeta "${targetFolderName}".`, 'success');
+    }
+
+async findFolderForConversation(convId) {
+        if (!convId) {
+            return null;
+        }
+
+        try {
+            // Verificamos si el runtime de chrome sigue activo antes de hacer la llamada.
+            if (!chrome.runtime?.id) {
+                console.warn("Gemini Organizer: Context invalidated, skipping folder check.");
+                return null;
+            }
+
+            const storedFolders = await this.storage.getFolders();
+            
+            // Una segunda verificación por si el contexto se invalidó durante la llamada asíncrona.
+            if (chrome.runtime.lastError) {
+                console.warn("Gemini Organizer: Context invalidated during storage access.", chrome.runtime.lastError.message);
+                return null;
+            }
+
+            for (const folderName in storedFolders) {
+                const conversationExists = storedFolders[folderName].some(conv => conv.id === convId);
+                if (conversationExists) {
+                    return folderName;
+                }
+            }
+            return null;
+            
+        } catch (error) {
+            console.warn("Gemini Organizer: Could not check for folder (context likely invalidated).", error.message);
+            return null; // En caso de error, simplemente no mostramos el indicador.
+        }
     }
 
     setEventHandler(eventHandler) {

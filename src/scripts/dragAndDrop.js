@@ -1,3 +1,5 @@
+import { showToast, extractRealConversationIdFromCurrentUrl } from './utils.js';
+
 export default class DragAndDrop {
     constructor(storage, folderManager) {
         this.storage = storage;
