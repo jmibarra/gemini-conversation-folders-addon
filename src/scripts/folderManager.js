@@ -1,4 +1,4 @@
-import { showToast } from './utils.js';
+import { showToast,extractRealConversationIdFromCurrentUrl,extractConversationTitle } from './utils.js';
 
 export default class FolderManager {
     constructor(storage, ui) {
