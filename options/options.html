@@ -8,6 +8,7 @@
 <body>
     <div class="container">
         <h1>Configuración del Organizador</h1>
+
         <div class="setting-card">
             <div class="setting-info">
                 <h2>Sincronización entre dispositivos</h2>
@@ -27,13 +28,29 @@
                 </label>
             </div>
         </div>
+
+        <div class="setting-card">
+            <div class="setting-info">
+                <h2>Importar / Exportar Datos</h2>
+                <p>
+                    Guarda una copia de seguridad de tus carpetas o importa un archivo
+                    previamente exportado.
+                </p>
+            </div>
+            <div class="setting-control data-actions">
+                <button id="export-btn" class="btn export-btn">Exportar Datos</button>
+                <button id="import-btn" class="btn import-btn">Importar Datos</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            </div>
+        </div>
+
         <div class="about-card">
             <h2>¡Apoya la extensión!</h2>
             <p>
                 Si encuentras útil esta herramienta, por favor considera dejar una calificación en la Chrome Web Store.
                 ¡Tu feedback nos ayuda a mejorar!
             </p>
-            <a href="https://chromewebstore.google.com/detail/organizador-de-conversaci/gafkcjhjichbmdclinadljhmpaenmpgd" target="_blank" class="rate-button">
+            <a href="https://chromewebstore.google.com/detail/organizador-de-conversaci/gafkcjhjichbmdclinadljhmpaenmpgd" target="_blank" class="rate-button btn">
                 Calificar ahora ⭐
             </a>
 

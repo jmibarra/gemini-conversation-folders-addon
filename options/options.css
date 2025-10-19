@@ -30,6 +30,12 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px; /* Añadido espacio entre tarjetas */
+}
+
+.setting-info {
+    flex-grow: 1; /* Permite que la info ocupe espacio */
+    padding-right: 16px; /* Espacio antes de los controles */
 }
 
 .setting-info h2 {
@@ -50,6 +56,10 @@ h1 {
     color: #80868b;
 }
 
+.setting-control {
+    flex-shrink: 0; /* Evita que los controles se encojan */
+}
+
 #status-message {
     position: fixed;
     bottom: 20px;
@@ -62,11 +72,69 @@ h1 {
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
+    z-index: 100;
 }
 
 #status-message.show {
     opacity: 1;
 }
+
+/* Estilos de botones genéricos */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    border: none;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* Botón de Calificar (antes .rate-button) */
+.rate-button {
+    background-color: #1a73e8;
+    color: #fff;
+}
+
+.rate-button:hover {
+    background-color: #185abc;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Contenedor para botones de Import/Export */
+.data-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.data-actions .btn {
+    width: 150px; /* Ancho fijo para alineación */
+}
+
+/* Botón de Exportar */
+.export-btn {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    border: 1px solid #d2e3fc;
+}
+.export-btn:hover {
+    background-color: #d2e3fc;
+}
+
+/* Botón de Importar */
+.import-btn {
+    background-color: #f1f3f4;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+}
+.import-btn:hover {
+    background-color: #e8eaed;
+}
+
 
 /* Reutilizamos los estilos del interruptor */
 .sync-toggle-switch{position:relative;display:inline-block;width:34px;height:20px}.sync-toggle-switch input{opacity:0;width:0;height:0}.sync-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#bdc1c6;transition:.4s;border-radius:34px}.sync-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}input:checked+.sync-slider{background-color:#1a73e8}input:checked+.sync-slider:before{transform:translateX(14px)}
@@ -102,22 +170,6 @@ h1 {
 
 .dark-theme .about-card p {
     color: #bdc1c6;
-}
-
-/* Estilo para el botón de calificación */
-.rate-button {
-    display: inline-block;
-    background-color: #1a73e8;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.rate-button:hover {
-    background-color: #185abc;
 }
 
 /* Estilo para la información de la versión */
