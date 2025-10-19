@@ -14,7 +14,12 @@
 * **Eliminar Conversaciones:** Mantén tus carpetas limpias eliminando las conversaciones que ya no necesitas.
 * **Interfaz Integrada:** Un botón "Organizador" en la barra lateral de Gemini para invocar el panel, que aparece discretamente en la parte inferior derecha.
 * **Guarda tu conversación con 1 click:** Desde el menú contextual podés guardar la conversación actual en una carpeta. ![Captura de pantalla menu contextual](images/context-menu.png)
-* **Sincronización multidispositivos:** Desde la versión 1.1.4 se puede activar la sincronización con tu cuenta de Google gracias al chrome.storage.sync ![Captura de pantalla menu opciones](images/options-menu.png)!
+* **Sincronización multidispositivos:** Desde la versión 1.1.4 se puede activar la sincronización con tu cuenta de Google gracias al chrome.storage.sync 
+* **Importar y Exportar:** Realiza copias de seguridad de todas tus carpetas y conversaciones en un archivo `.json`. Importa desde un archivo de respaldo para restaurar o fusionar tus datos fácilmente.
+
+**Opciones de la herramienta**
+
+![Captura de pantalla menu opciones](images/options-menu.png)!
 
 ---
 
