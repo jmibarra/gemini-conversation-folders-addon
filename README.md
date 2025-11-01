@@ -92,6 +92,20 @@ Si encuentras algún error o tienes una idea para mejorar el libro, abre un **Is
 
 ---
 
+## 🤝 Contribución
+
+¡Las contribuciones son bienvenidas! Si tienes ideas para nuevas funcionalidades, mejoras de rendimiento o correcciones de errores, me encantaría que colaboraras.
+
+### Proceso de Colaboración (Pull Requests)
+
+1.  **Haz un *Fork*** del repositorio.
+2.  **Crea una rama** para tu funcionalidad o corrección (`git checkout -b feature/MiNuevaMejora`).
+3.  **Realiza tus cambios** y haz *commit* con un mensaje descriptivo.
+4.  **Sube tu rama** a tu *fork* (`git push origin feature/MiNuevaMejora`).
+5.  **Abre un *Pull Request*** (PR) detallando los cambios que has realizado y por qué son necesarios.
+
+---
+
 ## 📬 Comunícate
 
 Si tienes dudas o necesitas orientación, no dudes en contactarnos a través de los Issues o mail:  
