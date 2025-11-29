@@ -10,7 +10,15 @@ export default class FolderList {
         const foldersListUl = document.getElementById('folders-list-ul');
         if (!foldersListUl) return;
 
-        foldersListUl.innerHTML = '';
+        foldersListUl.innerHTML = ''; // Clear existing content
+
+        // Check for empty state
+        if (!folders || Object.keys(folders).length === 0) {
+            const emptyStateTemplate = await fetchTemplate('src/templates/emptyState.html'); // Assuming emptyState.html is in src/templates
+            foldersListUl.innerHTML = emptyStateTemplate;
+            return;
+        }
+
         const sortedFolderNames = Object.keys(folders).sort();
 
         const folderElements = await Promise.all(sortedFolderNames.map(folderName => {

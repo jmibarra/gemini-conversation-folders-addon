@@ -43,6 +43,16 @@ describe('FolderManager', () => {
         expect(mockUI.renderFolders).toHaveBeenCalledWith(mockFolders, expect.any(Object), undefined, undefined);
     });
 
+    test('loadAndDisplayFolders should render empty state if no folders', async () => {
+        const mockFolders = {};
+        mockStorage.getFolders.mockResolvedValue(mockFolders);
+
+        await folderManager.loadAndDisplayFolders();
+
+        expect(mockStorage.getFolders).toHaveBeenCalled();
+        expect(mockUI.renderFolders).toHaveBeenCalledWith(mockFolders, expect.any(Object), undefined, undefined);
+    });
+
     test('createFolder should create a new folder if it does not exist', async () => {
         mockStorage.getFolders.mockResolvedValue({});
 

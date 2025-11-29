@@ -50,7 +50,7 @@
 #gemini-organizer-sidebar .action-buttons-group {
     display: flex;
     flex-grow: 1; /* Permite que el grupo ocupe el espacio sobrante */
-    gap: 2px;
+    gap: 8px; /* Más espacio entre botones */
 }
 
 /* Estilo para los botones principales ("Carpeta", "Buscar") */
@@ -59,21 +59,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     background-color: transparent;
     border: 1px solid #dadce0;
     color: #5f6368;
-    padding: 6px 10px;
-    border-radius: 18px;
+    padding: 8px 12px; /* Más padding */
+    border-radius: 24px; /* Más redondeado (Pill shape) */
     cursor: pointer;
-    font-size: 0.85em;
+    font-size: 0.9em;
     font-family: 'Google Sans', sans-serif;
     font-weight: 500;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: all 0.2s ease; /* Transición suave para todo */
 }
 
 #gemini-organizer-sidebar .sidebar-action-btn:hover {
     background-color: #f1f3f4;
+    border-color: #d2d4d7;
+    transform: translateY(-1px); /* Sutil elevación */
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.1);
+}
+
+#gemini-organizer-sidebar .sidebar-action-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 #gemini-organizer-sidebar .sidebar-action-btn.active {
@@ -84,9 +92,9 @@
 
 /* Íconos dentro de los botones principales */
 #gemini-organizer-sidebar .sidebar-action-btn mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 
 /* Botón de Configuración (engranaje) */
@@ -94,28 +102,28 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
-    /* CORRECCIÓN: Usamos width y height fijos para un círculo perfecto */
-    width: 32px;
-    height: 32px;
-    padding: 0; /* Sin padding que interfiera con el tamaño */
-    margin-left: 10px; /* Añadimos un margen para separarlo */
+    width: 40px; /* Un poco más grande */
+    height: 40px;
+    padding: 0; 
+    margin-left: 8px; 
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
     color: #5f6368;
-    flex-shrink: 0; /* Evita que el botón se encoja */
+    flex-shrink: 0; 
 }
 
 #gemini-organizer-sidebar .settings-btn:hover {
     background-color: #f1f3f4;
+    transform: rotate(30deg); /* Pequeña rotación al hover */
 }
 
 #gemini-organizer-sidebar .settings-btn mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
 }
 
 
@@ -126,7 +134,7 @@
 /* Contenedor para el contenido desplegable */
 .collapsible-section {
     overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+    transition: max-height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), padding 0.3s ease-out, opacity 0.3s ease-out;
     max-height: 0;
     opacity: 0;
     padding: 0;
@@ -135,21 +143,22 @@
 .collapsible-section:not(.hidden) {
     max-height: 200px;
     opacity: 1;
-    padding: 5px 0 0 0;
+    padding: 5px 0 10px 0;
 }
 
 #gemini-organizer-sidebar .folder-controls,
 #gemini-organizer-sidebar .search-controls {
     border-bottom: none;
     padding-bottom: 5px;
-    margin: 0 16px 20px 16px; 
+    margin: 0 16px 10px 16px; 
 }
 
 #gemini-organizer-sidebar .folder-controls h4,
 #gemini-organizer-sidebar .search-controls h4 {
     font-size: 0.95em;
     color: #5f6368;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    font-weight: 500;
 }
 
 /* El nuevo contenedor que envuelve el input y el botón */
@@ -158,14 +167,14 @@
     align-items: center;
     background-color: #fff;
     border: 1px solid #dadce0;
-    border-radius: 20px;
-    padding: 0 4px 0 16px;
+    border-radius: 24px;
+    padding: 4px 4px 4px 16px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
     border-color: #1a73e8;
-    box-shadow: 0 0 0 1px #1a73e8;
+    box-shadow: 0 0 0 1px #1a73e8, 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* Estilo del input dentro del nuevo contenedor */
@@ -176,32 +185,37 @@
     padding: 8px 0;
     background-color: transparent;
     width: 100%;
-    font-size: 0.9em;
+    font-size: 0.95em;
 }
 
 /* Estilo del botón de ícono dentro del nuevo contenedor */
 #gemini-organizer-sidebar .folder-controls button#create-folder-btn {
-    background-color: transparent;
-    color: #5f6368;
+    background-color: #1a73e8; /* Botón sólido para acción principal */
+    color: white;
     border: none;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 #gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
-    background-color: #e8f0fe;
-    color: #1a73e8;
+    background-color: #185abc;
+    transform: scale(1.05);
+}
+
+#gemini-organizer-sidebar .folder-controls button#create-folder-btn:active {
+    transform: scale(0.95);
 }
 
 /* Estilos para input de búsqueda */
 #gemini-organizer-sidebar .search-controls .input-with-button-wrapper {
-    padding: 0 16px;
+    padding: 4px 16px;
 }
 
 #gemini-organizer-sidebar .search-controls .input-with-button-wrapper mat-icon {
@@ -215,7 +229,7 @@
     border: none;
     outline: none;
     background-color: transparent;
-    font-size: 0.9em;
+    font-size: 0.95em;
 }
 
 /* --- ESTILOS MEJORADOS PARA LAS CARPETAS Y CONVERSACIONES --- */
@@ -228,7 +242,7 @@
 
 #gemini-organizer-sidebar .gemini-folder-item {
     list-style: none !important;
-    margin-bottom: 4px;
+    margin-bottom: 8px; /* Más espacio entre carpetas */
     padding: 0 8px;
     box-sizing: border-box;
 }
@@ -237,20 +251,20 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 8px;
-    border-radius: 20px;
+    padding: 10px 12px;
+    border-radius: 12px; /* Menos redondeado que los botones */
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container:hover {
-    background-color: #e8f0fe;
+    background-color: #f1f3f4;
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
     flex-grow: 1;
     margin: 0 8px 0 0; 
-    font-size: 0.9em;
+    font-size: 0.95em;
     color: #202124;
     font-weight: 500;
     white-space: nowrap;
@@ -263,7 +277,7 @@
     width: 20px;
     height: 20px;
     color: #5f6368;
-    transition: transform 0.3s ease; 
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper:not(.hidden) ~ .title-container .gemini-expand-icon {
@@ -272,7 +286,7 @@
 
 #gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper {
     overflow: hidden; 
-    transition: height 0.3s ease-out, opacity 0.3s ease-out; 
+    transition: height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.3s ease-out; 
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .conversations-list-wrapper.hidden {
@@ -282,13 +296,13 @@
 
 #gemini-organizer-sidebar .conversation-items-container {
     list-style: none !important;
-    padding: 0;
+    padding: 4px 0 4px 12px; /* Indentación para las conversaciones */
     margin: 0;
 }
 
 #gemini-organizer-sidebar .conversation-item-wrapper {
     list-style: none !important;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     padding: 0;
 }
 
@@ -296,15 +310,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 8px 12px;
+    border-radius: 8px;
     background-color: transparent;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease;
     cursor: pointer;
 }
 
 #gemini-organizer-sidebar .conversation-item-content:hover {
-    background-color: #e8f0fe;
+    background-color: #f1f3f4;
+}
+
+#gemini-organizer-sidebar .conversation-item-content:active {
+    background-color: #e8eaed;
 }
 
 #gemini-organizer-sidebar .conversation-title {
@@ -313,8 +331,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 0.88em; 
-    color: #202124;
+    font-size: 0.9em; 
+    color: #3c4043;
 }
 
 /* --- BOTÓN DE INVOCACIÓN Y OTROS --- */
@@ -354,7 +372,7 @@
     border: none;
     color: #5f6368;
     cursor: pointer;
-    padding: 5px;
+    padding: 6px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -363,16 +381,24 @@
     flex-shrink: 0;
     margin-left: 4px;
     z-index: 1;
+    opacity: 0; /* Ocultos por defecto para limpieza visual */
+}
+
+/* Mostrar botones al hacer hover sobre el contenedor padre */
+.gemini-folder-item .title-container:hover .delete-folder-btn,
+.gemini-folder-item .title-container:hover .edit-folder-btn,
+.conversation-item-content:hover .delete-conversation-btn {
+    opacity: 1;
 }
 
 .delete-conversation-btn:hover, .delete-folder-btn:hover {
     background-color: #fce8e6;
-    color: #dc3545;
+    color: #d93025;
 }
 
 .edit-folder-btn:hover {
     background-color: #e6f4ea;
-    color: #34a853;
+    color: #1e8e3e;
 }
 
 .delete-conversation-btn mat-icon, .delete-folder-btn mat-icon, .edit-folder-btn mat-icon {
@@ -384,46 +410,101 @@
 .folder-rename-input {
     flex-grow: 1;
     padding: 6px 8px;
-    border: 1px solid #dadce0;
+    border: 1px solid #1a73e8;
     border-radius: 4px;
-    font-size: 0.9em;
+    font-size: 0.95em;
     color: #202124;
     background-color: white;
     box-sizing: border-box;
     margin: 0 8px;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
-/* --- ESTILOS DE DRAG & DROP --- */
+/* --- ESTILOS DE DRAG & DROP MEJORADOS --- */
 
 .conversation.is-dragging {
-    opacity: 0.5;
-    border: 1px dashed #1a73e8;
-    background-color: #f0f4f9;
+    opacity: 0.8;
+    border: 2px dashed #1a73e8;
+    background-color: #e8f0fe;
+    transform: scale(0.98);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container.drag-over {
     background-color: #e8f0fe;
-    border: 1px solid #1a73e8;
-    box-shadow: 0 0 5px rgba(26, 115, 232, 0.5);
+    border: 2px solid #1a73e8;
+    box-shadow: 0 0 8px rgba(26, 115, 232, 0.3);
+    transform: scale(1.02);
 }
 
 #gemini-organizer-sidebar .conversation-item-wrapper.drag-over-top {
     border-top: 2px solid #1a73e8;
+    margin-top: 4px;
 }
 
 #gemini-organizer-sidebar .conversation-item-wrapper.drag-over-bottom {
     border-bottom: 2px solid #1a73e8;
+    margin-bottom: 4px;
 }
 
 .gemini-organizer-saved-icon {
-    color: #34a853;
+    color: #1e8e3e;
     font-size: 1em;
     margin-right: 8px;
     vertical-align: middle;
 }
 
 .conversation.is-saved {
-    border-right: 4px solid #34a853;
+    border-right: 4px solid #1e8e3e;
+}
+
+/* --- EMPTY STATES --- */
+
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+    color: #5f6368;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.empty-state-icon-wrapper {
+    background-color: #f1f3f4;
+    border-radius: 50%;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-icon-wrapper mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #9aa0a6;
+}
+
+.empty-state-text {
+    font-size: 1em;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    color: #202124;
+}
+
+.empty-state-subtext {
+    font-size: 0.85em;
+    margin: 0;
+    color: #5f6368;
 }
 
 /* --- TOAST NOTIFICATIONS --- */
@@ -441,19 +522,20 @@
 }
 
 .gemini-organizer-toast {
-    background-color: #333;
+    background-color: #202124;
     color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 24px;
+    border-radius: 24px;
     margin-bottom: 10px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(20px);
     transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
     font-size: 0.9em;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     text-align: center;
     pointer-events: auto;
+    font-family: 'Google Sans', sans-serif;
 }
 
 .gemini-organizer-toast.show {
@@ -462,15 +544,15 @@
     transform: translateY(0);
 }
 
-.gemini-organizer-toast-success { background-color: #4CAF50; }
-.gemini-organizer-toast-error { background-color: #F44336; }
-.gemini-organizer-toast-warning { background-color: #FFC107; color: #333; }
-.gemini-organizer-toast-info { background-color: #2196F3; }
+.gemini-organizer-toast-success { background-color: #1e8e3e; }
+.gemini-organizer-toast-error { background-color: #d93025; }
+.gemini-organizer-toast-warning { background-color: #f9ab00; color: #202124; }
+.gemini-organizer-toast-info { background-color: #1a73e8; }
 
 /* --- ESTILOS PARA MODO OSCURO --- */
 
 .dark-theme #gemini-organizer-sidebar .sidebar-actions {
-    border-bottom-color: #5f6368;
+    border-bottom-color: #3c4043;
 }
 .dark-theme #gemini-organizer-sidebar .sidebar-action-btn {
     border-color: #5f6368;
@@ -478,6 +560,7 @@
 }
 .dark-theme #gemini-organizer-sidebar .sidebar-action-btn:hover {
     background-color: rgba(232, 234, 237, 0.08);
+    border-color: #e8eaed;
 }
 .dark-theme #gemini-organizer-sidebar .sidebar-action-btn.active {
     border-color: #8ab4f8;
@@ -502,7 +585,7 @@
     color: #bdc1c6;
 }
 .dark-theme #gemini-organizer-sidebar .input-with-button-wrapper {
-    background-color: #404144;
+    background-color: #303134;
     border-color: #5f6368;
 }
 .dark-theme #gemini-organizer-sidebar .input-with-button-wrapper:focus-within {
@@ -518,9 +601,12 @@
 .dark-theme #gemini-organizer-sidebar .input-with-button-wrapper mat-icon {
     color: #bdc1c6;
 }
+.dark-theme #gemini-organizer-sidebar .folder-controls button#create-folder-btn {
+    background-color: #8ab4f8;
+    color: #202124;
+}
 .dark-theme #gemini-organizer-sidebar .folder-controls button#create-folder-btn:hover {
-    background-color: rgba(138, 180, 248, 0.1);
-    color: #8ab4f8;
+    background-color: #aecbfa;
 }
 .dark-theme #gemini-organizer-sidebar .conversation-item-wrapper .conversation-title {
     color: #bdc1c6;
@@ -529,19 +615,37 @@
 .dark-theme #gemini-organizer-sidebar .conversation-item-content:hover {
     background-color: rgba(138, 180, 248, 0.08);
 }
+.dark-theme #gemini-organizer-sidebar .conversation-item-content:active {
+    background-color: rgba(138, 180, 248, 0.12);
+}
+
+/* Empty State Dark Mode */
+.dark-theme .empty-state-icon-wrapper {
+    background-color: #3c4043;
+}
+.dark-theme .empty-state-icon-wrapper mat-icon {
+    color: #bdc1c6;
+}
+.dark-theme .empty-state-text {
+    color: #e8eaed;
+}
+.dark-theme .empty-state-subtext {
+    color: #9aa0a6;
+}
 
 /* --- NUEVOS ESTILOS PARA EL INDICADOR DE SYNC --- */
 
 #gemini-organizer-sidebar .folders-list-header {
     display: flex;
     align-items: center;
-    margin: 0 16px 10px 16px;
+    margin: 0 16px 12px 16px;
 }
 
 #gemini-organizer-sidebar .folders-list-header h4 {
     margin: 0;
     font-size: 0.95em;
     color: #5f6368;
+    font-weight: 500;
 }
 
 .sync-status-indicator {
@@ -550,6 +654,12 @@
     align-items: center;
     color: #5f6368;
     cursor: help;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.sync-status-indicator:hover {
+    opacity: 1;
 }
 
 .sync-status-indicator mat-icon {
@@ -574,19 +684,20 @@
     gap: 8px;
     background-color: #e8f0fe;
     color: #1967d2;
-    padding: 4px 12px;
-    border-radius: 16px;
+    padding: 6px 16px;
+    border-radius: 20px;
     font-family: 'Google Sans', sans-serif;
-    font-size: 0.85em;
+    font-size: 0.9em;
     font-weight: 500;
     margin: 0 16px 0 0; /* Espacio a la derecha */
     flex-shrink: 0; /* Evita que se encoja si hay poco espacio */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 #gemini-organizer-folder-indicator mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 
 /* Soporte para el tema oscuro */
