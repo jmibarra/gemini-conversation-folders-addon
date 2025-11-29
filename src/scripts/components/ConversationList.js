@@ -73,7 +73,7 @@ export default class ConversationList {
 
             } else {
                 console.warn(`Gemini Organizer: Could not find conversation element for ID ${conversationId}. Fallback to page reload.`);
-                showToast(`Cargando conversación...`, 'info');
+                showToast(`Conversación no encontrada en la lista reciente. Recargando para buscarla...`, 'warning');
                 window.location.href = `https://gemini.google.com/app/${conversationId}`;
                 if (sidebar) sidebar.hide();
             }
