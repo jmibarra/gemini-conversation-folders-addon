@@ -1,51 +1,64 @@
-import { showToast, waitForElement } from './utils.js';
-
-async function fetchTemplate(templatePath) {
-    const url = chrome.runtime.getURL(templatePath);
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Error al cargar el template: ${response.statusText}`);
-        }
-        return await response.text();
-    } catch (error) {
-        console.error(`No se pudo obtener el template: ${templatePath}`, error);
-        return ''; // Devuelve una cadena vacía para evitar romper la UI
-    }
-}
+import Sidebar from './components/Sidebar.js';
+import FolderList from './components/FolderList.js';
+import FolderIndicator from './components/FolderIndicator.js';
+import ConversationList from './components/ConversationList.js';
 
 export default class UI {
     constructor() {
-        this.sidebar = null;
+        this.sidebarComponent = new Sidebar();
+        this.folderListComponent = new FolderList();
+        this.folderIndicatorComponent = new FolderIndicator();
+        this.conversationListComponent = this.folderListComponent.conversationList;
+
         this.toggleButton = null;
-        this.activeSection = null;
+    }
+
+    get sidebar() {
+        return this.sidebarComponent.element;
+    }
+
+    get activeSection() {
+        return this.sidebarComponent.activeSection;
     }
 
     async initializeSidebar() {
-        let sidebar = document.getElementById('gemini-organizer-sidebar');
-        if (!sidebar) {
-            sidebar = document.createElement('div');
-            sidebar.id = 'gemini-organizer-sidebar';
-            sidebar.classList.add('hidden');
-            sidebar.innerHTML = await fetchTemplate('src/templates/sidebar.html');
-        }
-        this.sidebar = sidebar;
-        return sidebar;
-    }
-    
-    updateSyncStatusIcon(isSyncEnabled) {
-        const iconElement = document.getElementById('sync-status-icon');
-        if (iconElement) {
-            if (isSyncEnabled) {
-                iconElement.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="cloud" fonticon="cloud"></mat-icon>`;
-                iconElement.title = 'Carpetas sincronizadas con tu cuenta de Google.';
-            } else {
-                iconElement.innerHTML = `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="cloud_off" fonticon="cloud_off"></mat-icon>`;
-                iconElement.title = 'Carpetas guardadas localmente en este dispositivo.';
-            }
-        }
+        return this.sidebarComponent.initialize();
     }
 
+    updateSyncStatusIcon(isSyncEnabled) {
+        this.sidebarComponent.updateSyncStatusIcon(isSyncEnabled);
+    }
+
+    toggleSidebarVisibility() {
+        this.sidebarComponent.toggleVisibility();
+    }
+
+    toggleSectionVisibility(sectionId) {
+        this.sidebarComponent.toggleSectionVisibility(sectionId);
+    }
+
+    async renderFolders(folders, openFolderStates, eventHandler, dragAndDropHandler) {
+        return this.folderListComponent.render(folders, openFolderStates, eventHandler, dragAndDropHandler);
+    }
+
+    enableFolderEditMode(folderName, folderTitleElement, deleteBtn, editBtn, expandIcon, eventHandler) {
+        this.folderListComponent.enableEditMode(folderName, folderTitleElement, deleteBtn, editBtn, expandIcon, eventHandler);
+    }
+
+    filterConversationsAndFolders() {
+        const searchInput = document.getElementById('search-conversations-input');
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        this.folderListComponent.filter(searchTerm);
+    }
+
+    async displayFolderIndicator(folderName) {
+        return this.folderIndicatorComponent.display(folderName);
+    }
+
+    openGeminiChat(event) {
+        const conversationId = event.target.dataset.convId;
+        this.conversationListComponent.openChat(conversationId, this.sidebarComponent);
+    }
 
     async addToggleButton(eventHandler, folderManager) {
         const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
@@ -90,273 +103,13 @@ export default class UI {
                 this.toggleButton = button;
             }
 
-            if (!this.sidebar) {
+            if (!this.sidebarComponent.element) {
                 await this.initializeSidebar();
             }
-            if (this.sidebar && !ourButtonWrapper.contains(this.sidebar)) {
-                ourButtonWrapper.appendChild(this.sidebar);
+            if (this.sidebarComponent.element && !ourButtonWrapper.contains(this.sidebarComponent.element)) {
+                ourButtonWrapper.appendChild(this.sidebarComponent.element);
             }
             eventHandler.addEventListeners();
         }
-    }
-
-    toggleSidebarVisibility() {
-        if (this.sidebar) {
-            this.sidebar.classList.toggle('hidden');
-            if (this.sidebar.classList.contains('hidden')) {
-                this.toggleSectionVisibility(null);
-            }
-        }
-    }
-
-    toggleSectionVisibility(sectionId) {
-        const createContainer = document.getElementById('create-folder-container');
-        const searchContainer = document.getElementById('search-conversations-container');
-        const createBtn = document.getElementById('create-folder-section-btn');
-        const searchBtn = document.getElementById('search-section-btn');
-
-        if (this.activeSection === sectionId) {
-            sectionId = null;
-        }
-
-        this.activeSection = sectionId;
-
-        if (createContainer && searchContainer) {
-            createContainer.classList.toggle('hidden', sectionId !== 'create-folder-container');
-            searchContainer.classList.toggle('hidden', sectionId !== 'search-conversations-container');
-        }
-
-        if (createBtn && searchBtn) {
-            createBtn.classList.toggle('active', sectionId === 'create-folder-container');
-            searchBtn.classList.toggle('active', sectionId === 'search-conversations-container');
-        }
-    }
-    
-    async renderFolders(folders, openFolderStates, eventHandler, dragAndDropHandler) {
-        const foldersListUl = document.getElementById('folders-list-ul');
-        if (!foldersListUl) return;
-
-        foldersListUl.innerHTML = '';
-        const sortedFolderNames = Object.keys(folders).sort();
-
-        const folderElements = await Promise.all(sortedFolderNames.map(folderName => {
-            const folder = folders[folderName];
-            return this.createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler);
-        }));
-        
-        folderElements.forEach(folderContainer => foldersListUl.appendChild(folderContainer));
-    }
-
-    async createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler) {
-        const folderContainer = document.createElement('li');
-        folderContainer.classList.add('gemini-folder-item');
-
-        const folderHeader = await this.createFolderHeader(folderName, dragAndDropHandler);
-        const conversationsWrapper = await this.createConversationsWrapper(folderName, folder, eventHandler, dragAndDropHandler);
-
-        folderContainer.appendChild(folderHeader);
-        folderContainer.appendChild(conversationsWrapper);
-
-        const [folderTitle, editButton, deleteButton, expandIcon] = folderHeader.children;
-
-        eventHandler.addFolderInteractionListeners(folderHeader, conversationsWrapper, expandIcon, editButton, deleteButton, folderName, folderTitle);
-
-        if (!openFolderStates[folderName]) {
-            conversationsWrapper.classList.add('hidden');
-            expandIcon.setAttribute('fonticon', 'expand_more');
-            expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
-        } else {
-            conversationsWrapper.classList.remove('hidden');
-            expandIcon.setAttribute('fonticon', 'expand_less');
-            expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
-        }
-
-        return folderContainer;
-    }
-
-    async createFolderHeader(folderName, dragAndDropHandler) {
-        const folderHeader = document.createElement('div');
-        folderHeader.classList.add('title-container');
-        folderHeader.setAttribute('role', 'button');
-        folderHeader.setAttribute('tabindex', '0');
-        folderHeader.dataset.folderName = folderName;
-        folderHeader.addEventListener('dragover', dragAndDropHandler.handleDragOver.bind(dragAndDropHandler));
-        folderHeader.addEventListener('dragleave', dragAndDropHandler.handleDragLeave.bind(dragAndDropHandler));
-        folderHeader.addEventListener('drop', dragAndDropHandler.handleDrop.bind(dragAndDropHandler));
-
-        const template = await fetchTemplate('src/templates/folderHeader.html');
-        folderHeader.innerHTML = template.replace(/{{folderName}}/g, folderName);
-
-        return folderHeader;
-    }
-
-    async createConversationsWrapper(folderName, conversations, eventHandler, dragAndDropHandler) {
-        const conversationsWrapper = document.createElement('div');
-        conversationsWrapper.classList.add('conversations-list-wrapper');
-
-        const conversationsUl = document.createElement('ul');
-        conversationsUl.classList.add('conversation-items-container', 'side-nav-opened');
-        conversationsUl.dataset.folderName = folderName;
-        conversationsUl.addEventListener('dragover', dragAndDropHandler.handleConversationListDragOver.bind(dragAndDropHandler));
-        conversationsUl.addEventListener('drop', dragAndDropHandler.handleConversationListDrop.bind(dragAndDropHandler));
-
-        const conversationItems = await Promise.all(conversations.map((conv, index) => 
-            this.createConversationElement(conv, folderName, index, eventHandler, dragAndDropHandler)
-        ));
-
-        conversationItems.forEach(convItem => conversationsUl.appendChild(convItem));
-        
-        conversationsWrapper.appendChild(conversationsUl);
-        return conversationsWrapper;
-    }
-
-    async createConversationElement(conv, folderName, index, eventHandler, dragAndDropHandler) {
-        const convItem = document.createElement('li');
-        convItem.classList.add('conversation-item-wrapper');
-        convItem.setAttribute('draggable', 'true');
-        convItem.dataset.folderName = folderName;
-        convItem.dataset.convId = conv.id;
-        convItem.dataset.convTitle = conv.title;
-        convItem.dataset.convUrl = conv.url;
-        convItem.dataset.originalIndex = index;
-        convItem.addEventListener('dragstart', dragAndDropHandler.handleDragStart.bind(dragAndDropHandler));
-        convItem.addEventListener('dragend', (event) => event.target.classList.remove('is-dragging'));
-        
-        const template = await fetchTemplate('src/templates/conversationItem.html');
-        convItem.innerHTML = template
-            .replace(/{{folderName}}/g, folderName)
-            .replace(/{{convId}}/g, conv.id)
-            .replace(/{{convTitle}}/g, conv.title);
-
-        eventHandler.addConversationListeners(convItem);
-        return convItem;
-    }
-
-    enableFolderEditMode(folderName, folderTitleElement, deleteBtn, editBtn, expandIcon, eventHandler) {
-        const originalFolderName = folderName;
-        folderTitleElement.style.display = 'none';
-        deleteBtn.style.display = 'none';
-        editBtn.style.display = 'none';
-        expandIcon.style.display = 'none';
-
-        const inputField = document.createElement('input');
-        inputField.type = 'text';
-        inputField.value = originalFolderName;
-        inputField.classList.add('folder-rename-input');
-        inputField.dataset.originalFolderName = originalFolderName;
-
-        folderTitleElement.parentNode.insertBefore(inputField, folderTitleElement);
-        inputField.focus();
-        inputField.select();
-
-        eventHandler.addFolderRenameListeners(inputField, originalFolderName, folderTitleElement, deleteBtn, editBtn, expandIcon);
-    }
-
-    openGeminiChat(event) {
-        const conversationId = event.target.dataset.convId;
-        if (conversationId) {
-            const selector = '.chat-history-list .conversation[jslog*="\\"c_' + conversationId + '\\""]';
-            const targetConversationElement = document.querySelector(selector);
-
-            if (targetConversationElement) {
-                const clickEvent = new MouseEvent('click', { view: window, bubbles: true, cancelable: true, buttons: 1 });
-                const mouseDownEvent = new MouseEvent('mousedown', { view: window, bubbles: true, cancelable: true, buttons: 1 });
-                const mouseUpEvent = new MouseEvent('mouseup', { view: window, bubbles: true, cancelable: true });
-
-                targetConversationElement.dispatchEvent(mouseDownEvent);
-                targetConversationElement.dispatchEvent(mouseUpEvent);
-                targetConversationElement.dispatchEvent(clickEvent);
-
-                setTimeout(() => {
-                    this.sidebar.classList.add('hidden');
-                }, 100);
-
-            } else {
-                showToast(`No se pudo cargar la conversación rápidamente. Recargando página...`, 'info');
-                window.location.href = `https://gemini.google.com/app/${conversationId}`;
-                this.sidebar.classList.add('hidden');
-            }
-        } else {
-            showToast("No se pudo encontrar el ID de esta conversación.", 'error');
-        }
-    }
-
-    filterConversationsAndFolders() {
-        const searchTerm = document.getElementById('search-conversations-input').value.toLowerCase().trim();
-        const foldersListUl = document.getElementById('folders-list-ul');
-        const folderItems = foldersListUl.querySelectorAll('.gemini-folder-item');
-
-        folderItems.forEach(folderItem => {
-            const folderTitleElement = folderItem.querySelector('.gemini-folder-title');
-            const folderName = folderTitleElement.textContent.toLowerCase();
-            const conversationsWrapper = folderItem.querySelector('.conversations-list-wrapper');
-            const conversationItems = conversationsWrapper.querySelectorAll('.conversation-item-wrapper');
-            const expandIcon = folderItem.querySelector('.gemini-expand-icon');
-
-            let folderMatches = folderName.includes(searchTerm);
-            let anyConversationMatches = false;
-
-            conversationItems.forEach(convItem => {
-                const convTitle = convItem.querySelector('.conversation-title').textContent.toLowerCase();
-                if (convTitle.includes(searchTerm)) {
-                    convItem.style.display = '';
-                    anyConversationMatches = true;
-                } else {
-                    convItem.style.display = 'none';
-                }
-            });
-
-            if (searchTerm === '') {
-                folderItem.style.display = '';
-                conversationsWrapper.classList.add('hidden');
-                expandIcon.setAttribute('fonticon', 'expand_more');
-                expandIcon.setAttribute('data-mat-icon-name', 'expand_more');
-                conversationItems.forEach(convItem => convItem.style.display = '');
-                return;
-            }
-
-            if (folderMatches || anyConversationMatches) {
-                folderItem.style.display = '';
-                conversationsWrapper.classList.remove('hidden');
-                expandIcon.setAttribute('fonticon', 'expand_less');
-                expandIcon.setAttribute('data-mat-icon-name', 'expand_less');
-            } else {
-                folderItem.style.display = 'none';
-            }
-        });
-    }
-
-async displayFolderIndicator(folderName) {
-        const existingIndicator = document.getElementById('gemini-organizer-folder-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
-        }
-
-        if (!folderName) {
-            return;
-        }
-
-        // 1. Esperamos a que aparezca un elemento estable y único: el botón "PRO".
-        const proButtonPillbox = await waitForElement('div[data-test-id="pillbox"]');
-
-        // 2. A partir de ahí, encontramos el contenedor padre que agrupa todos los botones.
-        const targetContainer = proButtonPillbox ? proButtonPillbox.closest('.buttons-container') : null;
-
-        if (!targetContainer) {
-            // Si después de esperar sigue sin encontrarlo, el error nos dará una pista.
-            console.error('No se pudo encontrar el contenedor de botones (`.buttons-container`) para el indicador.');
-            return;
-        }
-
-        const indicator = document.createElement('div');
-        indicator.id = 'gemini-organizer-folder-indicator';
-        indicator.title = `Guardado en la carpeta: ${folderName}`;
-        indicator.innerHTML = `
-            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder" fonticon="folder"></mat-icon>
-            <span>${folderName}</span>
-        `;
-        
-        // 3. Insertamos nuestro indicador al principio de ese contenedor.
-        targetContainer.prepend(indicator);
     }
 }

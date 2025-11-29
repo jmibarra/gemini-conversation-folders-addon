@@ -25,9 +25,9 @@ if (window.geminiOrganizerAppInstance) {
             this.folderManager.setDragAndDropHandler(this.dragAndDropHandler);
 
             this.observer = new MutationObserver(this.handleMutations.bind(this));
-            
+
             chrome.storage.onChanged.addListener(this.handleStorageChange.bind(this));
-            
+
             chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
 
             this.lastUrl = window.location.href;
@@ -44,45 +44,55 @@ if (window.geminiOrganizerAppInstance) {
                 toastContainer.id = 'gemini-organizer-toast-container';
                 document.body.appendChild(toastContainer);
             }
-            
-            // Configura el área de almacenamiento (sync o local) y carga las carpetas
-            await this.initializeSync();
 
-            // Muestra el indicador de carpeta para la conversación actual (si existe)
-            await this.updateFolderIndicator(); 
+            // 1. Configura el área de almacenamiento (sync o local)
+            await this.setupStorage();
 
-            // Espera a que la página esté inactiva para añadir la UI principal
+            // 2. Espera a que la página esté inactiva para añadir la UI principal
             window.requestIdleCallback(async () => {
+                // 3. Inyecta la UI (Sidebar, Botón)
                 await this.ui.addToggleButton(this.eventHandler, this.folderManager);
+
+                // 4. Carga y muestra las carpetas (ahora que la UI existe)
+                await this.folderManager.loadAndDisplayFolders();
+
                 this.dragAndDropHandler.setupDraggableConversations();
-                // Inicia el observador para detectar cambios en la UI de Gemini
+
+                // 5. Actualiza indicadores y otros elementos visuales
+                await this.updateFolderIndicator();
+                this.updateSidebarSyncStatus();
+
+                // 6. Inicia el observador para detectar cambios en la UI de Gemini
                 this.observer.observe(document.body, { childList: true, subtree: true });
             });
         }
 
         /**
-         * Configura el almacenamiento (sync/local) y carga/renderiza las carpetas.
+         * Configura el almacenamiento (sync/local).
          */
-        async initializeSync() {
+        async setupStorage() {
             const syncEnabled = await this.storage.getSyncEnabled();
             await this.storage.setStorageArea(syncEnabled ? 'sync' : 'local');
-            await this.folderManager.loadAndDisplayFolders();
+            return syncEnabled;
+        }
 
+        async updateSidebarSyncStatus() {
+            const syncEnabled = await this.storage.getSyncEnabled();
             // Retrasa la configuración de la UI del sidebar para asegurar que el DOM esté listo
-            const setupUI = async () => {
-                if (!this.ui.sidebar) {
-                    await this.ui.initializeSidebar();
-                }
-                this.ui.updateSyncStatusIcon(syncEnabled);
-                const optionsBtn = document.getElementById('open-options-btn');
-                if (optionsBtn) {
-                    optionsBtn.addEventListener('click', () => {
-                        chrome.runtime.sendMessage({ action: 'openOptionsPage' });
-                    });
-                }
-            };
-            
-            setTimeout(setupUI, 500);
+            // Aunque con el nuevo flujo, debería estar listo.
+            if (!this.ui.sidebar) {
+                await this.ui.initializeSidebar();
+            }
+            this.ui.updateSyncStatusIcon(syncEnabled);
+            const optionsBtn = document.getElementById('open-options-btn');
+            if (optionsBtn) {
+                // Clonamos el nodo para eliminar listeners anteriores y evitar duplicados
+                const newOptionsBtn = optionsBtn.cloneNode(true);
+                optionsBtn.parentNode.replaceChild(newOptionsBtn, optionsBtn);
+                newOptionsBtn.addEventListener('click', () => {
+                    chrome.runtime.sendMessage({ action: 'openOptionsPage' });
+                });
+            }
         }
 
         /**
@@ -92,7 +102,7 @@ if (window.geminiOrganizerAppInstance) {
         async handleMutations() {
             if (this.isHandlingMutations) return;
             this.isHandlingMutations = true;
-            
+
             // Desconectamos el observador temporalmente mientras hacemos nuestros propios cambios.
             this.observer.disconnect();
 
@@ -102,9 +112,10 @@ if (window.geminiOrganizerAppInstance) {
                 if (!toggleButtonWrapper || !document.body.contains(toggleButtonWrapper)) {
                     // Si no está, Gemini ha refrescado la UI. Lo re-inyectamos todo.
                     await this.ui.addToggleButton(this.eventHandler, this.folderManager);
-                    await this.initializeSync(); // Esto recarga las carpetas
+                    await this.folderManager.loadAndDisplayFolders(); // Recarga las carpetas
+                    this.updateSidebarSyncStatus();
                 }
-                
+
                 // Actualiza los listeners de arrastrar y soltar y los iconos de "guardado"
                 this.dragAndDropHandler.setupDraggableConversations();
 
@@ -141,12 +152,14 @@ if (window.geminiOrganizerAppInstance) {
         /**
          * Escucha cambios en el almacenamiento (local o sync).
          */
-        handleStorageChange(changes, namespace) {
+        async handleStorageChange(changes, namespace) {
             // Si la configuración de sync cambia, o los datos de sync cambian
             if (namespace === 'sync' && (changes.syncEnabled || changes[this.storage.key])) {
-                console.log('La configuración de Sync ha cambiado. Recargando la extensión...');
-                this.initializeSync();
-            } 
+                console.log('La configuración de Sync ha cambiado. Recargando...');
+                await this.setupStorage();
+                await this.folderManager.loadAndDisplayFolders();
+                this.updateSidebarSyncStatus();
+            }
             // Si los datos locales cambian (y sync está deshabilitado)
             else if (namespace === 'local' && changes[this.storage.key]) {
                 console.log('El almacenamiento local ha cambiado. Recargando las carpetas.');
@@ -162,7 +175,7 @@ if (window.geminiOrganizerAppInstance) {
                 this.folderManager.saveCurrentConversation(request.folderName);
             }
             // Indica que la respuesta puede ser asíncrona (aunque aquí no lo sea, es buena práctica)
-            return true; 
+            return true;
         }
     }
     // Crea y almacena la instancia única en el objeto window
