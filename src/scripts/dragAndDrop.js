@@ -19,7 +19,8 @@ export default class DragAndDrop {
 
             const jslogAttribute = geminiConversationElement.getAttribute('jslog');
             if (jslogAttribute) {
-                const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]*\x22c_([^\x22]+)\x22/);
+                // More robust regex to match "c_..." anywhere in the string, inside quotes
+                const match = jslogAttribute.match(/["']c_([^"']+)["']/);
                 if (match && match[1]) {
                     realConversationId = match[1];
                     convUrl = `https://gemini.google.com/app/${realConversationId}`;
@@ -192,7 +193,8 @@ export default class DragAndDrop {
             const jslogAttribute = convElement.getAttribute('jslog');
             let realConversationId = null;
             if (jslogAttribute) {
-                const match = jslogAttribute.match(/BardVeMetadataKey:\[[^\]]*\x22c_([^\x22]+)\x22/);
+                 // More robust regex to match "c_..." anywhere in the string, inside quotes
+                const match = jslogAttribute.match(/["']c_([^"']+)["']/);
                 if (match && match[1]) {
                     realConversationId = match[1];
                 }

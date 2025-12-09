@@ -61,9 +61,15 @@ export default class UI {
     }
 
     async addToggleButton(eventHandler, folderManager) {
-        const discoverGemsButtonWrapper = document.querySelector('side-nav-action-button[data-test-id="manage-instructions-control"]');
+        // Updated anchor selector: prioritized 'My Stuff' button, then 'New Chat', then fallback to list container
+        const myStuffButton = document.querySelector('side-nav-entry-button[data-test-id="my-stuff-side-nav-entry-button"]');
+        const newChatButton = document.querySelector('side-nav-action-button[data-test-id="new-chat-button"]');
+        const chatHistoryList = document.querySelector('.chat-history-list');
 
-        if (discoverGemsButtonWrapper) {
+        let anchorElement = myStuffButton || newChatButton || chatHistoryList;
+        let insertPosition = myStuffButton ? 'before' : (newChatButton ? 'after' : 'before');
+
+        if (anchorElement) {
             let ourButtonWrapper = document.getElementById('gemini-organizer-wrapper');
 
             if (!ourButtonWrapper) {
@@ -99,7 +105,13 @@ export default class UI {
                 `;
 
                 ourButtonWrapper.appendChild(button);
-                discoverGemsButtonWrapper.after(ourButtonWrapper);
+                
+                if (insertPosition === 'before') {
+                    anchorElement.parentNode.insertBefore(ourButtonWrapper, anchorElement);
+                } else {
+                    anchorElement.after(ourButtonWrapper);
+                }
+                
                 this.toggleButton = button;
             }
 
