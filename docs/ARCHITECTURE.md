@@ -10,20 +10,20 @@ La extensión funciona inyectando scripts (`content script`) en la página web d
 
 ```mermaid
 graph TD
-    App[App (Entry Point)] --> UI[UI Manager]
-    App --> Storage[Storage Service]
-    App --> FolderManager[Folder Manager]
+    App["App (Entry Point)"] --> UI["UI Manager"]
+    App --> Storage["Storage Service"]
+    App --> FolderManager["Folder Manager"]
 
-    UI --> GeminiAdapter[Gemini Adapter]
-    UI --> Sidebar[Sidebar Component]
-    UI --> FolderList[Folder List Component]
+    UI --> GeminiAdapter["Gemini Adapter"]
+    UI --> Sidebar["Sidebar Component"]
+    UI --> FolderList["Folder List Component"]
 
-    FolderList --> ConversationList[Conversation List Component]
+    FolderList --> ConversationList["Conversation List Component"]
 
     FolderManager --> Storage
 
     subgraph "Core Layer"
-        Component[Base Component Class]
+        Component["Base Component Class"]
     end
 
     Sidebar -- extends --> Component
