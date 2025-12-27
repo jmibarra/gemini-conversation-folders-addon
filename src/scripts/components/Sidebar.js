@@ -1,21 +1,69 @@
-import { fetchTemplate } from '../utils/templateUtils.js';
+import Component from '../core/Component.js';
 
-export default class Sidebar {
+export default class Sidebar extends Component {
     constructor() {
-        this.element = null;
+        super();
         this.activeSection = null;
     }
 
-    async initialize() {
-        let sidebar = document.getElementById('gemini-organizer-sidebar');
-        if (!sidebar) {
-            sidebar = document.createElement('div');
-            sidebar.id = 'gemini-organizer-sidebar';
-            sidebar.classList.add('hidden');
-            sidebar.innerHTML = await fetchTemplate('src/templates/sidebar.html');
+    render() {
+        return `
+            <div id="gemini-organizer-sidebar" class="hidden">
+                <div class="sidebar-actions">
+                    <div class="action-buttons-group">
+                        <button id="create-folder-section-btn" class="sidebar-action-btn">
+                            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="create_new_folder" fonticon="add"></mat-icon>
+                            <span>Carpeta</span>
+                        </button>
+                        <button id="search-section-btn" class="sidebar-action-btn">
+                            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="search" fonticon="search"></mat-icon>
+                            <span>Buscar</span>
+                        </button>
+                    </div>
+                    <button id="open-options-btn" class="settings-btn" title="Abrir configuración">
+                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="settings" fonticon="settings"></mat-icon>
+                    </button>
+                </div>
+                <div id="create-folder-container" class="collapsible-section hidden">
+                    <div class="folder-controls">
+                        <h4>Crear Nueva Carpeta</h4>
+                        <div class="input-with-button-wrapper">
+                            <input type="text" id="new-folder-name" placeholder="Mi carpeta...">
+                            <button id="create-folder-btn" title="Crear Carpeta">
+                                <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="add" fonticon="add"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="search-conversations-container" class="collapsible-section hidden">
+                    <div class="search-controls">
+                        <h4>Buscar Conversaciones</h4>
+                        <div class="input-with-button-wrapper">
+                            <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="search" fonticon="search"></mat-icon>
+                            <input type="search" id="search-conversations-input" placeholder="Buscar en tus carpetas...">
+                        </div>
+                    </div>
+                </div>
+                <div class="folders-list">
+                    <div class="folders-list-header">
+                        <h4 class="title gds-label-l">Tus Carpetas Guardadas</h4>
+                        <span id="sync-status-icon" class="sync-status-indicator"></span>
+                    </div>
+                    <ul id="folders-list-ul"></ul>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Initializes the component.
+     * Replaces previous async initialize with synchronous creation via Component.create().
+     */
+    initialize() {
+        if (!this.element) {
+            this.create();
         }
-        this.element = sidebar;
-        return sidebar;
+        return this.element;
     }
 
     toggleVisibility() {

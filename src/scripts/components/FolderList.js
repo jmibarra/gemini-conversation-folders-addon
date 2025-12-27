@@ -1,40 +1,79 @@
-import { fetchTemplate } from '../utils/templateUtils.js';
+import Component from '../core/Component.js';
 import ConversationList from './ConversationList.js';
+// We don't strictly need fetchTemplate if we hardcode the simple header, or we can fetch it.
+// To keep it simple and consistent with Sidebar, I'll template string the header too.
 
-export default class FolderList {
-    constructor() {
-        this.conversationList = new ConversationList();
+export default class FolderList extends Component {
+    constructor(props) {
+        super(props);
+        this.conversationList = new ConversationList({}); // Placeholder or utility access
     }
 
-    async render(folders, openFolderStates, eventHandler, dragAndDropHandler) {
-        const foldersListUl = document.getElementById('folders-list-ul');
-        if (!foldersListUl) return;
+    render() {
+        // We render the container. Content is added in afterRender to support child components.
+        return `<ul id="folders-list-ul"></ul>`;
+    }
 
-        foldersListUl.innerHTML = ''; // Clear existing content
+    async afterRender() {
+        // This is called when we create the list. 
+        // However, ui.js often calls render(folders, ...) explicitly.
+        // So we might need a method "updateList(folders, ...)" instead of relying on constructor props only?
+        // Or we rely on ui.js calling setState or re-creating it.
+        // For compatibility with ui.js which calls "renderFolders", I should implement that method.
+    }
+    
+    /**
+     * Main method called by UI to update the list.
+     * Replaces the logic of the old render().
+     */
+    async renderFolders(folders, openFolderStates, eventHandler, dragAndDropHandler) {
+        // Logic similar to old render() but using Component structure where possible
+        
+        let listContainer = document.getElementById('folders-list-ul');
+        if (!listContainer) {
+            // Should be in Sidebar, but if missing (detached), we can't do much.
+            return;
+        }
 
-        // Check for empty state
+        listContainer.innerHTML = ''; // Clear
+
         if (!folders || Object.keys(folders).length === 0) {
-            const emptyStateTemplate = await fetchTemplate('src/templates/emptyState.html'); // Assuming emptyState.html is in src/templates
-            foldersListUl.innerHTML = emptyStateTemplate;
+            listContainer.innerHTML = `
+                <div class="empty-state-container">
+                    <div class="empty-state-icon-wrapper">
+                        <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color"
+                            aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open"
+                            fonticon="folder_open"></mat-icon>
+                    </div>
+                    <p class="empty-state-text">No tienes carpetas aún.</p>
+                    <p class="empty-state-subtext">¡Crea una para empezar a organizar!</p>
+                </div>`;
             return;
         }
 
         const sortedFolderNames = Object.keys(folders).sort();
 
-        const folderElements = await Promise.all(sortedFolderNames.map(folderName => {
+        for (const folderName of sortedFolderNames) {
             const folder = folders[folderName];
-            return this.createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler);
-        }));
-
-        folderElements.forEach(folderContainer => foldersListUl.appendChild(folderContainer));
+            const folderEl = await this.createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler);
+            listContainer.appendChild(folderEl);
+        }
     }
 
     async createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler) {
         const folderContainer = document.createElement('li');
         folderContainer.classList.add('gemini-folder-item');
 
-        const folderHeader = await this.createFolderHeader(folderName, dragAndDropHandler);
-        const conversationsWrapper = await this.conversationList.createWrapper(folderName, folder, eventHandler, dragAndDropHandler);
+        const folderHeader = this.createFolderHeader(folderName, dragAndDropHandler);
+        
+        // Use ConversationList component
+        const convListComponent = new ConversationList({
+            folderName,
+            conversations: folder,
+            eventHandler,
+            dragAndDropHandler
+        });
+        const conversationsWrapper = convListComponent.create(); // This calls render and afterRender (listeners attached)
 
         folderContainer.appendChild(folderHeader);
         folderContainer.appendChild(conversationsWrapper);
@@ -56,18 +95,24 @@ export default class FolderList {
         return folderContainer;
     }
 
-    async createFolderHeader(folderName, dragAndDropHandler) {
+    createFolderHeader(folderName, dragAndDropHandler) {
         const folderHeader = document.createElement('div');
         folderHeader.classList.add('title-container');
         folderHeader.setAttribute('role', 'button');
         folderHeader.setAttribute('tabindex', '0');
         folderHeader.dataset.folderName = folderName;
+        
+        // We can add listeners immediately if we have the handler
         folderHeader.addEventListener('dragover', dragAndDropHandler.handleDragOver.bind(dragAndDropHandler));
         folderHeader.addEventListener('dragleave', dragAndDropHandler.handleDragLeave.bind(dragAndDropHandler));
         folderHeader.addEventListener('drop', dragAndDropHandler.handleDrop.bind(dragAndDropHandler));
 
-        const template = await fetchTemplate('src/templates/folderHeader.html');
-        folderHeader.innerHTML = template.replace(/{{folderName}}/g, folderName);
+        folderHeader.innerHTML = `
+            <span class="title gds-label-l gemini-folder-title" data-folder-name="${folderName}">${folderName}</span>
+            <button class="edit-folder-btn" title="Renombrar carpeta: &quot;${folderName}&quot;" data-folder-name="${folderName}"><mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="edit" fonticon="edit"></mat-icon></button>
+            <button class="delete-folder-btn" title="Eliminar carpeta: &quot;${folderName}&quot;" data-folder-name="${folderName}"><mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon></button>
+            <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color gemini-expand-icon" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="expand_more" fonticon="expand_more"></mat-icon>
+        `;
 
         return folderHeader;
     }
@@ -94,6 +139,8 @@ export default class FolderList {
 
     filter(searchTerm) {
         const foldersListUl = document.getElementById('folders-list-ul');
+        if (!foldersListUl) return;
+
         const folderItems = foldersListUl.querySelectorAll('.gemini-folder-item');
 
         folderItems.forEach(folderItem => {
@@ -107,7 +154,7 @@ export default class FolderList {
             let anyConversationMatches = false;
 
             conversationItems.forEach(convItem => {
-                const convTitle = convItem.querySelector('.conversation-title').textContent.toLowerCase();
+                const convTitle = convItem.dataset.convTitle.toLowerCase(); // Use dataset since we set it
                 if (convTitle.includes(searchTerm)) {
                     convItem.style.display = '';
                     anyConversationMatches = true;

@@ -1,50 +1,57 @@
-import { fetchTemplate } from '../utils/templateUtils.js';
+import Component from '../core/Component.js';
 import { showToast } from '../utils.js';
 
-export default class ConversationList {
-    constructor() {
+export default class ConversationList extends Component {
+    constructor(props) {
+        super(props);
+        this.openChat = this.openChat.bind(this);
     }
 
-    async createWrapper(folderName, conversations, eventHandler, dragAndDropHandler) {
-        const conversationsWrapper = document.createElement('div');
-        conversationsWrapper.classList.add('conversations-list-wrapper');
+    render() {
+        const { folderName, conversations } = this.props;
 
-        const conversationsUl = document.createElement('ul');
-        conversationsUl.classList.add('conversation-items-container', 'side-nav-opened');
-        conversationsUl.dataset.folderName = folderName;
-        conversationsUl.addEventListener('dragover', dragAndDropHandler.handleConversationListDragOver.bind(dragAndDropHandler));
-        conversationsUl.addEventListener('drop', dragAndDropHandler.handleConversationListDrop.bind(dragAndDropHandler));
+        const listItemsFn = (conv, index) => `
+            <li class="conversation-item-wrapper" draggable="true" 
+                data-folder-name="${folderName}" 
+                data-conv-id="${conv.id}" 
+                data-conv-title="${conv.title}" 
+                data-conv-url="${conv.url}" 
+                data-original-index="${index}">
+                <div class="conversation-item-content">
+                    <div class="conversation-title gds-body-m" data-folder-name="${folderName}" data-conv-id="${conv.id}" style="flex-grow: 1; cursor: pointer;" title="${conv.title}">${conv.title}</div>
+                    <button class="delete-conversation-btn" title="Eliminar conversación: &quot;${conv.title}&quot;" data-folder-name="${folderName}" data-conv-id="${conv.id}"><mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="delete" fonticon="delete"></mat-icon></button>
+                </div>
+            </li>
+        `;
 
-        const conversationItems = await Promise.all(conversations.map((conv, index) =>
-            this.createItem(conv, folderName, index, eventHandler, dragAndDropHandler)
-        ));
-
-        conversationItems.forEach(convItem => conversationsUl.appendChild(convItem));
-
-        conversationsWrapper.appendChild(conversationsUl);
-        return conversationsWrapper;
+        return `
+            <div class="conversations-list-wrapper">
+                <ul class="conversation-items-container side-nav-opened" data-folder-name="${folderName}">
+                    ${conversations.map(listItemsFn).join('')}
+                </ul>
+            </div>
+        `;
     }
 
-    async createItem(conv, folderName, index, eventHandler, dragAndDropHandler) {
-        const convItem = document.createElement('li');
-        convItem.classList.add('conversation-item-wrapper');
-        convItem.setAttribute('draggable', 'true');
-        convItem.dataset.folderName = folderName;
-        convItem.dataset.convId = conv.id;
-        convItem.dataset.convTitle = conv.title;
-        convItem.dataset.convUrl = conv.url;
-        convItem.dataset.originalIndex = index;
-        convItem.addEventListener('dragstart', dragAndDropHandler.handleDragStart.bind(dragAndDropHandler));
-        convItem.addEventListener('dragend', (event) => event.target.classList.remove('is-dragging'));
+    afterRender() {
+        const { eventHandler, dragAndDropHandler } = this.props;
+        const ul = this.element.querySelector('ul');
+        
+        if (dragAndDropHandler && ul) {
+            ul.addEventListener('dragover', dragAndDropHandler.handleConversationListDragOver.bind(dragAndDropHandler));
+            ul.addEventListener('drop', dragAndDropHandler.handleConversationListDrop.bind(dragAndDropHandler));
+        }
 
-        const template = await fetchTemplate('src/templates/conversationItem.html');
-        convItem.innerHTML = template
-            .replace(/{{folderName}}/g, folderName)
-            .replace(/{{convId}}/g, conv.id)
-            .replace(/{{convTitle}}/g, conv.title);
-
-        eventHandler.addConversationListeners(convItem);
-        return convItem;
+        const items = this.element.querySelectorAll('.conversation-item-wrapper');
+        items.forEach(item => {
+            if (dragAndDropHandler) {
+                item.addEventListener('dragstart', dragAndDropHandler.handleDragStart.bind(dragAndDropHandler));
+                item.addEventListener('dragend', (event) => event.target.classList.remove('is-dragging'));
+            }
+            if (eventHandler) {
+                eventHandler.addConversationListeners(item);
+            }
+        });
     }
 
     async openChat(conversationId, sidebar) {
@@ -53,7 +60,6 @@ export default class ConversationList {
             let targetConversationElement = document.querySelector(selector);
 
             if (!targetConversationElement) {
-                // Retry once after a short delay
                 await new Promise(resolve => setTimeout(resolve, 500));
                 targetConversationElement = document.querySelector(selector);
             }

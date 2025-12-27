@@ -1,14 +1,15 @@
 import Sidebar from './components/Sidebar.js';
 import FolderList from './components/FolderList.js';
 import FolderIndicator from './components/FolderIndicator.js';
-import ConversationList from './components/ConversationList.js';
+import GeminiAdapter from './services/GeminiAdapter.js';
 
 export default class UI {
     constructor() {
         this.sidebarComponent = new Sidebar();
         this.folderListComponent = new FolderList();
         this.folderIndicatorComponent = new FolderIndicator();
-        this.conversationListComponent = this.folderListComponent.conversationList;
+        this.conversationListComponent = this.folderListComponent.conversationList; // Utility access
+        this.geminiAdapter = new GeminiAdapter();
 
         this.toggleButton = null;
     }
@@ -38,7 +39,8 @@ export default class UI {
     }
 
     async renderFolders(folders, openFolderStates, eventHandler, dragAndDropHandler) {
-        return this.folderListComponent.render(folders, openFolderStates, eventHandler, dragAndDropHandler);
+        // Use the specific method for updating folders, not the generic Component.render
+        return this.folderListComponent.renderFolders(folders, openFolderStates, eventHandler, dragAndDropHandler);
     }
 
     enableFolderEditMode(folderName, folderTitleElement, deleteBtn, editBtn, expandIcon, eventHandler) {
@@ -56,20 +58,17 @@ export default class UI {
     }
 
     openGeminiChat(event) {
+        // Use the dataset from the clicked element
         const conversationId = event.target.dataset.convId;
         this.conversationListComponent.openChat(conversationId, this.sidebarComponent);
     }
 
     async addToggleButton(eventHandler, folderManager) {
-        // Updated anchor selector: prioritized 'My Stuff' button, then 'New Chat', then fallback to list container
-        const myStuffButton = document.querySelector('side-nav-entry-button[data-test-id="my-stuff-side-nav-entry-button"]');
-        const newChatButton = document.querySelector('side-nav-action-button[data-test-id="new-chat-button"]');
-        const chatHistoryList = document.querySelector('.chat-history-list');
-
-        let anchorElement = myStuffButton || newChatButton || chatHistoryList;
-        let insertPosition = myStuffButton ? 'before' : (newChatButton ? 'after' : 'before');
-
-        if (anchorElement) {
+        const insertionPoint = this.geminiAdapter.getSidebarInsertionPoint();
+        
+        if (insertionPoint) {
+            const { element: anchorElement, position } = insertionPoint;
+            
             let ourButtonWrapper = document.getElementById('gemini-organizer-wrapper');
 
             if (!ourButtonWrapper) {
@@ -78,6 +77,7 @@ export default class UI {
                 ourButtonWrapper.setAttribute('icon', 'folder_open');
                 ourButtonWrapper.setAttribute('arialabel', 'Organizador de Conversaciones');
                 ourButtonWrapper.setAttribute('data-test-id', 'gemini-organizer-button');
+                // These classes might need review if Gemini updates but keeping them for now as they are likely styling hooks
                 ourButtonWrapper.classList.add('mat-mdc-tooltip-trigger', 'ia-redesign', 'ng-star-inserted');
 
                 const button = document.createElement('button');
@@ -106,7 +106,7 @@ export default class UI {
 
                 ourButtonWrapper.appendChild(button);
                 
-                if (insertPosition === 'before') {
+                if (position === 'before') {
                     anchorElement.parentNode.insertBefore(ourButtonWrapper, anchorElement);
                 } else {
                     anchorElement.after(ourButtonWrapper);
@@ -118,9 +118,19 @@ export default class UI {
             if (!this.sidebarComponent.element) {
                 await this.initializeSidebar();
             }
+            // Ensure sidebar is in the DOM (inside our wrapper for relative positioning if needed, or just somewhere)
+            /* 
+               Original code:
+               if (this.sidebarComponent.element && !ourButtonWrapper.contains(this.sidebarComponent.element)) {
+                   ourButtonWrapper.appendChild(this.sidebarComponent.element);
+               }
+               The Sidebar CSS #gemini-organizer-sidebar is position:static but opacity:0/height:0.
+               Appending it to the wrapper makes sense for context.
+            */
             if (this.sidebarComponent.element && !ourButtonWrapper.contains(this.sidebarComponent.element)) {
                 ourButtonWrapper.appendChild(this.sidebarComponent.element);
             }
+            
             eventHandler.addEventListeners();
         }
     }
