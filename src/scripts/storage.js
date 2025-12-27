@@ -41,4 +41,13 @@ export default class  Storage {
     async setSyncEnabled(enabled) {
         return chrome.storage.sync.set({ syncEnabled: enabled });
     }
+
+    async getHasSeenOnboarding() {
+        const data = await this.storageArea.get('hasSeenOnboarding');
+        return data.hasSeenOnboarding || false;
+    }
+
+    async setHasSeenOnboarding(seen) {
+        return this.storageArea.set({ hasSeenOnboarding: seen });
+    }
 }

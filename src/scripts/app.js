@@ -5,6 +5,7 @@ import Storage from './storage.js';
 import FolderManager from './folderManager.js';
 import DragAndDrop from './dragAndDrop.js';
 import EventHandler from './eventHandler.js';
+import OnboardingTour from './components/OnboardingTour.js';
 
 if (window.geminiOrganizerAppInstance) {
     console.warn("Gemini Organizer: Intento de re-inicialización bloqueado. La instancia ya existe.");
@@ -14,6 +15,7 @@ if (window.geminiOrganizerAppInstance) {
      * Clase principal de la aplicación que inicializa y coordina todos los módulos.
      */
     class App {
+        // ... constructor remains same ...
         constructor() {
             this.ui = new UI();
             this.storage = new Storage('geminiConversations');
@@ -47,6 +49,21 @@ if (window.geminiOrganizerAppInstance) {
 
             // 1. Configura el área de almacenamiento (sync o local)
             await this.setupStorage();
+
+            // Check onboarding
+            const hasSeenOnboarding = await this.storage.getHasSeenOnboarding();
+            if (!hasSeenOnboarding) {
+                const tour = new OnboardingTour({
+                    onClose: async () => {
+                        await this.storage.setHasSeenOnboarding(true);
+                        // Abrir sidebar automáticamente para que el usuario vea la herramienta
+                        if (this.ui.sidebar && this.ui.sidebar.classList.contains('hidden')) {
+                            this.ui.toggleSidebarVisibility();
+                        }
+                    }
+                });
+                tour.mount(document.body);
+            }
 
             // 2. Espera a que la página esté inactiva para añadir la UI principal
             window.requestIdleCallback(async () => {
