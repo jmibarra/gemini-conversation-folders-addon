@@ -182,4 +182,22 @@ export default class FolderList extends Component {
             }
         });
     }
+
+    getOpenFolderStates() {
+        const openFolderStates = {};
+        const foldersListUl = document.getElementById('folders-list-ul');
+        if (foldersListUl) {
+            foldersListUl.querySelectorAll('.gemini-folder-item').forEach(folderItem => {
+                const titleEl = folderItem.querySelector('.gemini-folder-title');
+                if (titleEl) {
+                    const folderName = titleEl.dataset.folderName;
+                    const conversationsWrapper = folderItem.querySelector('.conversations-list-wrapper');
+                    if (conversationsWrapper && !conversationsWrapper.classList.contains('hidden')) {
+                         openFolderStates[folderName] = true;
+                    }
+                }
+            });
+        }
+        return openFolderStates;
+    }
 }

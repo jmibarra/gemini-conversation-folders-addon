@@ -1,4 +1,4 @@
-import Storage from '../src/scripts/storage.js';
+import Storage from '../src/scripts/services/Storage.js';
 
 // Mock chrome.storage
 global.chrome = {

@@ -1,4 +1,4 @@
-import FolderManager from '../src/scripts/folderManager.js';
+import FolderManager from '../src/scripts/services/FolderManager.js';
 
 // Mock dependencies
 const mockStorage = {
@@ -8,6 +8,7 @@ const mockStorage = {
 
 const mockUI = {
     renderFolders: jest.fn(),
+    getOpenFolderStates: jest.fn(),
 };
 
 // Mock utils
@@ -25,59 +26,71 @@ describe('FolderManager', () => {
     beforeEach(() => {
         folderManager = new FolderManager(mockStorage, mockUI);
         jest.clearAllMocks();
-
-        // Mock DOM elements needed for createFolder
-        document.body.innerHTML = `
-      <input id="new-folder-name" value="New Folder" />
-      <ul id="folders-list-ul"></ul>
-    `;
     });
 
     test('loadAndDisplayFolders should fetch folders and render them', async () => {
         const mockFolders = { 'Folder 1': [] };
+        const mockOpenStates = { 'Folder 1': true };
+        
         mockStorage.getFolders.mockResolvedValue(mockFolders);
+        mockUI.getOpenFolderStates.mockReturnValue(mockOpenStates);
 
         await folderManager.loadAndDisplayFolders();
 
         expect(mockStorage.getFolders).toHaveBeenCalled();
-        expect(mockUI.renderFolders).toHaveBeenCalledWith(mockFolders, expect.any(Object), undefined, undefined);
-    });
-
-    test('loadAndDisplayFolders should render empty state if no folders', async () => {
-        const mockFolders = {};
-        mockStorage.getFolders.mockResolvedValue(mockFolders);
-
-        await folderManager.loadAndDisplayFolders();
-
-        expect(mockStorage.getFolders).toHaveBeenCalled();
-        expect(mockUI.renderFolders).toHaveBeenCalledWith(mockFolders, expect.any(Object), undefined, undefined);
+        expect(mockUI.getOpenFolderStates).toHaveBeenCalled();
+        expect(mockUI.renderFolders).toHaveBeenCalledWith(mockFolders, mockOpenStates, undefined, undefined);
     });
 
     test('createFolder should create a new folder if it does not exist', async () => {
         mockStorage.getFolders.mockResolvedValue({});
 
-        await folderManager.createFolder();
+        await folderManager.createFolder('New Folder');
 
         expect(mockStorage.saveFolders).toHaveBeenCalledWith({ 'New Folder': [] });
-        expect(showToast).toHaveBeenCalledWith(expect.stringContaining('creada exitosamente'), 'success');
     });
 
-    test('createFolder should not create folder if name is empty', async () => {
-        document.getElementById('new-folder-name').value = '';
-
-        await folderManager.createFolder();
-
+    test('createFolder should throw error if name is empty', async () => {
+        await expect(folderManager.createFolder('')).rejects.toThrow("El nombre de la carpeta no puede estar vacío.");
         expect(mockStorage.saveFolders).not.toHaveBeenCalled();
-        expect(showToast).toHaveBeenCalledWith(expect.stringContaining('ingresa un nombre'), 'warning');
     });
 
-    test('createFolder should not create folder if it already exists', async () => {
-        mockStorage.getFolders.mockResolvedValue({ 'New Folder': [] });
+    test('createFolder should throw error if folder already exists', async () => {
+        mockStorage.getFolders.mockResolvedValue({ 'Existing Folder': [] });
 
-        await folderManager.createFolder();
-
+        await expect(folderManager.createFolder('Existing Folder')).rejects.toThrow('La carpeta "Existing Folder" ya existe.');
         expect(mockStorage.saveFolders).not.toHaveBeenCalled();
-        expect(showToast).toHaveBeenCalledWith(expect.stringContaining('ya existe'), 'warning');
+    });
+
+    test('renameFolder should rename folder correctly', async () => {
+        const initialFolders = { 'OldName': [{ id: '1', title: 'Chat' }] };
+        mockStorage.getFolders.mockResolvedValue(initialFolders);
+
+        await folderManager.renameFolder('OldName', 'NewName');
+
+        expect(mockStorage.saveFolders).toHaveBeenCalledWith({ 'NewName': [{ id: '1', title: 'Chat' }] });
+    });
+
+    test('renameFolder should throw error if new name exists', async () => {
+         const initialFolders = { 'OldName': [], 'ExistingName': [] };
+         mockStorage.getFolders.mockResolvedValue(initialFolders);
+
+         await expect(folderManager.renameFolder('OldName', 'ExistingName')).rejects.toThrow('Ya existe una carpeta con el nombre "ExistingName".');
+    });
+
+    test('deleteFolder should delete valid folder', async () => {
+        const initialFolders = { 'FolderToDelete': [] };
+        mockStorage.getFolders.mockResolvedValue(initialFolders);
+
+        await folderManager.deleteFolder('FolderToDelete');
+        
+        expect(mockStorage.saveFolders).toHaveBeenCalledWith({});
+    });
+    
+    test('deleteFolder should throw error if folder does not exist', async () => {
+        mockStorage.getFolders.mockResolvedValue({});
+
+        await expect(folderManager.deleteFolder('NonExistent')).rejects.toThrow("La carpeta especificada no existe.");
     });
 
     test('saveCurrentConversation should save conversation to folder', async () => {
@@ -86,6 +99,7 @@ describe('FolderManager', () => {
         mockStorage.getFolders.mockResolvedValue({ 'Target Folder': [] });
 
         // Mock window.location.href
+        const originalLocation = window.location;
         delete window.location;
         window.location = { href: 'https://gemini.google.com/app/123' };
 
@@ -97,5 +111,7 @@ describe('FolderManager', () => {
             ]
         });
         expect(showToast).toHaveBeenCalledWith(expect.stringContaining('guardada en la carpeta'), 'success');
+        
+        window.location = originalLocation;
     });
 });

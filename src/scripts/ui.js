@@ -57,6 +57,10 @@ export default class UI {
         return this.folderIndicatorComponent.display(folderName);
     }
 
+    getOpenFolderStates() {
+        return this.folderListComponent.getOpenFolderStates();
+    }
+
     openGeminiChat(event) {
         // Use the dataset from the clicked element
         const conversationId = event.target.dataset.convId;
