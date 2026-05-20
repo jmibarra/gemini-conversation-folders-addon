@@ -11,11 +11,13 @@
 * **Crear Carpetas:** Organiza tus conversaciones en categorías personalizadas.
 * **Guardar Conversaciones:** Guarda el título y el enlace de la conversación actual en una carpeta.
 * **Abrir Conversaciones:** Haz clic en un título guardado para regresar instantáneamente a esa conversación en Gemini.
-* **Eliminar Conversaciones:** Mantén tus carpetas limpias eliminando las conversaciones que ya no necesitas.
-* **Interfaz Integrada:** Un botón "Organizador" en la barra lateral de Gemini para invocar el panel, que aparece discretamente en la parte inferior derecha.
-* **Indicador de carpeta actual de conversación:** Entiende rápidamente en que carpeta está tu conversación ![Captura de pantalla etiqueta de conversación](images/conversation-label.png)
-* **Guarda tu conversación con 1 click:** Desde el menú contextual podés guardar la conversación actual en una carpeta. ![Captura de pantalla menu contextual](images/context-menu.png)
-* **Sincronización multidispositivos:** Desde la versión 1.1.4 se puede activar la sincronización con tu cuenta de Google gracias al chrome.storage.sync 
+* **Eliminar Conversaciones y Carpetas:** Mantén tu espacio de trabajo limpio eliminando conversaciones o carpetas completas que ya no necesites.
+* **Interfaz Integrada Nativamente:** Se inserta directamente en la barra lateral izquierda de Gemini bajo el botón "Nueva conversación", desplegando las carpetas fluidamente de forma integrada.
+* **Arrastrar y Soltar (Drag & Drop):** Ordena y mueve tus chats entre carpetas de forma completamente visual.
+* **Búsqueda en Tiempo Real:** Filtra tus carpetas y conversaciones al instante con la barra de búsqueda integrada.
+* **Indicador de Carpeta Activa:** Identifica rápidamente en qué carpeta está el chat activo actual mediante una etiqueta flotante: ![Captura de pantalla etiqueta de conversación](images/conversation-label.png)
+* **Guarda tu conversación con 1 click:** Desde el menú contextual (clic derecho) puedes guardar la conversación actual en la carpeta seleccionada: ![Captura de pantalla menu contextual](images/context-menu.png)
+* **Sincronización multidispositivos:** Sincroniza tus carpetas con tu cuenta de Google gracias a `chrome.storage.sync`.
 * **Importar y Exportar:** Realiza copias de seguridad de todas tus carpetas y conversaciones en un archivo `.json`. Importa desde un archivo de respaldo para restaurar o fusionar tus datos fácilmente.
 
 **Opciones de la herramienta**
@@ -81,8 +83,8 @@ Para instalar esta extensión localmente, necesitarás Node.js y npm instalados 
 ## 💡 **Cómo Usar:**
 
 1.  Abre `https://gemini.google.com/` en tu navegador.
-2.  Verás un nuevo botón **"Mis conversaciones"** en la barra lateral izquierda de Gemini (debajo de "Descubrir Gems"). Haz clic en él para abrir/cerrar el panel.
-3.  Usa el panel para crear carpetas, guardar la conversación actual y acceder a tus chats guardados.
+2.  Verás un nuevo botón **"Mis conversaciones"** en la barra lateral izquierda de Gemini (justo debajo de "Nueva conversación"). Haz clic en él para desplegar o colapsar tus carpetas organizadas.
+3.  Usa el panel integrado para crear carpetas, buscar conversaciones, arrastrar chats y configurar la sincronización.
 
 ---
 
