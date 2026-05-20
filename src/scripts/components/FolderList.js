@@ -54,9 +54,13 @@ export default class FolderList extends Component {
         const sortedFolderNames = Object.keys(folders).sort();
 
         for (const folderName of sortedFolderNames) {
-            const folder = folders[folderName];
-            const folderEl = await this.createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler);
-            listContainer.appendChild(folderEl);
+            try {
+                const folder = folders[folderName];
+                const folderEl = await this.createFolderElement(folderName, folder, openFolderStates, eventHandler, dragAndDropHandler);
+                listContainer.appendChild(folderEl);
+            } catch (error) {
+                console.error(`Error rendering folder: ${folderName}`, error);
+            }
         }
     }
 
@@ -78,7 +82,11 @@ export default class FolderList extends Component {
         folderContainer.appendChild(folderHeader);
         folderContainer.appendChild(conversationsWrapper);
 
-        const [folderTitle, editButton, deleteButton, expandIcon] = folderHeader.children;
+        const children = folderHeader.children;
+        const folderTitle = children[0];
+        const editButton = children[1];
+        const deleteButton = children[2];
+        const expandIcon = children[3];
 
         eventHandler.addFolderInteractionListeners(folderHeader, conversationsWrapper, expandIcon, editButton, deleteButton, folderName, folderTitle);
 

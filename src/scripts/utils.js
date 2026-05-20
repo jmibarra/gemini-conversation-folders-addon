@@ -1,5 +1,5 @@
 export function extractConversationTitle() {
-    const selectedConversationTitleElement = document.querySelector('.conversation.selected .conversation-title');
+    const selectedConversationTitleElement = document.querySelector('.conversation.selected .conversation-title') || document.querySelector('.is-active .title-text');
     if (selectedConversationTitleElement) {
         return selectedConversationTitleElement.textContent.trim();
     }
@@ -96,11 +96,11 @@ export function extractRealConversationIdFromCurrentUrl() {
  */
 export function getActiveConversationId() {
     // 1. Método Principal: Desde el elemento seleccionado en la lista de chats
-    const selectedConversation = document.querySelector('.conversation.selected');
+    const selectedConversation = document.querySelector('.conversation.selected') || document.querySelector('.is-active');
     if (selectedConversation) {
-        const jslog = selectedConversation.getAttribute('jslog');
+        const jslog = selectedConversation.getAttribute('jslog') || (selectedConversation.tagName.toLowerCase() === 'a' ? selectedConversation.getAttribute('jslog') : null);
         if (jslog) {
-            const match = jslog.match(/BardVeMetadataKey:\[[^\]]*\\x22c_([^\x22]+)\\x22/);
+            const match = jslog.match(/["']c_([^"']+)["']/);
             if (match && match[1]) {
                 return match[1];
             }

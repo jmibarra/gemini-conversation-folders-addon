@@ -12,14 +12,21 @@ export default class FolderIndicator {
         }
 
         // 1. Esperamos a que aparezca un elemento estable y único: el botón "PRO".
-        const proButtonPillbox = await waitForElement('div[data-test-id="pillbox"]');
+        let targetContainer = null;
+        const proButtonPillbox = await waitForElement('div[data-test-id="pillbox"]', 1500);
 
-        // 2. A partir de ahí, encontramos el contenedor padre que agrupa todos los botones.
-        const targetContainer = proButtonPillbox ? proButtonPillbox.closest('.buttons-container') : null;
+        if (proButtonPillbox) {
+            // 2. A partir de ahí, encontramos el contenedor padre que agrupa todos los botones.
+            targetContainer = proButtonPillbox.closest('.buttons-container');
+        }
 
         if (!targetContainer) {
-            // Si después de esperar sigue sin encontrarlo, el error nos dará una pista.
-            console.error('No se pudo encontrar el contenedor de botones (`.buttons-container`) para el indicador.');
+            // Fallbacks for the new UI
+            targetContainer = document.querySelector('header') || document.querySelector('top-bar') || document.querySelector('main');
+        }
+
+        if (!targetContainer) {
+            console.error('No se pudo encontrar un contenedor válido (header, main o .buttons-container) para el indicador.');
             return;
         }
 

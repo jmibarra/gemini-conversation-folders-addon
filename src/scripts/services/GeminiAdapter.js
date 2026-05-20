@@ -6,8 +6,8 @@
 export default class GeminiAdapter {
     constructor() {
         this.selectors = {
-            myStuffButton: 'side-nav-entry-button[data-test-id="my-stuff-side-nav-entry-button"]',
-            newChatButton: 'side-nav-action-button[data-test-id="new-chat-button"]',
+            myStuffButton: '[data-test-id="my-stuff-side-nav-entry-button"]',
+            newChatButton: '[data-test-id="new-chat-button"]',
             chatHistoryList: '.chat-history-list',
             sidebarContainer: 'mat-sidenav-container', // Broad container, might need refinement
             mainContent: 'main',
@@ -20,14 +20,25 @@ export default class GeminiAdapter {
      * @returns {{ element: HTMLElement, position: 'before' | 'after' } | null}
      */
     getSidebarInsertionPoint() {
-        const myStuff = document.querySelector(this.selectors.myStuffButton);
-        if (myStuff) return { element: myStuff, position: 'before' };
+        // Prioritize New Chat button to place it at the very top of the sidebar
+        const newChat = document.querySelector('[data-test-id="new-chat-button"]');
+        if (newChat) {
+            return { element: newChat, position: 'after' };
+        }
 
-        const newChat = document.querySelector(this.selectors.newChatButton);
-        if (newChat) return { element: newChat, position: 'after' };
+        // Fallbacks
+        const chatsSectionContent = document.querySelector('expandable-section[data-test-id="chats-expandable-section"] .expandable-section-content');
+        if (chatsSectionContent) {
+            return { element: chatsSectionContent, position: 'before' };
+        }
 
         const historyList = document.querySelector(this.selectors.chatHistoryList);
-        if (historyList) return { element: historyList.parentNode, position: 'before' }; // Insert before the list container usually
+        if (historyList) {
+            return { element: historyList, position: 'before' };
+        }
+
+        const myStuff = document.querySelector(this.selectors.myStuffButton);
+        if (myStuff) return { element: myStuff, position: 'after' };
 
         return null;
     }

@@ -41,8 +41,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0 16px 20px 16px;
-    padding-bottom: 15px;
+    margin: 0 12px 12px 12px; /* Reducido de 16px/20px */
+    padding-bottom: 10px; /* Reducido de 15px */
     border-bottom: 1px solid #e8eaed;
 }
 
@@ -55,21 +55,21 @@
 
 /* Estilo para los botones principales ("Carpeta", "Buscar") */
 #gemini-organizer-sidebar .sidebar-action-btn {
-    flex-grow: 1; /* Para que los botones compartan el espacio del grupo */
+    flex-grow: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px; /* Reducido */
     background-color: transparent;
     border: 1px solid #dadce0;
     color: #5f6368;
-    padding: 8px 12px; /* Más padding */
-    border-radius: 24px; /* Más redondeado (Pill shape) */
+    padding: 6px 10px; /* Reducido */
+    border-radius: 16px; /* Menos redondeado para encajar mejor */
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.85em; /* Fuente más nativa */
     font-family: 'Google Sans', sans-serif;
     font-weight: 500;
-    transition: all 0.2s ease; /* Transición suave para todo */
+    transition: all 0.2s ease;
 }
 
 #gemini-organizer-sidebar .sidebar-action-btn:hover {
@@ -155,9 +155,9 @@
 
 #gemini-organizer-sidebar .folder-controls h4,
 #gemini-organizer-sidebar .search-controls h4 {
-    font-size: 0.95em;
+    font-size: 0.85em; /* Reducido */
     color: #5f6368;
-    margin-bottom: 12px;
+    margin-bottom: 8px; /* Reducido */
     font-weight: 500;
 }
 
@@ -242,8 +242,8 @@
 
 #gemini-organizer-sidebar .gemini-folder-item {
     list-style: none !important;
-    margin-bottom: 8px; /* Más espacio entre carpetas */
-    padding: 0 8px;
+    margin-bottom: 4px; /* Reducido de 8px */
+    padding: 0 4px; /* Reducido de 8px */
     box-sizing: border-box;
 }
 
@@ -251,8 +251,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 12px;
-    border-radius: 12px; /* Menos redondeado que los botones */
+    padding: 6px 10px; /* Reducido de 10px 12px */
+    border-radius: 8px; /* Ajuste visual */
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -264,7 +264,7 @@
 #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
     flex-grow: 1;
     margin: 0 8px 0 0; 
-    font-size: 0.95em;
+    font-size: 0.85em; /* Fuente más compacta */
     color: #202124;
     font-weight: 500;
     white-space: nowrap;
@@ -310,8 +310,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 6px 10px; /* Reducido de 8px 12px */
+    border-radius: 6px;
     background-color: transparent;
     transition: background-color 0.2s ease, transform 0.1s ease;
     cursor: pointer;
@@ -338,25 +338,20 @@
 /* --- BOTÓN DE INVOCACIÓN Y OTROS --- */
 
 #gemini-organizer-toggle-btn {
-    background: none;
-    border: none;
-    color: #202124;
     width: 100%;
-    padding: 12px 16px; 
-    display: flex;
-    align-items: center;
-    gap: 12px;
     cursor: pointer;
-    text-align: left;
-    border-radius: 20px;
-    transition: background-color 0.2s ease;
     font-family: 'Google Sans', sans-serif;
-    font-size: 0.9em;
-    font-weight: 500;
+    transition: opacity 0.2s ease;
 }
 
-#gemini-organizer-toggle-btn:hover {
-    background-color: #e8f0fe;
+.gemini-organizer-toggle-icon {
+    /* Dejamos que el componente nativo maneje el tamaño, pero aseguramos color por si acaso */
+    color: #444746;
+}
+
+.gemini-organizer-toggle-text {
+    overflow: hidden;
+    text-overflow: clip; 
 }
 
 #gemini-organizer-wrapper {
@@ -619,6 +614,16 @@
     background-color: rgba(138, 180, 248, 0.12);
 }
 
+.dark-theme #gemini-organizer-toggle-btn {
+    color: #e3e3e3;
+}
+.dark-theme #gemini-organizer-toggle-btn:hover {
+    background-color: rgba(227, 227, 227, 0.08);
+}
+.dark-theme .gemini-organizer-toggle-icon {
+    color: #e3e3e3;
+}
+
 /* Empty State Dark Mode */
 .dark-theme .empty-state-icon-wrapper {
     background-color: #3c4043;
@@ -638,12 +643,12 @@
 #gemini-organizer-sidebar .folders-list-header {
     display: flex;
     align-items: center;
-    margin: 0 16px 12px 16px;
+    margin: 0 12px 8px 12px; /* Reducido */
 }
 
 #gemini-organizer-sidebar .folders-list-header h4 {
     margin: 0;
-    font-size: 0.95em;
+    font-size: 0.85em; /* Reducido */
     color: #5f6368;
     font-weight: 500;
 }
@@ -689,9 +694,14 @@
     font-family: 'Google Sans', sans-serif;
     font-size: 0.9em;
     font-weight: 500;
-    margin: 0 16px 0 0; /* Espacio a la derecha */
-    flex-shrink: 0; /* Evita que se encoja si hay poco espacio */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    /* Posicionamiento fijo para que flote sin romper el layout original de Gemini */
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9000;
+    pointer-events: none; /* Para que no interfiera con clics debajo */
 }
 
 #gemini-organizer-folder-indicator mat-icon {

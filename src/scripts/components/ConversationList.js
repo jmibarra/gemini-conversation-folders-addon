@@ -56,7 +56,7 @@ export default class ConversationList extends Component {
 
     async openChat(conversationId, sidebar) {
         if (conversationId) {
-            const selector = '.chat-history-list .conversation[jslog*="\\"c_' + conversationId + '\\""]';
+            const selector = `.chat-history-list [jslog*="c_${conversationId}"]`;
             let targetConversationElement = document.querySelector(selector);
 
             if (!targetConversationElement) {

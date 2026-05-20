@@ -76,36 +76,30 @@ export default class UI {
             let ourButtonWrapper = document.getElementById('gemini-organizer-wrapper');
 
             if (!ourButtonWrapper) {
-                ourButtonWrapper = document.createElement('side-nav-action-button');
+                ourButtonWrapper = document.createElement('div');
                 ourButtonWrapper.id = 'gemini-organizer-wrapper';
-                ourButtonWrapper.setAttribute('icon', 'folder_open');
-                ourButtonWrapper.setAttribute('arialabel', 'Organizador de Conversaciones');
                 ourButtonWrapper.setAttribute('data-test-id', 'gemini-organizer-button');
-                // These classes might need review if Gemini updates but keeping them for now as they are likely styling hooks
-                ourButtonWrapper.classList.add('mat-mdc-tooltip-trigger', 'ia-redesign', 'ng-star-inserted');
 
-                const button = document.createElement('button');
+                const button = document.createElement('gem-nav-list-item');
                 button.id = 'gemini-organizer-toggle-btn';
-                button.classList.add(
-                    'mat-mdc-list-item', 'mdc-list-item', 'side-nav-action-button',
-                    'explicit-gmat-override', 'mat-mdc-list-item-interactive',
-                    'mdc-list-item--with-leading-icon', 'mat-mdc-list-item-single-line',
-                    'mdc-list-item--with-one-line', 'ng-star-inserted'
-                );
-                button.type = 'button';
-                button.setAttribute('aria-label', 'Organizador de Conversaciones');
-                button.setAttribute('aria-disabled', 'false');
+                button.classList.add('ng-star-inserted');
 
                 button.innerHTML = `
-                    <div matlistitemicon="" class="mat-mdc-list-item-icon icon-container mdc-list-item__start" style="margin-left: 0px;margin-right: 0px;">
-                        <mat-icon role="img" class="mat-icon notranslate gds-icon-l google-symbols mat-ligature-font mat-icon-no-color ng-star-inserted" aria-hidden="true" data-mat-icon-type="font" data-mat-icon-name="folder_open" fonticon="folder_open"></mat-icon>
-                    </div>
-                    <span class="mdc-list-item__content">
-                        <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
-                            <span data-test-id="side-nav-action-button-content" class="gds-body-m">Mis conversaciones</span>
+                    <a mat-list-item="" class="mat-mdc-list-item mdc-list-item gem-nav-list-item gmat-override mat-mdc-list-item-interactive mat-mdc-list-item-single-line mdc-list-item--with-one-line mdc-list-item--with-leading-icon" tabindex="0" role="button" aria-label="Organizador de Conversaciones" style="cursor: pointer;">
+                        <div matlistitemicon="" class="mat-mdc-list-item-icon leading-icon-container mdc-list-item__start">
+                            <gem-icon class="gem-nav-list-item-icon">
+                                <mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font">folder_open</mat-icon>
+                            </gem-icon>
+                        </div>
+                        <span class="mdc-list-item__content">
+                            <span class="mat-mdc-list-item-unscoped-content mdc-list-item__primary-text">
+                                <span class="label-and-badge">
+                                    <span class="title-text gds-emphasized-body-s">Mis conversaciones</span>
+                                </span>
+                            </span>
                         </span>
-                    </span>
-                    <div class="mat-focus-indicator"></div>
+                        <div class="mat-focus-indicator"></div>
+                    </a>
                 `;
 
                 ourButtonWrapper.appendChild(button);

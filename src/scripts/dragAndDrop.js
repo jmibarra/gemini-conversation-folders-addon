@@ -7,17 +7,21 @@ export default class DragAndDrop {
     }
 
     handleDragStart(event) {
-        const geminiConversationElement = event.target.closest('.chat-history-list .conversation[data-test-id="conversation"]');
+        const geminiConversationElement = event.target.closest('.chat-history-list .conversation[data-test-id="conversation"]') || event.target.closest('.chat-history-list [data-test-id="conversation"]');
         const savedConversationElement = event.target.closest('.conversation-item-wrapper[draggable="true"]');
         let conversationData;
 
         if (geminiConversationElement) {
-            const titleElement = geminiConversationElement.querySelector('.conversation-title');
+            const titleElement = geminiConversationElement.querySelector('.conversation-title') || geminiConversationElement.querySelector('.title-text');
             const convTitle = titleElement ? titleElement.textContent.trim() : 'Conversación sin título';
             let realConversationId = null;
             let convUrl = '';
 
-            const jslogAttribute = geminiConversationElement.getAttribute('jslog');
+            let jslogAttribute = geminiConversationElement.getAttribute('jslog');
+            if (!jslogAttribute) {
+                const aTag = geminiConversationElement.querySelector('a');
+                if (aTag) jslogAttribute = aTag.getAttribute('jslog');
+            }
             if (jslogAttribute) {
                 // More robust regex to match "c_..." anywhere in the string, inside quotes
                 const match = jslogAttribute.match(/["']c_([^"']+)["']/);
@@ -174,7 +178,7 @@ export default class DragAndDrop {
     }
 
     async setupDraggableConversations() {
-        const recentConversations = document.querySelectorAll('.chat-history-list .conversation[data-test-id="conversation"]');
+        const recentConversations = document.querySelectorAll('.chat-history-list [data-test-id="conversation"], .chat-history-list .conversation[data-test-id="conversation"]');
 
         const allSavedConversations = await this.storage.getFolders();
         const savedIds = new Set();
@@ -190,7 +194,11 @@ export default class DragAndDrop {
                 convElement.setAttribute('data-draggable-setup', 'true');
             }
 
-            const jslogAttribute = convElement.getAttribute('jslog');
+            let jslogAttribute = convElement.getAttribute('jslog');
+            if (!jslogAttribute) {
+                const aTag = convElement.querySelector('a');
+                if (aTag) jslogAttribute = aTag.getAttribute('jslog');
+            }
             let realConversationId = null;
             if (jslogAttribute) {
                  // More robust regex to match "c_..." anywhere in the string, inside quotes
@@ -200,7 +208,7 @@ export default class DragAndDrop {
                 }
             }
 
-            const titleElement = convElement.querySelector('.conversation-title');
+            const titleElement = convElement.querySelector('.conversation-title') || convElement.querySelector('.title-text');
 
             if (realConversationId && savedIds.has(realConversationId)) {
                 convElement.classList.add('is-saved');

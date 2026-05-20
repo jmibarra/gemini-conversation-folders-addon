@@ -1,6 +1,6 @@
 {
     "name": "gemini-conversation-folders-addon",
-    "version": "1.0.0",
+    "version": "1.5.0",
     "description": "¡Bienvenido a la versión beta del Organizador de Conversaciones de Gemini! Este complemento de Chrome te permite guardar y organizar tus conversaciones de Gemini en carpetas directamente desde la interfaz de usuario de Gemini, y luego volver a abrirlas con un solo clic.",
     "main": "content.js",
     "scripts": {

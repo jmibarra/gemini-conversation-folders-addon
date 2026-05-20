@@ -157,4 +157,8 @@ async findFolderForConversation(convId) {
     setDragAndDropHandler(dragAndDropHandler) {
         this.dragAndDropHandler = dragAndDropHandler;
     }
+
+    setEventHandler(eventHandler) {
+        this.eventHandler = eventHandler;
+    }
 }
