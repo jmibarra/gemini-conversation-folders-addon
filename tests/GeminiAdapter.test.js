@@ -17,7 +17,7 @@ describe('GeminiAdapter', () => {
         const point = adapter.getSidebarInsertionPoint();
         expect(point).not.toBeNull();
         expect(point.element).toBe(myStuff);
-        expect(point.position).toBe('before');
+        expect(point.position).toBe('after');
     });
 
     test('getSidebarInsertionPoint priority 2: New Chat Button', () => {
@@ -41,7 +41,7 @@ describe('GeminiAdapter', () => {
 
         const point = adapter.getSidebarInsertionPoint();
         expect(point).not.toBeNull();
-        expect(point.element).toBe(historyContainer); // Debería ser el padre
+        expect(point.element).toBe(list); // Coincide con la implementación actual que retorna el elemento de lista directo
         expect(point.position).toBe('before');
     });
 

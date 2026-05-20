@@ -9,7 +9,7 @@
     box-shadow: none;
     font-family: 'Google Sans', sans-serif;
     color: #202124;
-    padding: 0; 
+    padding: 0 12px; /* Espaciado interno horizontal para alinear contenido */
     max-height: none; 
     overflow-y: hidden; 
     opacity: 0;
@@ -24,8 +24,10 @@
     transform: translateY(0);
     visibility: visible;
     height: auto; 
-    padding-top: 15px;
-    padding-bottom: 15px; 
+    padding-top: 8px; /* Más compacto */
+    padding-bottom: 8px; /* Más compacto */
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
 #gemini-organizer-sidebar h3 {
@@ -41,8 +43,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0 12px 12px 12px; /* Reducido de 16px/20px */
-    padding-bottom: 10px; /* Reducido de 15px */
+    margin: 0 0 8px 0; /* Alineado con el contenedor con padding */
+    padding-bottom: 8px; /* Más compacto */
     border-bottom: 1px solid #e8eaed;
 }
 
@@ -150,7 +152,7 @@
 #gemini-organizer-sidebar .search-controls {
     border-bottom: none;
     padding-bottom: 5px;
-    margin: 0 16px 10px 16px; 
+    margin: 0 4px 8px 4px; /* Alineado y más compacto */
 }
 
 #gemini-organizer-sidebar .folder-controls h4,
@@ -242,8 +244,8 @@
 
 #gemini-organizer-sidebar .gemini-folder-item {
     list-style: none !important;
-    margin-bottom: 4px; /* Reducido de 8px */
-    padding: 0 4px; /* Reducido de 8px */
+    margin-bottom: 2px; /* Reducido para mayor compacidad */
+    padding: 0; /* Removido padding extra lateral */
     box-sizing: border-box;
 }
 
@@ -251,8 +253,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 10px; /* Reducido de 10px 12px */
-    border-radius: 8px; /* Ajuste visual */
+    padding: 4px 8px; /* Reducido para mayor compacidad */
+    border-radius: 8px; 
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -264,7 +266,7 @@
 #gemini-organizer-sidebar .gemini-folder-item .title-container .title {
     flex-grow: 1;
     margin: 0 8px 0 0; 
-    font-size: 0.85em; /* Fuente más compacta */
+    font-size: 0.85em; 
     color: #202124;
     font-weight: 500;
     white-space: nowrap;
@@ -273,9 +275,9 @@
 }
 
 #gemini-organizer-sidebar .gemini-folder-item .title-container .gemini-expand-icon {
-    font-size: 20px; 
-    width: 20px;
-    height: 20px;
+    font-size: 18px; /* Reducido de 20px */
+    width: 18px;
+    height: 18px;
     color: #5f6368;
     transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
 }
@@ -296,13 +298,13 @@
 
 #gemini-organizer-sidebar .conversation-items-container {
     list-style: none !important;
-    padding: 4px 0 4px 12px; /* Indentación para las conversaciones */
+    padding: 2px 0 2px 8px; /* Reducido para compactar e identar menos */
     margin: 0;
 }
 
 #gemini-organizer-sidebar .conversation-item-wrapper {
     list-style: none !important;
-    margin-bottom: 2px;
+    margin-bottom: 1px; /* Reducido de 2px */
     padding: 0;
 }
 
@@ -310,7 +312,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 10px; /* Reducido de 8px 12px */
+    padding: 4px 8px; /* Reducido de 6px 10px */
     border-radius: 6px;
     background-color: transparent;
     transition: background-color 0.2s ease, transform 0.1s ease;
@@ -331,7 +333,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 0.9em; 
+    font-size: 0.85em; /* Reducido de 0.9em para mayor compacidad */
     color: #3c4043;
 }
 
@@ -342,6 +344,27 @@
     cursor: pointer;
     font-family: 'Google Sans', sans-serif;
     transition: opacity 0.2s ease;
+    height: 40px !important;
+    min-height: 40px !important;
+}
+
+#gemini-organizer-toggle-btn mat-icon {
+    font-size: 20px !important; /* Reducir el tamaño del icono */
+    width: 20px !important;
+    height: 20px !important;
+}
+
+/* Ajuste del padding izquierdo y alineación del botón toggle */
+#gemini-organizer-toggle-btn a.mat-mdc-list-item {
+    padding-left: 12px !important; /* Evitar que se vea corrido */
+    height: 40px !important;
+    min-height: 40px !important;
+}
+
+#gemini-organizer-toggle-btn .mdc-list-item__start {
+    margin-left: 0px !important; /* Alinear perfectamente al borde izquierdo */
+    margin-right: 12px !important; /* Ajustar el espaciado con el texto */
+    min-width: 20px !important;
 }
 
 .gemini-organizer-toggle-icon {
@@ -357,7 +380,7 @@
 #gemini-organizer-wrapper {
     list-style: none;
     margin-bottom: 8px;
-    padding: 0 8px;
+    padding: 0; /* Removido padding para alinear perfectamente con ítems nativos */
     box-sizing: border-box;
     position: static; 
 }
@@ -643,7 +666,7 @@
 #gemini-organizer-sidebar .folders-list-header {
     display: flex;
     align-items: center;
-    margin: 0 12px 8px 12px; /* Reducido */
+    margin: 0 4px 6px 4px; /* Reducido y alineado */
 }
 
 #gemini-organizer-sidebar .folders-list-header h4 {
